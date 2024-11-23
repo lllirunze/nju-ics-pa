@@ -55,13 +55,15 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
-  char *step = strtok(args, " ");
-  if (step == NULL) {
-    printf("No arguments.\n");
+  char *str = strtok(args, " ");
+  if (str == NULL) {
+    // printf("No arguments.\n");
     cpu_exec(1);
   }
   else {
-    printf("%s\n", step);
+    uint64_t step = strtoul(str, NULL, 10);
+    printf("%lu\n", step);
+    cpu_exec(step);
   }
 
   return 0;
