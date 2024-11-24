@@ -24,10 +24,10 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-  printf("I want to print out riscv-32 registers.\n");
+  // printf("I want to print out riscv-32 registers.\n");
   int i;
   for (i = 0; i < 32; i++) {
-    printf("%u\n", gpr(i));
+    printf("%d\t%u\n", i, gpr(i));
   }
 }
 
