@@ -114,11 +114,15 @@ static int cmd_x(char *args) {
     printf("Usage: x N EXPR\n");
     return 0;
   }
-  
-  // printf("%s\n", expr);
+
+  /* 
+   * todo: 
+   * simplified version, 
+   * which specifies that the expression EXPR can only contain a hexadecimal number.
+   */
   expr = expr + 2;
   vaddr_t addr = (vaddr_t)strtoul(expr, NULL, 16);
-  // printf("%08x\n", addr);
+
   int i;
   for (i = 0; i < N; i++) {
     word_t desc = vaddr_read(addr + i * 4, 4);
