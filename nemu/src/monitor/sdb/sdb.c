@@ -106,7 +106,7 @@ static int cmd_x(char *args) {
     printf("Error: Invalid value of arguments, and N need to be greater than 0.\n");
     return 0;
   }
-  printf("%d\n", N);
+  // printf("%d\n", N);
 
   char *expr = strtok(NULL, " ");
   if (expr == NULL) {
@@ -114,10 +114,10 @@ static int cmd_x(char *args) {
     printf("Usage: x N EXPR\n");
     return 0;
   }
-  printf("%s\n", expr);
-  // unsigned int addr = (unsigned int)strtoul(expr, NULL, 10);
-  // unsigned int desc = vaddr_read(addr, 4);
-  // printf("0x%08x\t%x", addr, desc);
+  // printf("%s\n", expr);
+  unsigned int addr = (unsigned int)strtoul(expr, NULL, 10);
+  unsigned int desc = vaddr_read(addr, 4);
+  printf("0x%08x\t%x", addr, desc);
 
   return 0;
 }
