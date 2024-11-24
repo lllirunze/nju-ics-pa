@@ -119,9 +119,8 @@ static int cmd_x(char *args) {
   // printf("%08x\n", addr);
   int i;
   for (i = 0; i < N; i++) {
-    word_t desc = vaddr_read(addr, 4);
-    printf("0x%08x\t0x%04x\n", addr, desc);
-    addr += 4;
+    word_t desc = vaddr_read(addr + i * 4, 4);
+    printf("0x%08x\t0x%08x\n", addr + i * 4, desc);
   }
 
   return 0;
