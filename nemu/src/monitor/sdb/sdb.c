@@ -108,13 +108,15 @@ static int cmd_x(char *args) {
   }
   // printf("%d\n", N);
 
-  char *expr = strtok(NULL, " ")+2;
+  char *expr = strtok(NULL, " ");
   if (expr == NULL) {
     printf("Error: Invalid format of arguments.\n");
     printf("Usage: x N EXPR\n");
     return 0;
   }
+  
   // printf("%s\n", expr);
+  expr = expr + 2;
   vaddr_t addr = (vaddr_t)strtoul(expr, NULL, 16);
   // printf("%08x\n", addr);
   int i;
