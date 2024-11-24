@@ -136,6 +136,19 @@ static int cmd_x(char *args) {
   return 0;
 }
 
+static int cmd_p(char *args) {
+  
+  char *str = strtok(NULL, " ");
+  if (str == NULL) {
+    printf("Error: No expression.\n");
+    printf("Usage: p EXPR\n");
+    return 0;
+  }
+  printf("%s", str);
+
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -149,6 +162,7 @@ static struct {
   { "si", "Execute the program step by step", cmd_si },
   { "info", "Print out register status or watchpoints", cmd_info },
   { "x", "Scan memory and output N consecutive 4-byte characters in hex format", cmd_x },
+  { "p", "Expression evaluation", cmd_p }, 
 
 };
 

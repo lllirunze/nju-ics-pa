@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ, TK_DECIMAL,
 
   /* TODO: Add more token types */
 
@@ -36,9 +36,16 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"==", TK_EQ},        // equal
+  {" +", TK_NOTYPE},      // spaces
+  {"\\+", '+'},           // plus
+  {"==", TK_EQ},          // equal
+  {"-", '-'},             // minus
+  {"\\*", '*'},           // multiplication
+  {"\\/", '/'},           // division
+  {"[0-9]+", TK_DECIMAL}, // decimal number
+  {"\\(", '('},           // left parenthesis
+  {"\\)", ')'},           // right parenthesis
+
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -93,8 +100,14 @@ static bool make_token(char *e) {
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
+        
+        if (substr_len > 32) {
+          printf("Error: The token is too long.");
+          assert(0);
+        }
 
         switch (rules[i].token_type) {
+          // case TK_NOTYPE: break;
           default: TODO();
         }
 
