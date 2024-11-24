@@ -116,8 +116,9 @@ static int cmd_x(char *args) {
   }
   // printf("%s\n", expr);
   unsigned int addr = (unsigned int)strtoul(expr, NULL, 10);
-  unsigned int desc = vaddr_read(addr, 4);
-  printf("0x%08x\t%x", addr, desc);
+  printf("%x\n", addr);
+  // unsigned int desc = vaddr_read(addr, 4);
+  // printf("0x%08x\t%x", addr, desc);
 
   return 0;
 }
