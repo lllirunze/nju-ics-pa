@@ -120,10 +120,10 @@ static int cmd_x(char *args) {
   int i;
   for (i = 0; i < N; i++) {
     unsigned int desc = vaddr_read(addr, 4);
-    printf("0x%08x\t%04x\n", addr, desc);
+    printf("0x%08x\t%4x\n", addr, desc);
     addr += 4;
   }
-  
+
   return 0;
 }
 
