@@ -62,9 +62,17 @@ static int cmd_si(char *args) {
   }
   else {
     uint64_t step = strtoul(str, NULL, 10);
-    printf("%lu\n", step);
+    // printf("%lu\n", step);
     cpu_exec(step);
   }
+
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  // TODO: Print out register status or watchpoints
+
+  printf("Print out register status or watchpoints.\n");
 
   return 0;
 }
@@ -80,6 +88,7 @@ static struct {
 
   /* TODO: Add more commands */
   { "si", "Execute the program step by step", cmd_si },
+  { "info", "Print out register status or watchpoints", cmd_info },
 
 };
 
