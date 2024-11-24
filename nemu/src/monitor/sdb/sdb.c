@@ -18,6 +18,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include <memory/vaddr.h>
 
 static int is_batch_mode = false;
 
@@ -112,9 +113,9 @@ static int cmd_x(char *args) {
     printf("Usage: x N EXPR\n");
     return 0;
   }
-  // vaddr_t addr = (vaddr_t)strtoul(str, NULL, 10);
-  // word_t desc = vaddr_read(addr, 4);
-  // printf();
+  unsigned int addr = (unsigned int)strtoul(str, NULL, 10);
+  unsigned int desc = vaddr_read(addr, 4);
+  printf("0x%08x\t%x", addr, desc);
 
   return 0;
 }
