@@ -63,7 +63,6 @@ static int cmd_si(char *args) {
   }
   else {
     uint64_t step = strtoul(str, NULL, 10);
-    // printf("%lu\n", step);
     cpu_exec(step);
   }
 
@@ -106,7 +105,6 @@ static int cmd_x(char *args) {
     printf("Error: Invalid value of arguments, and N need to be greater than 0.\n");
     return 0;
   }
-  // printf("%d\n", N);
 
   char *expr = strtok(NULL, " ");
   if (expr == NULL) {
@@ -115,6 +113,7 @@ static int cmd_x(char *args) {
     return 0;
   }
 
+
   /* 
    * todo: 
    * simplified version, 
@@ -122,6 +121,7 @@ static int cmd_x(char *args) {
    */
   expr = expr + 2;
   vaddr_t addr = (vaddr_t)strtoul(expr, NULL, 16);
+
 
   int i;
   for (i = 0; i < N; i++) {
@@ -138,13 +138,16 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
 
-  // char *str = strtok(NULL, " ");
   if (args == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: p EXPR\n");
     return 0;
   }
-  printf("%s\n", args);
+  // printf("%s\n", args);
+
+  bool success = true;
+  word_t result = expr(args, &success);
+  printf("%u\n", result);
 
   return 0;
 }
