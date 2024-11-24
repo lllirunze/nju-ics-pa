@@ -108,7 +108,7 @@ static int cmd_x(char *args) {
   }
   // printf("%d\n", N);
 
-  char *expr = strtok(NULL, " ");
+  char *expr = strtok(NULL, " ")+2;
   if (expr == NULL) {
     printf("Error: Invalid format of arguments.\n");
     printf("Usage: x N EXPR\n");
