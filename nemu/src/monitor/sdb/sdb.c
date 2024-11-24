@@ -137,14 +137,14 @@ static int cmd_x(char *args) {
 }
 
 static int cmd_p(char *args) {
-  
-  char *str = strtok(NULL, " ");
-  if (str == NULL) {
+
+  // char *str = strtok(NULL, " ");
+  if (args == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: p EXPR\n");
     return 0;
   }
-  printf("%s", str);
+  printf("%s\n", args);
 
   return 0;
 }
