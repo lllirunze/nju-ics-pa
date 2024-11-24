@@ -115,7 +115,7 @@ static int cmd_x(char *args) {
     return 0;
   }
   // printf("%s\n", expr);
-  unsigned int addr = (unsigned int)strtoul(expr, NULL, 10);
+  unsigned int addr = (unsigned int)strtoul(expr, NULL, 16);
   printf("%08x\n", addr);
   // unsigned int desc = vaddr_read(addr, 4);
   // printf("0x%08x\t%x", addr, desc);
