@@ -135,6 +135,7 @@ static bool make_token(char *e) {
               tokens[nr_token].priority = 2;
             }
             strncpy(tokens[nr_token].str, substr_start, substr_len);
+            printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           case '*':
@@ -150,6 +151,7 @@ static bool make_token(char *e) {
               tokens[nr_token].priority = 2;
             }
             strncpy(tokens[nr_token].str, substr_start, substr_len);
+            printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           default: break;
