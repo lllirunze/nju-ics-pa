@@ -108,7 +108,14 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
-          
+          case TK_EQ:
+            tokens[nr_token].type = TK_EQ;
+
+            nr_token++;
+            break;
+          case '+':
+            printf("%s\n", substr_start);
+            break;
           default: break;
 
           // default: TODO();
