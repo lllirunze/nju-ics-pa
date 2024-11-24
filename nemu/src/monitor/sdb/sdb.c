@@ -121,11 +121,11 @@ static int cmd_x(char *args) {
   for (i = 0; i < N; i++) {
     word_t desc = vaddr_read(addr + i * 4, 4);
     if (i % 4 == 0) printf("0x%08x\t", addr + i * 4);
-    printf("0x%08x", desc);
+    printf("0x%08x:", desc);
     if (i % 4 == 3) printf("\n");
     else printf("\t");
   }
-  if (N % 4 != 3) printf("\n");
+  if (N % 4 != 0) printf("\n");
 
   return 0;
 }
