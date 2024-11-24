@@ -30,21 +30,22 @@ enum {
 static struct rule {
   const char *regex;
   int token_type;
+  int priority;
 } rules[] = {
 
   /* TODO: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE},      // spaces
-  {"\\+", '+'},           // plus
-  {"==", TK_EQ},          // equal
-  {"-", '-'},             // minus
-  {"\\*", '*'},           // multiplication
-  {"\\/", '/'},           // division
-  {"[0-9]+", TK_DECIMAL}, // decimal number
-  {"\\(", '('},           // left parenthesis
-  {"\\)", ')'},           // right parenthesis
+  {" +", TK_NOTYPE, 0},       // spaces
+  {"\\+", '+', 4},            // plus
+  {"==", TK_EQ, 7},           // equal
+  {"-", '-', 4},              // minus
+  {"\\*", '*', 3},            // multiplication
+  {"\\/", '/', 3},            // division
+  {"[0-9]+", TK_DECIMAL, 0},  // decimal number
+  {"\\(", '(', 1},            // left parenthesis
+  {"\\)", ')', 1},            // right parenthesis
 
 };
 
@@ -72,6 +73,7 @@ void init_regex() {
 typedef struct token {
   int type;
   char str[32];
+  int priority;
 } Token;
 
 static Token tokens[32] __attribute__((used)) = {};
@@ -108,15 +110,18 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
-          // case TK_EQ:
-          //   tokens[nr_token].type = TK_EQ;
-
-          //   nr_token++;
-          //   break;
+          case TK_EQ:
           case '+':
-            tokens[nr_token].type = '+';
+          case '-':
+          case '*':
+          case '/':
+          case '(':
+          case ')':
+          case TK_DECIMAL:
+            tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
-            printf("%s\n", tokens[nr_token].str);
+            tokens[nr_token].priority = rules[i].priority;
+            printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           default: break;
