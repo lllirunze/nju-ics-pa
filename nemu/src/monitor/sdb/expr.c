@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_DECIMAL,
+  TK_NOTYPE = 256, TK_EQ, TK_DECIMAL, TK_NEGATION, TK_DEREFERENCE
 
   /* TODO: Add more token types */
 
@@ -112,8 +112,6 @@ static bool make_token(char *e) {
           case TK_NOTYPE: break;
           case TK_EQ:
           case '+':
-          case '-':
-          case '*':
           case '/':
           case '(':
           case ')':
@@ -124,8 +122,37 @@ static bool make_token(char *e) {
             printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
+          case '-':
+            // todo: We need to determine whether it is a negation operator.
+            if (nr_token != 0 && (tokens[nr_token].type == TK_DECIMAL)) {
+              // minus
+              tokens[nr_token].type = '-';
+              tokens[nr_token].priority = 4;
+            }
+            else {
+              // negation
+              tokens[nr_token].type = TK_NEGATION;
+              tokens[nr_token].priority = 2;
+            }
+            strncpy(tokens[nr_token].str, substr_start, substr_len);
+            nr_token++;
+            break;
+          case '*':
+            // todo: We need to determine whether it is a dereference operator.
+            if (nr_token != 0 && (tokens[nr_token].type == TK_DECIMAL)) {
+              // minus
+              tokens[nr_token].type = '*';
+              tokens[nr_token].priority = 3;
+            }
+            else {
+              // negation
+              tokens[nr_token].type = TK_DEREFERENCE;
+              tokens[nr_token].priority = 2;
+            }
+            strncpy(tokens[nr_token].str, substr_start, substr_len);
+            nr_token++;
+            break;
           default: break;
-
           // default: TODO();
         }
 
