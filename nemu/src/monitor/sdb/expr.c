@@ -124,7 +124,7 @@ static bool make_token(char *e) {
             break;
           case '-':
             // todo: We need to determine whether it is a negation operator.
-            if (nr_token != 0 && (tokens[nr_token].type == TK_DECIMAL)) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DECIMAL)) {
               // minus
               tokens[nr_token].type = '-';
               tokens[nr_token].priority = 4;
@@ -140,7 +140,7 @@ static bool make_token(char *e) {
             break;
           case '*':
             // todo: We need to determine whether it is a dereference operator.
-            if (nr_token != 0 && (tokens[nr_token].type == TK_DECIMAL)) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DECIMAL)) {
               // minus
               tokens[nr_token].type = '*';
               tokens[nr_token].priority = 3;
