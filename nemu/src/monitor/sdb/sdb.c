@@ -76,18 +76,45 @@ static int cmd_info(char *args) {
   if (str == NULL) {
     printf("Error: Invalid number of arguments.\n");
     printf("Usage: info <SUBCMD>\n");
+    return 0;
   }
   if (strcmp(str, "r") == 0) {
-    // todo: print out registers
     isa_reg_display();
   }
   else if (strcmp(str, "w") == 0) {
     // todo: print out watchpoints
+    printf("I want to print out watchpoints.\n");
   }
   else {
     printf("Error: Invalid format of arguments.\n");
     printf("Usage: info <r|w>\n");
   }
+
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *str = strtok(args, " ");
+  if (str == NULL) {
+    printf("Error: Invalid format of arguments.\n");
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+  int N = atoi(str);
+  if (N <= 0) {
+    printf("Error: Invalid value of arguments, and N need to be greater than 0.\n");
+    return 0;
+  }
+
+  char *expr = strtok(args, " ");
+  if (expr == NULL) {
+    printf("Error: Invalid format of arguments.\n");
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+  // vaddr_t addr = (vaddr_t)strtoul(str, NULL, 10);
+  // word_t desc = vaddr_read(addr, 4);
+  // printf();
 
   return 0;
 }
@@ -104,6 +131,7 @@ static struct {
   /* TODO: Add more commands */
   { "si", "Execute the program step by step", cmd_si },
   { "info", "Print out register status or watchpoints", cmd_info },
+  { "x", "Scan memory and output N consecutive 4-byte characters in hex format", cmd_x },
 
 };
 
