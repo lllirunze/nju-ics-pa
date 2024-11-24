@@ -70,9 +70,24 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-  // TODO: Print out register status or watchpoints
 
-  printf("Print out register status or watchpoints.\n");
+  // printf("Print out register status or watchpoints.\n");
+  char *str = strtok(args, " ");
+  if (str == NULL) {
+    printf("Error: Invalid number of arguments.\n");
+    printf("Usage: info <SUBCMD>\n");
+  }
+  if (strcmp(str, "r") == 0) {
+    // todo: print out registers
+    isa_reg_display();
+  }
+  else if (strcmp(str, "w") == 0) {
+    // todo: print out watchpoints
+  }
+  else {
+    printf("Error: Invalid format of arguments.\n");
+    printf("Usage: info <r|w>\n");
+  }
 
   return 0;
 }
