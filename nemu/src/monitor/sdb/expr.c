@@ -215,7 +215,7 @@ bool check_parentheses(int left, int right) {
     }
     if (layer <= 0) return false;
   }
-
+  printf("check...\n");
   return (layer == 1);
 }
 
