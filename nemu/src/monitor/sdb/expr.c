@@ -219,7 +219,13 @@ word_t eval(int left, int right, bool *success) {
      * Return the value of the number.
      */
     int op_type = tokens[left].type;
-    return op_type;
+    switch(op_type) {
+      case TK_DEC: return (word_t)strtoul(tokens[left].str, NULL, 10);
+      default:
+        Log("Unknown number %s in the position %d.", tokens[left].str, left);
+        *success = false;
+        return 0;
+    }
   }
   else if (check_parentheses(left, right) == true) {
     /* The expression is surrounded by a matched pair or parentheses.
