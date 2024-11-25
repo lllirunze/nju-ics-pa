@@ -202,7 +202,7 @@ bool check_parentheses(int left, int right) {
    * "(4 + 3)) * ((2 - 1)" // false, bad expression
    * "(4 + 3) * (2 - 1)"   // false, the leftmost '(' and the rightmost ')' are not matched
    */
-  TODO();
+  // TODO();
   return true;
 }
 
