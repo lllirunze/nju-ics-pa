@@ -236,15 +236,14 @@ word_t eval(int left, int right, bool *success) {
   }
   else {
     /* int op = the position of dominant operator in the token expression */
+    printf("+++\n");
     int op=1;
     int op_type = tokens[op].type;
 
     word_t val1, val2;
     
     switch(op_type) {
-      case '+': 
-        printf("+++\n");
-        return eval(left, op-1, success) + eval(op+1, right, success);
+      case '+': return eval(left, op-1, success) + eval(op+1, right, success);
       case '-': return eval(left, op-1, success) - eval(op+1, right, success);
       case '*': return eval(left, op-1, success) * eval(op+1, right, success);
       case '/':
