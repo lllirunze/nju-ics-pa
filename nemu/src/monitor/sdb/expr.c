@@ -207,6 +207,7 @@ bool check_parentheses(int left, int right) {
 }
 
 word_t eval(int left, int right, bool *success) {
+  printf("%d, %d\n", left, right);
   if (left > right) {
     /* Bad expression. */
     Log("Bad expression between %d and %d.", left, right);
