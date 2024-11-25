@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -228,14 +229,15 @@ word_t eval(int left, int right, bool *success) {
     /* int op = the position of dominant operator in the token expression */
     int op;
     int op_type = tokens[op].type;
+    word_t val1, val2;
     
     switch(op_type) {
       case '+': return eval(left, op-1, success) + eval(op+1, right, success);
       case '-': return eval(left, op-1, success) - eval(op+1, right, success);
       case '*': return eval(left, op-1, success) * eval(op+1, right, success);
       case '/':
-        word_t val1 = eval(left, op-1, success);
-        word_t val2 = eval(op+1, right, success);
+        val1 = eval(left, op-1, success);
+        val2 = eval(op+1, right, success);
         if (val2 == 0) {
           Log("Warning: The divisor cannot be 0.");
           *success = false;
@@ -243,12 +245,15 @@ word_t eval(int left, int right, bool *success) {
         }
         return val1 / val2;
       case TK_EQ: return eval(left, op-1, success) == eval(op+1, right, success);
+      case TK_NEG: return -eval(op+1, right, success);
+      case TK_DEREF:
+        val2 = eval(op+1, right, success);
+        return vaddr_read(val2, 4);
       default:
         Log("Unknown operator %s in the position %d.", tokens[op].str, op);
         *success = false;
         return 0;
     }
-    // return 0;
   }
   return 0;
 }
