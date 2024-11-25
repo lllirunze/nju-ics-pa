@@ -191,8 +191,6 @@ static bool make_token(char *e) {
     }
   }
 
-  printf("%d\n", nr_token);
-
   return true;
 }
 
@@ -237,7 +235,7 @@ word_t eval(int left, int right, bool *success) {
   }
   else {
     /* int op = the position of dominant operator in the token expression */
-    int op;
+    int op=1;
     int op_type = tokens[op].type;
 
     word_t val1, val2;
