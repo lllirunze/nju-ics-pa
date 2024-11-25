@@ -147,7 +147,10 @@ static int cmd_p(char *args) {
 
   bool success = true;
   word_t result = expr(args, &success);
-  printf("%u\n", result);
+  if (success == false) {
+    printf("Error: Unable to calculate correctly.\n");
+  }
+  else printf("%u\n", result);
 
   return 0;
 }
