@@ -215,12 +215,31 @@ bool check_parentheses(int left, int right) {
     }
     if (layer <= 0) return false;
   }
-  printf("check...\n");
+
   return (layer == 1);
 }
 
 int check_priority(int left, int right) {
+  int dominate_priority = 0;
+  int i;
+  for (i = left; i <= right; i++) {
+    if (tokens[i].priority > dominate_priority) dominate_priority = tokens[i].priority;
+  }
+  return dominate_priority;
+}
 
+int find_dominate_operator(int left, int right, int pri, bool leftToRight) {
+  int i;
+  if (leftToRight == false) {
+    for (i = left; i <= right; i++) {
+      if (tokens[i].priority == pri) return i;
+    }
+  }
+  else {
+    for (i = right; i >= left; i--) {
+      if (tokens[i].priority == pri) return i;
+    }
+  }
   return 0;
 }
 
@@ -254,7 +273,23 @@ word_t eval(int left, int right, bool *success) {
   else {
     /* int op = the position of dominant operator in the token expression */
     int dominate_priority = check_priority(left, right);
-    int op = dominate_priority;
+    /* Associativity determines the order in which multiple operators 
+     * of the same priority are evaluated when they appear together. 
+     * There are two common associativity types:
+     * 
+     * Left-to-right associativity (most operators, such as +, -, *, /, etc.)
+     * Right-to-left associativity (such as the negative operator -, the dereference operator *)
+     */
+    bool leftToRight;
+    if (dominate_priority == 2 || dominate_priority == 13 || dominate_priority == 14) {
+      // right-to-left
+      leftToRight = false;
+    }
+    else {
+      // left-to-right
+      leftToRight = true;
+    }
+    int op = find_dominate_operator(left, right, dominate_priority, leftToRight);
     int op_type = tokens[op].type;
 
     word_t val1, val2;
@@ -293,7 +328,6 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  // TODO();
 
   return eval(0, nr_token-1, success);
 }
