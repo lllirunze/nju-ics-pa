@@ -218,6 +218,8 @@ word_t eval(int left, int right, bool *success) {
      * For now this token should be a number.
      * Return the value of the number.
      */
+    int op_type = tokens[left].type;
+    return op_type;
   }
   else if (check_parentheses(left, right) == true) {
     /* The expression is surrounded by a matched pair or parentheses.
@@ -229,6 +231,7 @@ word_t eval(int left, int right, bool *success) {
     /* int op = the position of dominant operator in the token expression */
     int op;
     int op_type = tokens[op].type;
+
     word_t val1, val2;
     
     switch(op_type) {
