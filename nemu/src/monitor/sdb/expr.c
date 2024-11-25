@@ -50,7 +50,7 @@ static struct rule {
   {"-", '-', 4},              // minus OR negation
   {"\\*", '*', 3},            // multiplication OR dereference
   {"\\/", '/', 3},            // division
-  {"[0-9]+", TK_DEC, 0},  // decimal number
+  {"[0-9]+", TK_DEC, 0},      // decimal number
   {"\\(", '(', 1},            // left parenthesis
   {"\\)", ')', 1},            // right parenthesis
   // hexadecimal number -> 0x..(0)
@@ -69,6 +69,7 @@ static struct rule {
   // greater than or equal to -> >=(6)
   // less than -> <(6)
   // less than or equal to -> <=(6)
+  // mod -> %(3)
 
 };
 
@@ -142,7 +143,7 @@ static bool make_token(char *e) {
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].priority = rules[i].priority;
-            printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
+            // printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           case '-':
@@ -158,7 +159,7 @@ static bool make_token(char *e) {
               tokens[nr_token].priority = 2;
             }
             strncpy(tokens[nr_token].str, substr_start, substr_len);
-            printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
+            // printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           case '*':
@@ -174,7 +175,7 @@ static bool make_token(char *e) {
               tokens[nr_token].priority = 2;
             }
             strncpy(tokens[nr_token].str, substr_start, substr_len);
-            printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
+            // printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           default: break;
@@ -202,12 +203,28 @@ bool check_parentheses(int left, int right) {
    * "(4 + 3)) * ((2 - 1)" // false, bad expression
    * "(4 + 3) * (2 - 1)"   // false, the leftmost '(' and the rightmost ')' are not matched
    */
-  // TODO();
-  return false;
+  if (tokens[left].type != '(' || tokens[right].type != ')') return false;
+  int layer = 0;
+  int i;
+  for (i = left; i < right; i++) {
+    if (tokens[i].type == '(') {
+      layer++;
+    }
+    else if (tokens[i].type == ')') {
+      layer--;
+    }
+    if (layer <= 0) return false;
+  }
+
+  return (layer == 1);
+}
+
+int check_priority(int left, int right) {
+
+  return 0;
 }
 
 word_t eval(int left, int right, bool *success) {
-  printf("%d, %d\n", left, right);
   if (left > right) {
     /* Bad expression. */
     Log("Bad expression between %d and %d.", left, right);
@@ -230,13 +247,14 @@ word_t eval(int left, int right, bool *success) {
   }
   else if (check_parentheses(left, right) == true) {
     /* The expression is surrounded by a matched pair or parentheses.
-     * If that is the case, just throw away the  parentheses.
+     * If that is the case, just throw away the parentheses.
      */
     return eval(left+1, right-1, success);
   }
   else {
     /* int op = the position of dominant operator in the token expression */
-    int op=1;
+    int dominate_priority = check_priority(left, right);
+    int op = dominate_priority;
     int op_type = tokens[op].type;
 
     word_t val1, val2;
