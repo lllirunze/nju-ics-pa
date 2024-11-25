@@ -291,6 +291,7 @@ word_t eval(int left, int right, bool *success) {
     }
     int op = find_dominate_operator(left, right, dominate_priority, leftToRight);
     int op_type = tokens[op].type;
+    
 
     word_t val1, val2;
     
