@@ -203,7 +203,7 @@ bool check_parentheses(int left, int right) {
    * "(4 + 3) * (2 - 1)"   // false, the leftmost '(' and the rightmost ')' are not matched
    */
   // TODO();
-  return true;
+  return false;
 }
 
 word_t eval(int left, int right, bool *success) {
@@ -236,7 +236,6 @@ word_t eval(int left, int right, bool *success) {
   }
   else {
     /* int op = the position of dominant operator in the token expression */
-    printf("+++\n");
     int op=1;
     int op_type = tokens[op].type;
 
