@@ -242,7 +242,9 @@ word_t eval(int left, int right, bool *success) {
     word_t val1, val2;
     
     switch(op_type) {
-      case '+': return eval(left, op-1, success) + eval(op+1, right, success);
+      case '+': 
+        printf("+++\n");
+        return eval(left, op-1, success) + eval(op+1, right, success);
       case '-': return eval(left, op-1, success) - eval(op+1, right, success);
       case '*': return eval(left, op-1, success) * eval(op+1, right, success);
       case '/':
