@@ -45,32 +45,32 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE, 0},       // spaces
-  {"\\+", '+', 4},            // plus
-  {"-", '-', 4},              // minus OR negation
-  {"\\*", '*', 3},            // multiplication OR dereference
-  {"\\/", '/', 3},            // division
-  {"\\%", '%', 3}, // mod -> %(3)
-  {"\\(", '(', 1},            // left parenthesis
-  {"\\)", ')', 1},            // right parenthesis
-  {"[0-9]+", TK_DEC, 0},      // decimal number
-  // hexadecimal number -> 0x..(0)
+  {" +", TK_NOTYPE, 0},             // spaces
+  {"\\+", '+', 4},                  // plus
+  {"-", '-', 4},                    // minus OR negation
+  {"\\*", '*', 3},                  // multiplication OR dereference
+  {"\\/", '/', 3},                  // division
+  {"\\%", '%', 3},                  // mod
+  {"\\(", '(', 1},                  // left parenthesis
+  {"\\)", ')', 1},                  // right parenthesis
+  {"0[xX][0-9a-fA-F]+", TK_HEX, 0}, // hexadecimal number -> 0x..(0)
+  {"[0-9]+", TK_DEC, 0},            // decimal number
   // registers -> $xx(0)
-  {"==", TK_EQ, 7},           // equal
-  {"!=", TK_NEQ, 7},          // not equal
-  {"&&", TK_AND, 11},         // and
-  {"\\|\\|", TK_OR, 12},      // or
-  {"!", '!', 2},              // not
-  {"&", '&', 8},              // bitwise and (we don't consider taking address)
-  {"\\|", '|', 10},           // bitwise or
-  {"\\^", '^', 9},            // bitwise xor
-  {"~", '~', 2},              // bitwise inversion
-  {"<<", TK_SHIFTLEFT, 5},    // shift left
-  {">>", TK_SHIFTRIGHT, 5},   // shift right
-  {">=", TK_GEQ, 6},          // greater than or equal to
-  {"<=", TK_LEQ, 6},          // less than or equal to
-  {">", TK_G, 6},             // greater than
-  {"<", TK_L, 6},             // less than
+  {"==", TK_EQ, 7},                 // equal
+  {"!=", TK_NEQ, 7},                // not equal
+  {"&&", TK_AND, 11},               // and
+  {"\\|\\|", TK_OR, 12},            // or
+  {"!", '!', 2},                    // not
+  {"&", '&', 8},                    // bitwise and (we don't consider taking address)
+  {"\\|", '|', 10},                 // bitwise or
+  {"\\^", '^', 9},                  // bitwise xor
+  {"~", '~', 2},                    // bitwise inversion
+  {"<<", TK_SHIFTLEFT, 5},          // shift left
+  {">>", TK_SHIFTRIGHT, 5},         // shift right
+  {">=", TK_GEQ, 6},                // greater than or equal to
+  {"<=", TK_LEQ, 6},                // less than or equal to
+  {">", TK_G, 6},                   // greater than
+  {"<", TK_L, 6},                   // less than
 
 };
 
@@ -155,6 +155,7 @@ static bool make_token(char *e) {
           case TK_LEQ:
           case TK_G:
           case TK_L:
+          case TK_HEX:
           case TK_DEC:
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
@@ -287,6 +288,11 @@ word_t eval(int left, int right, bool *success) {
      */
     int op_type = tokens[left].type;
     switch(op_type) {
+      case TK_HEX:
+        char *hex_str;
+        strcpy(hex_str, tokens[left].str+2);
+        printf("%s\n", hex_str);
+        break;
       case TK_DEC: return (word_t)strtoul(tokens[left].str, NULL, 10);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
