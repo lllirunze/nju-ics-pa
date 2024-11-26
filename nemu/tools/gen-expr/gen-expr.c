@@ -27,7 +27,7 @@ static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
 "  unsigned result = %s; "
-"  printf(\"res: %%u\", result); "
+"  printf(\"%%u\", result); "
 "  return 0; "
 "}";
 
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
     ret = fscanf(fp, "%d", &result);
     pclose(fp);
 
-    printf("%u %s\n", result, buf);
+    printf("res: %u %s\n", result, buf);
   }
   return 0;
 }
