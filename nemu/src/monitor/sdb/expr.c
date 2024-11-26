@@ -55,7 +55,7 @@ static struct rule {
   {"\\)", ')', 1},                  // right parenthesis
   {"0[xX][0-9a-fA-F]+", TK_HEX, 0}, // hexadecimal number -> 0x..(0)
   {"[0-9]+", TK_DEC, 0},            // decimal number
-  // registers -> $xx(0)
+  {"\\$(0|ra|sp|gp|tp|t[0-6]|s10|s11|s[0-9]|a[0-7]|pc)", TK_REG, 0}, // registers
   {"==", TK_EQ, 7},                 // equal
   {"!=", TK_NEQ, 7},                // not equal
   {"&&", TK_AND, 11},               // and
@@ -157,6 +157,7 @@ static bool make_token(char *e) {
           case TK_L:
           case TK_HEX:
           case TK_DEC:
+          case TK_REG:
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].priority = rules[i].priority;
@@ -165,7 +166,7 @@ static bool make_token(char *e) {
             break;
           case '-':
             // todo: We need to determine whether it is a negation operator.
-            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == ')')) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == TK_REG || tokens[nr_token-1].type == ')')) {
               // minus
               tokens[nr_token].type = '-';
               tokens[nr_token].priority = 4;
@@ -181,7 +182,7 @@ static bool make_token(char *e) {
             break;
           case '*':
             // todo: We need to determine whether it is a dereference operator.
-            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == ')')) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == TK_REG || tokens[nr_token-1].type == ')')) {
               // minus
               tokens[nr_token].type = '*';
               tokens[nr_token].priority = 3;
@@ -300,6 +301,16 @@ word_t eval(int left, int right, bool *success) {
       case TK_DEC: 
         char *dec_str = tokens[left].str;
         return (word_t)strtoul(dec_str, NULL, 10);
+      case TK_REG:
+        char *reg_str;
+        // todo
+        if (strcmp(tokens[left].str, "$0") == 0) {
+          reg_str = tokens[left].str;
+        }
+        else {
+          reg_str = tokens[left].str+1;
+        }
+        return isa_reg_str2val(reg_str, success);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
         *success = false;
