@@ -94,7 +94,6 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  printf("args: %s\n", args);
 
   char *str = strtok(NULL, " ");
   if (str == NULL) {
@@ -115,20 +114,12 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  /*  
-   * simplified version, 
-   * which specifies that the expression EXPR can only contain a hexadecimal number.
-   */
-
-  printf("expr: %s\n", EXPR);
+  /* simplified version, which specifies that the expression EXPR can only contain a hexadecimal number. */
   // expr = expr + 2;
   // vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
 
-  /* 
-   * todo: 
-   * full version, but there cannot be any spaces in EXPR.
-   */
 
+  /* full version, but there cannot be any spaces in EXPR. */
   bool success = true;
   vaddr_t src = expr(EXPR, &success);
   if (success == false) {
