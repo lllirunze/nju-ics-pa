@@ -94,6 +94,8 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
+  printf("%s\n", args);
+
   char *str = strtok(NULL, " ");
   if (str == NULL) {
     printf("Error: Invalid format of arguments.\n");
