@@ -95,6 +95,7 @@ static int cmd_info(char *args) {
 
 static int cmd_x(char *args) {
   printf("args: %s\n", args);
+  char *expr = strchr(args, ' ');
 
   char *str = strtok(NULL, " ");
   if (str == NULL) {
@@ -115,7 +116,7 @@ static int cmd_x(char *args) {
   //   return 0;
   // }
 
-  char *expr = strchr(args, ' ');
+  // char *expr = strchr(args, ' ');
   if (expr == NULL) {
     printf("Error: Invalid format of arguments.\n");
     printf("Usage: x N EXPR\n");
