@@ -129,7 +129,7 @@ static bool make_token(char *e) {
          */
         
         if (substr_len > 32) {
-          printf("Error: The token is too long.");
+          printf("Error: The token is too long.\n");
           return false;
         }
 
