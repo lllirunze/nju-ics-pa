@@ -50,27 +50,27 @@ static struct rule {
   {"-", '-', 4},              // minus OR negation
   {"\\*", '*', 3},            // multiplication OR dereference
   {"\\/", '/', 3},            // division
-  // {"%%", '%', 3}, // mod -> %(3)
+  {"%%", '%', 3}, // mod -> %(3)
   {"\\(", '(', 1},            // left parenthesis
   {"\\)", ')', 1},            // right parenthesis
   {"[0-9]+", TK_DEC, 0},      // decimal number
   // hexadecimal number -> 0x..(0)
   // registers -> $xx(0)
   {"==", TK_EQ, 7},           // equal
-  {"!=", TK_NEQ, 7}, // not equal -> !=(7)
-  {"&&", TK_AND, 11}, // and -> &&(11)
-  {"\\|\\|", TK_OR, 12}, // or -> ||(12)
-  {"!", '!', 2}, // not -> !(2)
-  {"&", '&', 8}, // bitwise and (we don't consider taking address) -> &(8)
-  {"\\|", '|', 10}, // bitwise or -> |(10)
-  {"\\^", '^', 9}, // bitwise xor -> ^(9)
-  {"~", '~', 2}, // bitwise inversion -> ~(2)
-  {"<<", TK_SHIFTLEFT, 5}, // shift left -> <<(5)
-  {">>", TK_SHIFTRIGHT, 5}, // shift right -> >>(5)
-  {">=", TK_GEQ, 6}, // greater than or equal to -> >=(6)
-  {"<=", TK_LEQ, 6}, // less than or equal to -> <=(6)
-  {">", TK_G, 6}, // greater than -> >(6)
-  {"<", TK_L, 6}, // less than -> <(6)
+  {"!=", TK_NEQ, 7},          // not equal
+  {"&&", TK_AND, 11},         // and
+  {"\\|\\|", TK_OR, 12},      // or
+  {"!", '!', 2},              // not
+  {"&", '&', 8},              // bitwise and (we don't consider taking address)
+  {"\\|", '|', 10},           // bitwise or
+  {"\\^", '^', 9},            // bitwise xor
+  {"~", '~', 2},              // bitwise inversion
+  {"<<", TK_SHIFTLEFT, 5},    // shift left
+  {">>", TK_SHIFTRIGHT, 5},   // shift right
+  {">=", TK_GEQ, 6},          // greater than or equal to
+  {"<=", TK_LEQ, 6},          // less than or equal to
+  {">", TK_G, 6},             // greater than
+  {"<", TK_L, 6},             // less than
 
 };
 
@@ -139,6 +139,7 @@ static bool make_token(char *e) {
           case TK_NEQ:
           case '+':
           case '/':
+          case '%':
           case '(':
           case ')':
           case TK_AND:
@@ -339,6 +340,15 @@ word_t eval(int left, int right, bool *success) {
           return 0;
         }
         return val1 / val2;
+      case '%':
+        val1 = eval(left, op-1, success);
+        val2 = eval(op+1, right, success);
+        if (val2 == 0) {
+          Log("Warning: The divisor cannot be 0.");
+          *success = false;
+          return 0;
+        }
+        return val1 % val2;
       case TK_EQ: return eval(left, op-1, success) == eval(op+1, right, success);
       case TK_NEQ: return eval(left, op-1, success) != eval(op+1, right, success);
       case TK_AND: return eval(left, op-1, success) && eval(op+1, right, success);
