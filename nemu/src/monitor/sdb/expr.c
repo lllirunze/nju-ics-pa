@@ -118,8 +118,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -286,9 +286,10 @@ word_t eval(int left, int right, bool *success) {
     return eval(left+1, right-1, success);
   }
   else {
-    /* int op = the position of dominant operator in the token expression */
+    /* int op = the position of dominant operator in the token expression. */
     int dominate_priority = check_priority(left, right);
-    /* Associativity determines the order in which multiple operators 
+    /* 
+     * Associativity determines the order in which multiple operators 
      * of the same priority are evaluated when they appear together. 
      * There are two common associativity types:
      * 
@@ -306,7 +307,7 @@ word_t eval(int left, int right, bool *success) {
     }
     // printf("%d\n", leftToRight);
     int op = find_dominate_operator(left, right, dominate_priority, leftToRight);
-    printf("%d, %s, %d\n", op, tokens[op].str, tokens[op].type);
+    // printf("%d, %s, %d\n", op, tokens[op].str, tokens[op].type);
     int op_type = tokens[op].type;
 
     word_t val1, val2;
