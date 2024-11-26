@@ -119,6 +119,9 @@ static int cmd_x(char *args) {
    * simplified version, 
    * which specifies that the expression EXPR can only contain a hexadecimal number.
    */
+
+  printf("%s\n", expr);
+
   expr = expr + 2;
   vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
 
