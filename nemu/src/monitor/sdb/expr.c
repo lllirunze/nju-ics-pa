@@ -290,7 +290,7 @@ word_t eval(int left, int right, bool *success) {
     switch(op_type) {
       case TK_HEX:
         char *hex_str;
-        strcpy(hex_str, tokens[left].str+2);
+        strncpy(hex_str, tokens[left].str+2, strlen(tokens[left].str)-1);
         printf("%s\n", hex_str);
         break;
       case TK_DEC: return (word_t)strtoul(tokens[left].str, NULL, 10);
