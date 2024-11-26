@@ -165,7 +165,7 @@ static bool make_token(char *e) {
             break;
           case '-':
             // todo: We need to determine whether it is a negation operator.
-            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == ')')) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == ')')) {
               // minus
               tokens[nr_token].type = '-';
               tokens[nr_token].priority = 4;
@@ -181,7 +181,7 @@ static bool make_token(char *e) {
             break;
           case '*':
             // todo: We need to determine whether it is a dereference operator.
-            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == ')')) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == ')')) {
               // minus
               tokens[nr_token].type = '*';
               tokens[nr_token].priority = 3;
