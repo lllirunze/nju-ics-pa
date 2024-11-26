@@ -290,10 +290,16 @@ word_t eval(int left, int right, bool *success) {
     switch(op_type) {
       case TK_HEX:
         char *hex_str = tokens[left].str+2;
-        // strncpy(hex_str, tokens[left].str+2, strlen(tokens[left].str)-1);
-        printf("%s\n", hex_str);
-        return 0;
-      case TK_DEC: return (word_t)strtoul(tokens[left].str, NULL, 10);
+        // printf("%s\n", hex_str);
+        if (strlen(hex_str) <= 0 || strlen(hex_str) > 8) {
+          Log("Hexadecimal number %s out of bounds.", hex_str);
+          *success = false;
+          return 0;
+        }
+        return (word_t)strtoul(hex_str, NULL, 16);
+      case TK_DEC: 
+        char *dec_str = tokens[left].str;
+        return (word_t)strtoul(dec_str, NULL, 10);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
         *success = false;
