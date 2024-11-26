@@ -292,7 +292,7 @@ word_t eval(int left, int right, bool *success) {
         char *hex_str = tokens[left].str+2;
         // strncpy(hex_str, tokens[left].str+2, strlen(tokens[left].str)-1);
         printf("%s\n", hex_str);
-        break;
+        return 0;
       case TK_DEC: return (word_t)strtoul(tokens[left].str, NULL, 10);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
