@@ -108,23 +108,33 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  char *expr = strtok(NULL, " ");
-  if (expr == NULL) {
+  char *EXPR = strtok(NULL, " ");
+  if (EXPR == NULL) {
     printf("Error: Invalid format of arguments.\n");
     printf("Usage: x N EXPR\n");
     return 0;
   }
 
-  /* 
-   * todo: 
+  /*  
    * simplified version, 
    * which specifies that the expression EXPR can only contain a hexadecimal number.
    */
 
-  printf("expr: %s\n", expr);
-  expr = expr + 2;
-  vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
+  printf("expr: %s\n", EXPR);
+  // expr = expr + 2;
+  // vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
 
+  /* 
+   * todo: 
+   * full version, but there cannot be any spaces in EXPR.
+   */
+
+  bool success = true;
+  vaddr_t src = expr(EXPR, &success);
+  if (success == false) {
+    printf("Error: Unable to calculate correctly.\n");
+    return 0;
+  }
 
   int i;
   for (i = 0; i < N; i++) {
