@@ -47,30 +47,31 @@ static struct rule {
 
   {" +", TK_NOTYPE, 0},       // spaces
   {"\\+", '+', 4},            // plus
-  {"==", TK_EQ, 7},           // equal
   {"-", '-', 4},              // minus OR negation
   {"\\*", '*', 3},            // multiplication OR dereference
   {"\\/", '/', 3},            // division
-  {"[0-9]+", TK_DEC, 0},      // decimal number
+  // {"%%", '%', 3}, // mod -> %(3)
   {"\\(", '(', 1},            // left parenthesis
   {"\\)", ')', 1},            // right parenthesis
+  {"[0-9]+", TK_DEC, 0},      // decimal number
   // hexadecimal number -> 0x..(0)
   // registers -> $xx(0)
-  // not equal -> !=(7)
-  // and -> &&(11)
-  // not -> !(2)
-  // or -> ||(12)
-  // bitwise inversion -> ~(2)
-  // bitwise and (we don't consider taking address) -> &(8)
-  // bitwise or -> |(10)
-  // bitwise xor -> ^(9)
-  // shift left -> <<(5)
-  // shift right -> >>(5)
-  // greater than -> >(6)
-  // greater than or equal to -> >=(6)
-  // less than -> <(6)
-  // less than or equal to -> <=(6)
-  // mod -> %(3)
+  {"==", TK_EQ, 7},           // equal
+  {"!=", TK_NEQ, 7}, // not equal -> !=(7)
+  {"&&", TK_AND, 11}, // and -> &&(11)
+  {"\\|\\|", TK_OR, 12}, // or -> ||(12)
+  {"!", '!', 2}, // not -> !(2)
+  {"&", '&', 8}, // bitwise and (we don't consider taking address) -> &(8)
+  {"\\|", '|', 10}, // bitwise or -> |(10)
+  {"\\^", '^', 9}, // bitwise xor -> ^(9)
+  {"~", '~', 2}, // bitwise inversion -> ~(2)
+  {"<<", TK_SHIFTLEFT, 5}, // shift left -> <<(5)
+  {">>", TK_SHIFTRIGHT, 5}, // shift right -> >>(5)
+  {">", TK_G, 6}, // greater than -> >(6)
+  {">=", TK_GEQ, 6}, // greater than or equal to -> >=(6)
+  {"<", TK_L, 6}, // less than -> <(6)
+  {"<=", TK_LEQ, 6}, // less than or equal to -> <=(6)
+
 
 };
 
@@ -136,10 +137,24 @@ static bool make_token(char *e) {
         switch (rules[i].token_type) {
           case TK_NOTYPE: break;
           case TK_EQ:
+          case TK_NEQ:
           case '+':
           case '/':
           case '(':
           case ')':
+          case TK_AND:
+          case TK_OR:
+          case '!':
+          case '&':
+          case '|':
+          case '^':
+          case '~':
+          case TK_SHIFTLEFT:
+          case TK_SHIFTRIGHT:
+          case TK_G:
+          case TK_GEQ:
+          case TK_L:
+          case TK_LEQ:
           case TK_DEC:
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
@@ -326,6 +341,20 @@ word_t eval(int left, int right, bool *success) {
         }
         return val1 / val2;
       case TK_EQ: return eval(left, op-1, success) == eval(op+1, right, success);
+      case TK_NEQ: return eval(left, op-1, success) != eval(op+1, right, success);
+      case TK_AND: return eval(left, op-1, success) && eval(op+1, right, success);
+      case TK_OR: return eval(left, op-1, success) || eval(op+1, right, success);
+      case '!': return !eval(op+1, right, success);
+      case '&': return eval(left, op-1, success) & eval(op+1, right, success);
+      case '|': return eval(left, op-1, success) | eval(op+1, right, success);
+      case '^': return eval(left, op-1, success) ^ eval(op+1, right, success);
+      case '~': return ~eval(op+1, right, success);
+      case TK_SHIFTLEFT: return eval(left, op-1, success) << eval(op+1, right, success);
+      case TK_SHIFTRIGHT: return eval(left, op-1, success) >> eval(op+1, right, success);
+      case TK_G: return eval(left, op-1, success) > eval(op+1, right, success);
+      case TK_GEQ: return eval(left, op-1, success) >= eval(op+1, right, success);
+      case TK_L: return eval(left, op-1, success) < eval(op+1, right, success);
+      case TK_LEQ: return eval(left, op-1, success) <= eval(op+1, right, success);
       case TK_NEG: return -eval(op+1, right, success);
       case TK_DEREF:
         val2 = eval(op+1, right, success);
