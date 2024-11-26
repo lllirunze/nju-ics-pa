@@ -306,7 +306,7 @@ word_t eval(int left, int right, bool *success) {
     }
     // printf("%d\n", leftToRight);
     int op = find_dominate_operator(left, right, dominate_priority, leftToRight);
-    // printf("%d, %s, %d\n", op, tokens[op].str, tokens[op].type);
+    printf("%d, %s, %d\n", op, tokens[op].str, tokens[op].type);
     int op_type = tokens[op].type;
 
     word_t val1, val2;
