@@ -67,11 +67,10 @@ static struct rule {
   {"~", '~', 2}, // bitwise inversion -> ~(2)
   {"<<", TK_SHIFTLEFT, 5}, // shift left -> <<(5)
   {">>", TK_SHIFTRIGHT, 5}, // shift right -> >>(5)
-  {">", TK_G, 6}, // greater than -> >(6)
   {">=", TK_GEQ, 6}, // greater than or equal to -> >=(6)
-  {"<", TK_L, 6}, // less than -> <(6)
   {"<=", TK_LEQ, 6}, // less than or equal to -> <=(6)
-
+  {">", TK_G, 6}, // greater than -> >(6)
+  {"<", TK_L, 6}, // less than -> <(6)
 
 };
 
@@ -151,10 +150,10 @@ static bool make_token(char *e) {
           case '~':
           case TK_SHIFTLEFT:
           case TK_SHIFTRIGHT:
-          case TK_G:
           case TK_GEQ:
-          case TK_L:
           case TK_LEQ:
+          case TK_G:
+          case TK_L:
           case TK_DEC:
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
@@ -351,10 +350,10 @@ word_t eval(int left, int right, bool *success) {
       case '~': return ~eval(op+1, right, success);
       case TK_SHIFTLEFT: return eval(left, op-1, success) << eval(op+1, right, success);
       case TK_SHIFTRIGHT: return eval(left, op-1, success) >> eval(op+1, right, success);
-      case TK_G: return eval(left, op-1, success) > eval(op+1, right, success);
       case TK_GEQ: return eval(left, op-1, success) >= eval(op+1, right, success);
-      case TK_L: return eval(left, op-1, success) < eval(op+1, right, success);
       case TK_LEQ: return eval(left, op-1, success) <= eval(op+1, right, success);
+      case TK_G: return eval(left, op-1, success) > eval(op+1, right, success);
+      case TK_L: return eval(left, op-1, success) < eval(op+1, right, success);
       case TK_NEG: return -eval(op+1, right, success);
       case TK_DEREF:
         val2 = eval(op+1, right, success);
