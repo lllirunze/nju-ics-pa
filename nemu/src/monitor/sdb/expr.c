@@ -148,7 +148,7 @@ static bool make_token(char *e) {
             break;
           case '-':
             // todo: We need to determine whether it is a negation operator.
-            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC)) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == ')')) {
               // minus
               tokens[nr_token].type = '-';
               tokens[nr_token].priority = 4;
@@ -164,7 +164,7 @@ static bool make_token(char *e) {
             break;
           case '*':
             // todo: We need to determine whether it is a dereference operator.
-            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC)) {
+            if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == ')')) {
               // minus
               tokens[nr_token].type = '*';
               tokens[nr_token].priority = 3;
@@ -304,7 +304,7 @@ word_t eval(int left, int right, bool *success) {
       leftToRight = true;
     }
     int op = find_dominate_operator(left, right, dominate_priority, leftToRight);
-    printf("%d, %s\n", op, tokens[op].str);
+    printf("%d, %s, %d\n", op, tokens[op].str, tokens[op].type);
     int op_type = tokens[op].type;
 
     word_t val1, val2;
