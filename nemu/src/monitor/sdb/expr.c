@@ -222,7 +222,12 @@ bool check_parentheses(int left, int right) {
 int check_priority(int left, int right) {
   int dominate_priority = 0;
   int i;
+  int layer = 0;
   for (i = left; i <= right; i++) {
+    // Operator precedence within parentheses is not considered.
+    if (tokens[i].type == '(') layer++;
+    else if (tokens[i].type == ')') layer--;
+    if (layer != 0) continue;
     if (tokens[i].priority > dominate_priority) dominate_priority = tokens[i].priority;
   }
   return dominate_priority;
@@ -230,13 +235,22 @@ int check_priority(int left, int right) {
 
 int find_dominate_operator(int left, int right, int pri, bool leftToRight) {
   int i;
+  int layer = 0;
   if (leftToRight == false) {
     for (i = left; i <= right; i++) {
+      // Operator precedence within parentheses is not considered.
+      if (tokens[i].type == '(') layer++;
+      else if (tokens[i].type == ')') layer--;
+      if (layer != 0) continue;
       if (tokens[i].priority == pri) return i;
     }
   }
   else {
     for (i = right; i >= left; i--) {
+      // Operator precedence within parentheses is not considered.
+      if (tokens[i].type == '(') layer++;
+      else if (tokens[i].type == ')') layer--;
+      if (layer != 0) continue;
       if (tokens[i].priority == pri) return i;
     }
   }
