@@ -27,7 +27,7 @@ static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
 "  unsigned result = %s; "
-"  printf(\"%%u\", result); "
+"  printf(\"res: %%u\", result); "
 "  return 0; "
 "}";
 
@@ -44,7 +44,7 @@ static inline void gen(char e) {
 }
 
 static inline void gen_num() {
-  uint32_t num = ((uint32_t) rand()) % 10000;
+  uint32_t num = ((uint32_t) rand()) % 100;
   sprintf(buf+strlen(buf), "%d", num);
   return;
 }
