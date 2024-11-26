@@ -106,7 +106,7 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  char *expr = strtok(args, " ");
+  char *expr = strtok(NULL, " ");
   if (expr == NULL) {
     printf("Error: Invalid format of arguments.\n");
     printf("Usage: x N EXPR\n");
@@ -122,19 +122,19 @@ static int cmd_x(char *args) {
 
   printf("%s\n", expr);
 
-  expr = expr + 2;
-  vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
+  // expr = expr + 2;
+  // vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
 
 
-  int i;
-  for (i = 0; i < N; i++) {
-    word_t addr = vaddr_read(src + i * 4, 4);
-    if (i % 4 == 0) printf("0x%08x:\t", src + i * 4);
-    printf("0x%08x", addr);
-    if (i % 4 == 3) printf("\n");
-    else printf("\t");
-  }
-  if (N % 4 != 0) printf("\n");
+  // int i;
+  // for (i = 0; i < N; i++) {
+  //   word_t addr = vaddr_read(src + i * 4, 4);
+  //   if (i % 4 == 0) printf("0x%08x:\t", src + i * 4);
+  //   printf("0x%08x", addr);
+  //   if (i % 4 == 3) printf("\n");
+  //   else printf("\t");
+  // }
+  // if (N % 4 != 0) printf("\n");
 
   return 0;
 }
