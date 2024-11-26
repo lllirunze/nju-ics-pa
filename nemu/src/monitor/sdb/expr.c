@@ -50,7 +50,7 @@ static struct rule {
   {"-", '-', 4},              // minus OR negation
   {"\\*", '*', 3},            // multiplication OR dereference
   {"\\/", '/', 3},            // division
-  {"%%", '%', 3}, // mod -> %(3)
+  {"\\%", '%', 3}, // mod -> %(3)
   {"\\(", '(', 1},            // left parenthesis
   {"\\)", ')', 1},            // right parenthesis
   {"[0-9]+", TK_DEC, 0},      // decimal number
