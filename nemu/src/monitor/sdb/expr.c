@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <memory/vaddr.h>
+#include <memory/paddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -326,6 +327,11 @@ word_t eval(int left, int right, bool *success) {
       case TK_NEG: return -eval(op+1, right, success);
       case TK_DEREF:
         val2 = eval(op+1, right, success);
+        if (!in_pmem(val2)) {
+          Log("Warning: Address 0x%08x is out of bound of pmem [0x%08x, 0x%08x]", val2, PMEM_LEFT, PMEM_RIGHT);
+          *success = false;
+          return 0;
+        }
         return vaddr_read(val2, 4);
       default:
         Log("Unknown operator %s in the position %d.", tokens[op].str, op);
