@@ -58,7 +58,12 @@ void free_wp(WP *wp) {
 }
 
 void display_wp() {
-
+  WP *cur = head;
+  while (cur != NULL) {
+    // printf();
+    cur = cur->next;
+  }
+  return;
 }
 
 int set_wp(char* args) {
@@ -66,20 +71,19 @@ int set_wp(char* args) {
   word_t result = expr(args, &success);
   if (success == false) {
     printf("Error: Unable to calculate correctly.\n");
-    return 0;
+    return -1;
   }
 
   WP *wp = new_wp();
   if (wp == NULL) {
     printf("Error: Unable to set a watchpoint.\n");
-    return 0;
+    return -1;
   }
 
   strcpy(wp->expression, args);
   wp->val = result;
   wp->next = head;
   head = wp;
-
-  return 0;
+  return wp->NO;
 }
 

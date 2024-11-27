@@ -20,5 +20,6 @@
 
 word_t expr(char *e, bool *success);
 void display_wp();
+int set_wp(char* args);
 
 #endif

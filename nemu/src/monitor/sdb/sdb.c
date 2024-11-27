@@ -84,7 +84,7 @@ static int cmd_info(char *args) {
   else if (strcmp(str, "w") == 0) {
     // todo: print out watchpoints
     printf("I want to print out watchpoints.\n");
-    display_wp();
+    // display_wp();
   }
   else {
     printf("Error: Invalid format of arguments.\n");
@@ -166,8 +166,10 @@ static int cmd_w(char *args) {
     return 0;
   }
 
-  TODO();
-
+  int NO = set_wp(args);
+  if (NO != -1) {
+    printf("Set watchpoint %d\n", NO);
+  }
   return 0;
 }
 
