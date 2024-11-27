@@ -140,12 +140,11 @@ bool scan_wp(vaddr_t pc) {
   bool success;
   WP *cur = head;
   while (cur != NULL) {
-    // printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->old_val);
     success = true;
     word_t new_val = expr(cur->expression, &success);
     if (cur->old_val != new_val) {
       if (check == false) {
-        printf("Some watchpoint are triggered at $pc=%08x.\n", pc);
+        printf("Some watchpoint are triggered at $pc=0x%08x.\n", pc);
         printf("Num\tWP\tOld_Value\tNew_Value\n");
       }
       check = true;
