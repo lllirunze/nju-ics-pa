@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include "sdb.h"
+#include "common.h"
 
 #define NR_WP 32
 
@@ -43,11 +44,35 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 
-// WP *new_wp() {
+static WP *new_wp() {
+  if (free_ == NULL) {
+    printf("Error: There is no enough watchpoint.\n");
+    return NULL;
+  }
+  WP *wp = free_;
+  free_ = free_->next;
+  return wp;
+}
 
-// }
+void free_wp(WP *wp) {
 
-// void free_wp(WP *wp) {
+}
 
-// }
+int set_watchpoint(char* args) {
+  bool success = true;
+  word_t value = expr(args, &success);
+  if (success == false) {
+    printf("Error: Unable to calculate correctly.\n");
+    return 0;
+  }
+  WP *wp = new_wp();
+  if (wp == NULL) {
+    printf("Error: Unable to set a watchpoint.\n");
+    return 0;
+  }
+  strcpy(wp->expression, args);
+  wp->old_value = value;
+
+  return 0;
+}
 
