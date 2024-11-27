@@ -24,7 +24,7 @@ typedef struct watchpoint {
 
   /* TODO: Add more members if necessary */
   char expression[1024];
-  word_t val;
+  word_t old_val;
 
 } WP;
 
@@ -46,7 +46,7 @@ void init_wp_pool() {
 
 static WP *new_wp() {
   if (free_ == NULL) {
-    printf("Error: There is no enough watchpoint.\n");
+    printf("Error: There is no available watchpoint.\n");
     return NULL;
   }
   WP *wp = free_;
@@ -69,7 +69,7 @@ void display_wp() {
   WP *cur = head;
   printf("Num\tExpr\tValue\n");
   while (cur != NULL) {
-    printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->val);
+    printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->old_val);
     cur = cur->next;
   }
   return;
@@ -91,7 +91,7 @@ int set_wp(char* args) {
 
   strcpy(wp->expression, args);
   // wp->expression = str;
-  wp->val = result;
+  wp->old_val = result;
   wp->next = head;
   head = wp;
   return wp->NO;
