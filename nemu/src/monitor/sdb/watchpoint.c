@@ -134,8 +134,8 @@ void delete_wp(int n) {
   return;
 }
 
-void scan_wp() {
-  printf("scan once.\n");
+void scan_wp(vaddr_t pc) {
+  // printf("scan once.\n");
   return;
 }
 
