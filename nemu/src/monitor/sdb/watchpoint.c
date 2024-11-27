@@ -54,9 +54,10 @@ static WP *new_wp() {
 }
 
 static void free_wp(WP *wp) {
-  free(wp->expression);
-  wp->val = 0;
   // Here I didn't return wp to free_.
+  
+  // free(wp->expression);
+  // wp->val = 0;
   return;
 }
 
