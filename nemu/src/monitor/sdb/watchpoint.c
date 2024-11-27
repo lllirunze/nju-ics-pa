@@ -145,7 +145,7 @@ bool scan_wp(vaddr_t pc) {
     word_t new_val = expr(cur->expression, &success);
     if (cur->old_val != new_val) {
       if (check == false) {
-        printf("Some watchpoint are triggered at %u.", pc);
+        printf("Some watchpoint are triggered at $pc=%08x.\n", pc);
         printf("Num\tWP\tOld_Value\tNew_Value\n");
       }
       check = true;
