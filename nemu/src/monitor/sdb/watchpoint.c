@@ -53,14 +53,18 @@ static WP *new_wp() {
   return wp;
 }
 
-void free_wp(WP *wp) {
-
+static void free_wp(WP *wp) {
+  free(wp->expression);
+  wp->val = 0;
+  // Here I didn't return wp to free_.
+  return;
 }
 
 void display_wp() {
   WP *cur = head;
+  printf("Num\tExpression\tValue\n");
   while (cur != NULL) {
-    // printf();
+    printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->val);
     cur = cur->next;
   }
   return;
@@ -85,5 +89,41 @@ int set_wp(char* args) {
   wp->next = head;
   head = wp;
   return wp->NO;
+}
+
+void delete_wp(int n) {
+  if (n < 0 || n >= NR_WP) {
+    printf("Error: Invalid value of arguments, and N need to be between 0 and 31.\n");
+    return;
+  }
+
+  bool find_wp = false;
+  WP *wp;
+
+  WP *cur = head;
+  if (cur->NO == n) {
+    find_wp = true;
+    wp = cur;
+    head = head->next;
+  }
+  else {
+    while (cur->next != NULL) {
+      if (cur->next->NO == n) {
+        find_wp = true;
+        wp = cur->next;
+        cur->next = wp->next;
+        break;
+      }
+      cur = cur->next;
+    }
+  }
+  
+  if (find_wp == false) {
+    printf("Usage: Unable to find watchpoint %d", n);
+  }
+  else {
+    free_wp(wp);
+  }
+  return;
 }
 
