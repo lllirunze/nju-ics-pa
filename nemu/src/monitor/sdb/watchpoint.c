@@ -62,6 +62,10 @@ static WP *new_wp() {
 // }
 
 void display_wp() {
+  if (head == NULL) {
+    printf("No watchpoints.\n");
+    return;
+  }
   WP *cur = head;
   printf("Num\tExpr\tValue\n");
   while (cur != NULL) {
