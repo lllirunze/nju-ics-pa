@@ -25,12 +25,12 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
-#define CONFIG_WATCHPOINT "false"
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+static bool CONFIG_WATCHPOINT = false;
 
 void device_update();
 
