@@ -124,6 +124,7 @@ void delete_wp(int n) {
     printf("Usage: Unable to find watchpoint %d", n);
   }
   else {
+    printf("Delete watchpoint %d\n", n);
     free_wp(wp);
   }
   return;
