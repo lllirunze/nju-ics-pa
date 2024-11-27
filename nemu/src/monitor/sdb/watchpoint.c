@@ -67,7 +67,7 @@ void display_wp() {
     return;
   }
   WP *cur = head;
-  printf("Num\tExpr\tValue\n");
+  printf("Num\tWP\tValue\n");
   while (cur != NULL) {
     printf("%d\t%s\t%u\n", cur->NO, cur->expression, cur->old_val);
     cur = cur->next;
@@ -144,6 +144,10 @@ bool scan_wp(vaddr_t pc) {
     success = true;
     word_t new_val = expr(cur->expression, &success);
     if (cur->old_val != new_val) {
+      if (check == false) {
+        printf("Some watchpoint are triggered at %u.", pc);
+        printf("Num\tWP\tOld_Value\tNew_Value\n");
+      }
       check = true;
       printf("%d\t%s\t%u\t%u\n", cur->NO, cur->expression, cur->old_val, new_val);
     }
