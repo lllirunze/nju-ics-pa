@@ -14,7 +14,6 @@
 ***************************************************************************************/
 
 #include "sdb.h"
-#include "common.h"
 
 #define NR_WP 32
 
@@ -24,7 +23,7 @@ typedef struct watchpoint {
 
   /* TODO: Add more members if necessary */
   char *expression;
-  word_t old_value;
+  word_t val;
 
 } WP;
 
@@ -58,20 +57,28 @@ void free_wp(WP *wp) {
 
 }
 
-int set_watchpoint(char* args) {
+void display_wp() {
+
+}
+
+int set_wp(char* args) {
   bool success = true;
-  word_t value = expr(args, &success);
+  word_t result = expr(args, &success);
   if (success == false) {
     printf("Error: Unable to calculate correctly.\n");
     return 0;
   }
+
   WP *wp = new_wp();
   if (wp == NULL) {
     printf("Error: Unable to set a watchpoint.\n");
     return 0;
   }
+
   strcpy(wp->expression, args);
-  wp->old_value = value;
+  wp->val = result;
+  wp->next = head;
+  head = wp;
 
   return 0;
 }

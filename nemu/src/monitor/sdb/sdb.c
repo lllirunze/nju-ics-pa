@@ -84,6 +84,7 @@ static int cmd_info(char *args) {
   else if (strcmp(str, "w") == 0) {
     // todo: print out watchpoints
     printf("I want to print out watchpoints.\n");
+    display_wp();
   }
   else {
     printf("Error: Invalid format of arguments.\n");
@@ -158,6 +159,23 @@ static int cmd_p(char *args) {
   return 0;
 }
 
+static int cmd_w(char *args) {
+  if (args == NULL) {
+    printf("Error: No expression.\n");
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+
+  TODO();
+
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  TODO();
+  return 0;
+}
+
 static struct {
   const char *name;
   const char *description;
@@ -172,6 +190,8 @@ static struct {
   { "info", "Print out register status or watchpoints", cmd_info },
   { "x", "Scan memory and output N consecutive 4-byte characters in hex format", cmd_x },
   { "p", "Expression evaluation", cmd_p }, 
+  { "w", "Set a watchpoint", cmd_w },
+  { "d", "Delete a watchpoint", cmd_d },
 
 };
 
