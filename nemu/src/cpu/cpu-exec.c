@@ -30,6 +30,7 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+/* Scan watchpoints, here we can manually edit CONFIG_WATCHPOINT to open the configuration. */
 static bool CONFIG_WATCHPOINT = true;
 
 void device_update();
@@ -41,7 +42,9 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
   if (CONFIG_WATCHPOINT) {
-    if (scan_wp(_this->pc)) printf("1");
+    if (scan_wp(_this->pc)) {
+      nemu_state.state = NEMU_STOP;
+    }
   }
 }
 

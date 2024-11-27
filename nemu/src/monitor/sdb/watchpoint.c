@@ -69,7 +69,7 @@ void display_wp() {
   WP *cur = head;
   printf("Num\tExpr\tValue\n");
   while (cur != NULL) {
-    printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->old_val);
+    printf("%d\t%s\t%u\n", cur->NO, cur->expression, cur->old_val);
     cur = cur->next;
   }
   return;
@@ -135,8 +135,22 @@ void delete_wp(int n) {
 }
 
 bool scan_wp(vaddr_t pc) {
-  printf("scan once.\n");
+  // printf("scan once.\n");
+  bool check = false;
+  bool success;
+  WP *cur = head;
+  while (cur != NULL) {
+    // printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->old_val);
+    success = true;
+    word_t new_val = expr(cur->expression, &success);
+    if (cur->old_val != new_val) {
+      check = true;
+      printf("%d\t%s\t%u\t%u\n", cur->NO, cur->expression, cur->old_val, new_val);
+    }
+    cur->old_val = new_val;
+    cur = cur->next;
+  }
 
-  return true;
+  return check;
 }
 
