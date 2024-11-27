@@ -25,7 +25,7 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
-#define CONFIG_WATCHPOINT "true"
+#define CONFIG_WATCHPOINT "false"
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -41,7 +41,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 #ifdef CONFIG_WATCHPOINT
-  scan_wp(_this->pc);
+  if (scan_wp(_this->pc)) printf("1");
 #endif
 }
 
