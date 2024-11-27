@@ -56,14 +56,14 @@ static WP *new_wp() {
 static void free_wp(WP *wp) {
   // Here I didn't return wp to free_.
   
-  // free(wp->expression);
-  // wp->val = 0;
+  wp->expression = NULL;
+  wp->val = 0;
   return;
 }
 
 void display_wp() {
   WP *cur = head;
-  printf("Num\tExpression\tValue\n");
+  printf("Num\tExpr\tValue\n");
   while (cur != NULL) {
     printf("%d\t%s\t%d\n", cur->NO, cur->expression, cur->val);
     cur = cur->next;
