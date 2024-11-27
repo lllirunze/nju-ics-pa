@@ -84,7 +84,8 @@ int set_wp(char* args) {
     return -1;
   }
 
-  strcpy(wp->expression, args);
+  // strcpy(wp->expression, args);
+  wp->expression = args;
   wp->val = result;
   wp->next = head;
   head = wp;
