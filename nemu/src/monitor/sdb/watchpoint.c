@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include "sdb.h"
+#include <string.h>
 
 #define NR_WP 32
 
@@ -22,7 +23,7 @@ typedef struct watchpoint {
   struct watchpoint *next;
 
   /* TODO: Add more members if necessary */
-  char *expression;
+  char expression[1024];
   word_t val;
 
 } WP;
@@ -56,7 +57,7 @@ static WP *new_wp() {
 static void free_wp(WP *wp) {
   // Here I didn't return wp to free_.
   
-  wp->expression = NULL;
+  free(wp->expression);
   wp->val = 0;
   return;
 }
@@ -85,8 +86,8 @@ int set_wp(char* args) {
     return -1;
   }
 
-  // strcpy(wp->expression, args);
-  wp->expression = args;
+  strcpy(wp->expression, args);
+  // wp->expression = str;
   wp->val = result;
   wp->next = head;
   head = wp;
