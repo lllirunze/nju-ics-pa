@@ -82,8 +82,6 @@ static int cmd_info(char *args) {
     isa_reg_display();
   }
   else if (strcmp(str, "w") == 0) {
-    // todo: print out watchpoints
-    printf("I want to print out watchpoints.\n");
     display_wp();
   }
   else {
