@@ -118,7 +118,6 @@ static int cmd_x(char *args) {
   // expr = expr + 2;
   // vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
 
-
   /* full version, but there cannot be any spaces in EXPR. */
   bool success = true;
   vaddr_t src = expr(EXPR, &success);
