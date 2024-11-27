@@ -25,7 +25,7 @@
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
-#define CONFIG_WATCHPOINT "false"
+#define CONFIG_WATCHPOINT "true"
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
