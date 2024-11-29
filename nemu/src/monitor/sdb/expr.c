@@ -287,9 +287,8 @@ word_t eval(int left, int right, bool *success) {
      * For now this token should be a number.
      * Return the value of the number.
      */
-    int op_type = tokens[left].type;
-    printf("operator type: %d\n", op_type);
-    switch(op_type) {
+    int num_type = tokens[left].type;
+    switch(num_type) {
       case TK_HEX:
         char *hex_str = tokens[left].str+2;
         if (strlen(hex_str) <= 0 || strlen(hex_str) > 8) {
@@ -304,7 +303,7 @@ word_t eval(int left, int right, bool *success) {
       case TK_REG:
         char *reg_str;
         if (strcmp(tokens[left].str, "$0") == 0) {
-          reg_str = tokens[left].str;
+          reg_str = "$0";
         }
         else {
           reg_str = tokens[left].str+1;
