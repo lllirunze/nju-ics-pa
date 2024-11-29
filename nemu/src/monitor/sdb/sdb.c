@@ -141,9 +141,9 @@ static int cmd_x(char *args) {
 static int cmd_p(char *args) {
 
   /* Attention: No spaces in the expression. */
-  char *str = strtok(NULL, " ");
+  // char *str = strtok(NULL, " ");
 
-  if (str == NULL) {
+  if (args == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: p EXPR\n");
     return 0;
@@ -151,7 +151,7 @@ static int cmd_p(char *args) {
   // printf("%s\n", args);
 
   bool success = true;
-  word_t result = expr(str, &success);
+  word_t result = expr(args, &success);
   if (success == false) {
     printf("Error: Unable to calculate correctly.\n");
   }
@@ -162,17 +162,17 @@ static int cmd_p(char *args) {
 
 static int cmd_w(char *args) {
 
-  char *str = strtok(NULL, " ");
+  // char *str = strtok(NULL, " ");
 
-  if (str == NULL) {
+  if (args == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: w EXPR\n");
     return 0;
   }
 
-  int NO = set_wp(str);
+  int NO = set_wp(args);
   if (NO != -1) {
-    printf("Watchpoint %d: %s\n", NO, str);
+    printf("Watchpoint %d: %s\n", NO, args);
   }
   return 0;
 }
