@@ -42,9 +42,7 @@ gdb: run-env
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
 
 count:
-	@echo "Counting code lines in .c and .h files..."
-	$(shell pwd)
-	@$(shell find -name "*.c" -o -name "*.h" | xargs wc -l)
+	@find -name "*.c" -o -name "*.h" | xargs wc -l
 
 clean-tools = $(dir $(shell find ./tools -maxdepth 2 -mindepth 2 -name "Makefile"))
 $(clean-tools):

@@ -163,6 +163,12 @@ find -name "*.c" -o -name "*.h" | xargs grep -v '^\s*$' | wc -l
 git diff --stat pa0..pa1
 ```
 
+### What do -Wall and -Werror do in gcc?
+
+-Wall: turn on **common warnings** to help developers find potential problems.
+
+-Werror: **treat all warnings as errors** and force developers to fix them to ensure code quality.
+
 ### Issue
 
 * **cmd_d**: I don't actually return the watchpoints to free_, and I just left it **unused**.
