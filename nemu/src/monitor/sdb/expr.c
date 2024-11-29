@@ -412,6 +412,10 @@ word_t eval(int left, int right, bool *success) {
 }
 
 void free_token() {
+  int i;
+  for (i=0; i<MAX_TOKENS; i++) {
+    memset(tokens[i].str, 0, sizeof(tokens[i].str));
+  }
   return;
 }
 
