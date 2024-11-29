@@ -308,14 +308,13 @@ word_t eval(int left, int right, bool *success) {
         return (word_t)strtoul(dec_str, NULL, 10);
       case TK_REG:
         char *reg_str;
-        printf("token: %s\n", tokens[left].str);
         if (strcmp(tokens[left].str, "$0") == 0) {
           reg_str = tokens[left].str;
         }
         else {
           reg_str = tokens[left].str+1;
         }
-        printf("register: %s\n", reg_str);
+        // printf("register: %s\n", reg_str);
         return isa_reg_str2val(reg_str, success);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
@@ -426,10 +425,6 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-
-  printf("%s\n", e);
-
-  printf("left: %d, right: %d\n", 0, nr_token-1);
 
   // return eval(0, nr_token-1, success);
   word_t result = eval(0, nr_token-1, success);
