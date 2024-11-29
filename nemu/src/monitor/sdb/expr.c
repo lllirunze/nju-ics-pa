@@ -302,6 +302,7 @@ word_t eval(int left, int right, bool *success) {
         return (word_t)strtoul(dec_str, NULL, 10);
       case TK_REG:
         char *reg_str;
+        printf("token: %s\n", tokens[left].str);
         if (strcmp(tokens[left].str, "$0") == 0) {
           reg_str = tokens[left].str;
         }
