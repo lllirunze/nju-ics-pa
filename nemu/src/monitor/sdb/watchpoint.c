@@ -54,12 +54,14 @@ static WP *new_wp() {
   return wp;
 }
 
-// static void free_wp(WP *wp) {
-//   // Here I didn't return wp to free_.
-//   // free(wp->expression);
-//   // wp->val = 0;
-//   return;
-// }
+static void free_wp(WP *wp) {
+  // Here I didn't return wp to free_.
+  // free(wp->expression);
+  // wp->val = 0;
+  wp->next = free_;
+  free_ = wp;
+  return;
+}
 
 void display_wp() {
   if (head == NULL) {
@@ -104,19 +106,19 @@ void delete_wp(int n) {
   }
 
   bool find_wp = false;
-  // WP *wp;
+  WP *wp;
 
   WP *cur = head;
   if (cur->NO == n) {
     find_wp = true;
-    // wp = cur;
+    wp = cur;
     head = head->next;
   }
   else {
     while (cur->next != NULL) {
       if (cur->next->NO == n) {
         find_wp = true;
-        // wp = cur->next;
+        wp = cur->next;
         cur->next = cur->next->next;
         break;
       }
@@ -129,7 +131,7 @@ void delete_wp(int n) {
   }
   else {
     printf("Delete watchpoint %d\n", n);
-    // free_wp(wp);
+    free_wp(wp);
   }
   return;
 }
