@@ -309,6 +309,7 @@ word_t eval(int left, int right, bool *success) {
         else {
           reg_str = tokens[left].str+1;
         }
+        printf("register: %s\n", reg_str);
         return isa_reg_str2val(reg_str, success);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
