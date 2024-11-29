@@ -41,6 +41,11 @@ gdb: run-env
 	$(call git_commit, "gdb NEMU")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
 
+count:
+	@echo "Counting code lines in .c and .h files..."
+	$(shell pwd)
+	@find -name "*.c" -o -name "*.h" | xargs wc -l
+
 clean-tools = $(dir $(shell find ./tools -maxdepth 2 -mindepth 2 -name "Makefile"))
 $(clean-tools):
 	-@$(MAKE) -s -C $@ clean
