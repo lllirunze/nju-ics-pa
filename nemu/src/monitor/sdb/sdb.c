@@ -140,6 +140,7 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
 
+  /* Attention: No spaces in the expression. */
   char *str = strtok(NULL, " ");
 
   if (str == NULL) {

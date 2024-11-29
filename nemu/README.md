@@ -171,7 +171,7 @@ git diff --stat pa0..pa1
 
 ### Issue
 
-* 
+* Attention: No spaces in the expression.
 * **cmd_d**: I don't actually return the watchpoints to free_, and I just left it **unused**.
   * I have set it unused when cmd_d.
 * **info w**: I output watchpoints in **reverse order**, which doesn't really fit gdb in terms of output style.
