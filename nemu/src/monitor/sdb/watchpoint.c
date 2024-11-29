@@ -59,6 +59,8 @@ static void free_wp(WP *wp) {
   // free(wp->expression);
   // wp->val = 0;
   wp->next = free_;
+  wp->old_val = 0;
+  memset(wp->expression, 0, sizeof(wp->expression));
   free_ = wp;
   return;
 }
