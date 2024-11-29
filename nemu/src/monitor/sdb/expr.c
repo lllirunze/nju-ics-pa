@@ -411,7 +411,9 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
 
-  printf("left: %d, right: %d", 0, nr_token-1);
+  printf("%s\n", e);
+
+  printf("left: %d, right: %d\n", 0, nr_token-1);
 
   return eval(0, nr_token-1, success);
 }
