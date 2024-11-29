@@ -303,7 +303,7 @@ word_t eval(int left, int right, bool *success) {
       case TK_REG:
         char *reg_str;
         if (strcmp(tokens[left].str, "$0") == 0) {
-          reg_str = "$0";
+          reg_str = tokens[left].str;
         }
         else {
           reg_str = tokens[left].str+1;
