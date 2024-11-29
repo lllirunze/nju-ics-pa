@@ -288,6 +288,7 @@ word_t eval(int left, int right, bool *success) {
      * Return the value of the number.
      */
     int op_type = tokens[left].type;
+    printf("operator type: %d\n", op_type);
     switch(op_type) {
       case TK_HEX:
         char *hex_str = tokens[left].str+2;
