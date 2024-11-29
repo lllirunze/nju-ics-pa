@@ -171,7 +171,9 @@ git diff --stat pa0..pa1
 
 ### Issue
 
+* 
 * **cmd_d**: I don't actually return the watchpoints to free_, and I just left it **unused**.
+  * I have set it unused when cmd_d.
 * **info w**: I output watchpoints in **reverse order**, which doesn't really fit gdb in terms of output style.
 * **trace_and_difftest()**: Although I implemented a cyclic scan of watchpoints, I did **not create the macro CONFIG_WATCHPOINT**. I just implemented it as a code definition. I also did not add a switch option in nemu/Kconfig for the watchpoint.
   ```c
