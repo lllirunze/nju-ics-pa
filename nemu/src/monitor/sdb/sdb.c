@@ -160,15 +160,18 @@ static int cmd_p(char *args) {
 }
 
 static int cmd_w(char *args) {
-  if (args == NULL) {
+
+  char *str = strtok(NULL, " ");
+
+  if (str == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: w EXPR\n");
     return 0;
   }
 
-  int NO = set_wp(args);
+  int NO = set_wp(str);
   if (NO != -1) {
-    printf("Watchpoint %d: %s\n", NO, args);
+    printf("Watchpoint %d: %s\n", NO, str);
   }
   return 0;
 }
