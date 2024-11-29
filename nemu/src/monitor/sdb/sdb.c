@@ -140,7 +140,9 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
 
-  if (args == NULL) {
+  char *str = strtok(NULL, " ");
+
+  if (str == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: p EXPR\n");
     return 0;
@@ -148,7 +150,7 @@ static int cmd_p(char *args) {
   // printf("%s\n", args);
 
   bool success = true;
-  word_t result = expr(args, &success);
+  word_t result = expr(str, &success);
   if (success == false) {
     printf("Error: Unable to calculate correctly.\n");
   }
