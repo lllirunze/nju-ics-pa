@@ -94,8 +94,7 @@ int set_wp(char* args) {
   strcpy(wp->expression, args);
   // wp->expression = str;
   wp->old_val = result;
-  
-  // todo: I want to sort the watchpoint by id.
+
   if (head == NULL) {
     wp->next = head;
     head = wp;
