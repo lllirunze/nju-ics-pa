@@ -56,8 +56,6 @@ static WP *new_wp() {
 
 static void free_wp(WP *wp) {
   // Here I didn't return wp to free_.
-  // free(wp->expression);
-  // wp->val = 0;
   wp->next = free_;
   wp->old_val = 0;
   memset(wp->expression, 0, sizeof(wp->expression));
@@ -96,8 +94,33 @@ int set_wp(char* args) {
   strcpy(wp->expression, args);
   // wp->expression = str;
   wp->old_val = result;
-  wp->next = head;
-  head = wp;
+  
+  // todo: I want to sort the watchpoint by id.
+  if (head == NULL) {
+    wp->next = head;
+    head = wp;
+  }
+  else if (wp->NO < head->NO) {
+    wp->next = head;
+    head = wp;
+  }
+  else {
+    WP *pre = head;
+    WP *nxt = head->next;
+    while (nxt != NULL) {
+      if (pre->NO < wp->NO && wp->NO < nxt->NO) {
+        wp->next = nxt;
+        pre->next = wp;
+        return wp->NO;
+      }
+      else {
+        pre = nxt;
+        nxt = nxt->next;
+      }
+    }
+    wp->next = nxt;
+    pre->next = wp;
+  }
   return wp->NO;
 }
 

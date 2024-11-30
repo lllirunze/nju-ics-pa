@@ -75,7 +75,7 @@ static struct rule {
 };
 
 #define NR_REGEX ARRLEN(rules)
-#define MAX_TOKENS 32
+#define NR_TOKENS 32
 
 static regex_t re[NR_REGEX] = {};
 
@@ -102,7 +102,7 @@ typedef struct token {
   int priority;
 } Token;
 
-static Token tokens[MAX_TOKENS] __attribute__((used)) = {};
+static Token tokens[NR_TOKENS] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -134,7 +134,7 @@ static bool make_token(char *e) {
           return false;
         }
 
-        if (nr_token >= MAX_TOKENS) {
+        if (nr_token >= NR_TOKENS) {
           printf("Error: There is too many tokens.\n");
           return false;
         }
@@ -412,7 +412,7 @@ word_t eval(int left, int right, bool *success) {
 
 void free_token() {
   int i;
-  for (i=0; i<MAX_TOKENS; i++) {
+  for (i=0; i<NR_TOKENS; i++) {
     memset(tokens[i].str, 0, sizeof(tokens[i].str));
   }
   return;
