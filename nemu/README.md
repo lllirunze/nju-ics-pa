@@ -173,9 +173,9 @@ git diff --stat pa0..pa1
 
 * ~~cmd_d: I don't actually return the watchpoints to free_, and I just left it **unused**.~~
   * I have recycled watchpoints when cmd_d.
-  * But I haven't sort free_ yet.
+  * But I haven't sorted free_ yet.
 * ~~info w: I output watchpoints in reverse order, which doesn't really fit gdb in terms of output style.~~
-  * I have sort the display information.
+  * I have sort the display information in set_wp.
 * **trace_and_difftest()**: Although I implemented a cyclic scan of watchpoints, I did **not create the macro CONFIG_WATCHPOINT**. I just implemented it as a code definition. I also did not add a switch option in nemu/Kconfig for the watchpoint.
   ```c
   // ics2024/nemu/src/cpu/cpu-exec.c
