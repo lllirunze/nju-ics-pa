@@ -176,7 +176,8 @@ git diff --stat pa0..pa1
   * But I haven't sorted free_ yet.
 * ~~info w: I output watchpoints in reverse order, which doesn't really fit gdb in terms of output style.~~
   * I have sort the display information in set_wp.
-* **trace_and_difftest()**: Although I implemented a cyclic scan of watchpoints, I did **not create the macro CONFIG_WATCHPOINT**. I just implemented it as a code definition. I also did not add a switch option in nemu/Kconfig for the watchpoint.
+* **trace_and_difftest()**: Although I implemented a cyclic scan of watchpoints, I did **not create the macro CONFIG_WATCHPOINT**.
+  * I am considering the following coding, i.e. hard coding.
   ```c
   // ics2024/nemu/src/cpu/cpu-exec.c
   /* Scan watchpoints, here we can manually edit CONFIG_WATCHPOINT to open the configuration. */
