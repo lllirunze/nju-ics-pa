@@ -52,8 +52,8 @@ enum {
 
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
+// #define immR() do {} while(0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
-// #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immJ() do { *imm = (SEXT(BITS(i, 31, 31), 1) << 20) | (BITS(i, 19, 12) << 12) | (BITS(i, 20, 20) << 11) | (BITS(i, 30, 21) << 1);} while(0)
@@ -64,8 +64,8 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   int rs2 = BITS(i, 24, 20);
   *rd     = BITS(i, 11, 7);
   switch (type) {
+    case TYPE_R: src1R(); src2R();         break;
     case TYPE_I: src1R();          immI(); break;
-    // case TYPE_U:                   immU(); break;
     case TYPE_S: src1R(); src2R(); immS(); break;
     case TYPE_U:                   immU(); break;
     case TYPE_J:                   immJ(); break;
@@ -104,7 +104,6 @@ static int decode_exec(Decode *s) {
   // bgeu
   // lb
   // lh
-  // lw
   INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw     , I, R(rd) = Mr(src1 + imm, 4));
   INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu    , I, R(rd) = Mr(src1 + imm, 1));
   // lhu
@@ -120,7 +119,7 @@ static int decode_exec(Decode *s) {
   // slli
   // srli
   // srai
-  // add
+  INSTPAT("0000000 ????? ????? 000 ????? 01100 11", and    , R, R(rd) = src1 + src2);
   // sub
   // sll
   // slt
