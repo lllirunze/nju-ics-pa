@@ -59,6 +59,8 @@ enum {
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immJ() do { *imm = (SEXT(BITS(i, 31, 31), 1) << 20) | (BITS(i, 19, 12) << 12) | (BITS(i, 20, 20) << 11) | (BITS(i, 30, 21) << 1); } while(0)
 
+#define xlen sizeof(word_t)*8
+
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst;
   int rs1 = BITS(i, 19, 15);
@@ -139,14 +141,14 @@ static int decode_exec(Decode *s) {
   /* ebreak  */ INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   // RV32M Standard Extension
-  /* mul     */ INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = (uint32_t)(src1 * src2));
-  /* mulh    */
-  /* mulhsu  */
-  /* mulhu   */
-  /* div     */
-  /* divu    */
-  /* rem     */
-  /* remu    */
+  /* mul     */ INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = (int32_t)src1 * (int32_t)src2);
+  /* mulh    */ INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = ((int64_t)src1 * (int64_t)src2) >> xlen);
+  /* mulhsu  */ INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulhsu , R, R(rd) = ((int64_t)src1 * (uint64_t)src2) >> xlen);
+  /* mulhu   */ INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulhu  , R, R(rd) = ((uint64_t)src1 * (uint64_t)src2) >> xlen);
+  /* div     */ INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, R(rd) = (int32_t)src1 / (int32_t)src2);
+  /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, R(rd) = src1 / src2);
+  /* rem     */ INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = (int32_t)src1 % (int32_t)src2);
+  /* remu    */ INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = src1 % src2);
 
   // If all the previous pattern matching rules fail to match successfully, the instruction is considered illegal.
   /* inv     */ INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
