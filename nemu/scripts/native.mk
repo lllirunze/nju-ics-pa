@@ -35,7 +35,8 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(call git_commit, "run NEMU")
-	$(NEMU_EXEC)
+	# $(NEMU_EXEC)
+	@echo c | $(NEMU_EXEC)  # 自动输入 "c" 来运行客户程序
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
