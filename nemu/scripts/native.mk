@@ -35,7 +35,9 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(call git_commit, "run NEMU")
+	# Waiting for command input.
 	# $(NEMU_EXEC)
+	# Automatically enter the commands 'c' and 'q'.
 	@echo "c\nq" | $(NEMU_EXEC)
 
 gdb: run-env
