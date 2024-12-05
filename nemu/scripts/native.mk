@@ -35,12 +35,12 @@ run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
 	$(call git_commit, "run NEMU")
-	# Waiting for command input.
+	# I/O form 1: Waiting for command input.
 	# $(NEMU_EXEC)
-	# Automatically enter the commands 'c' and 'q'.
-	# @echo "c\nq" | $(NEMU_EXEC)
-	# Suppress all output
-	@echo "c\nq" | $(NEMU_EXEC) > /dev/null 2>&1
+	# I/O form 2: Automatically enter the commands 'c' and 'q'.
+	@echo "c\nq" | $(NEMU_EXEC)
+	# I/O form 3: Suppress all output.
+	# @echo "c\nq" | $(NEMU_EXEC) > /dev/null 2>&1
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
