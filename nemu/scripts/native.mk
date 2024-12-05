@@ -38,7 +38,9 @@ run: run-env
 	# Waiting for command input.
 	# $(NEMU_EXEC)
 	# Automatically enter the commands 'c' and 'q'.
-	@echo "c\nq" | $(NEMU_EXEC)
+	# @echo "c\nq" | $(NEMU_EXEC)
+	# Suppress all output
+	@echo "c\nq" | $(NEMU_EXEC) > /dev/null 2>&1
 
 gdb: run-env
 	$(call git_commit, "gdb NEMU")
