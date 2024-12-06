@@ -178,3 +178,10 @@ git diff --stat pa0..pa1
   }
   ```
 
+## PA2 - Simple complex machines: Von Neumann computer systems
+
+### Issue
+
+* RISC-V instruction tests: I haven't used those test sets.
+  * [riscv-tests-am](https://github.com/NJU-ProjectN/riscv-tests-am)
+  * [riscv-arch-test-am](https://github.com/NJU-ProjectN/riscv-arch-test-am)
