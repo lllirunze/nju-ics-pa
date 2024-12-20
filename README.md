@@ -160,28 +160,14 @@ git diff --stat pa0..pa1
   * I have recycled watchpoints when cmd_d.
   * But I haven't sorted free_ yet.
 * ~~info w: I output watchpoints in reverse order, which doesn't really fit gdb in terms of output style.~~
-  * I have sort the display information in set_wp.
-* **trace_and_difftest()**: Although I implemented a cyclic scan of watchpoints, I did **not create the macro CONFIG_WATCHPOINT**.
-  * I am considering the following coding, i.e. hard coding.
-  ```c
-  // ics2024/nemu/src/cpu/cpu-exec.c
-  /* Scan watchpoints, here we can manually edit CONFIG_WATCHPOINT to open the configuration. */
-  static bool CONFIG_WATCHPOINT = false;
-  static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
-    ...
-    /* Scan watchpoints. */
-    if (CONFIG_WATCHPOINT) {
-      if (scan_wp(_this->pc)) {
-        nemu_state.state = NEMU_STOP;
-      }
-    }
-  }
-  ```
+  * I have sorted the display information in set_wp.
+* ~~trace_and_difftest(): Although I implemented a cyclic scan of watchpoints, I did not create the macro CONFIG_WATCHPOINT.~~
+  * I have created the macro CONFIG_WATCHPOINT..
 
 ## PA2 - Simple complex machines: Von Neumann computer systems
 
 ### Issue
 
-* RISC-V instruction tests: I haven't used those test sets.
+* ~~RISC-V instruction tests: I haven't used those test sets.~~
   * [riscv-tests-am](https://github.com/NJU-ProjectN/riscv-tests-am)
   * [riscv-arch-test-am](https://github.com/NJU-ProjectN/riscv-arch-test-am)
