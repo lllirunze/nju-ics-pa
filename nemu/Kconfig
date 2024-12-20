@@ -162,8 +162,8 @@ config DIFFTEST
 
 config WATCHPOINT
   depends on ITRACE
-  string "Every time an instruction is executed, scan watchpoints"
-  default "false"
+  bool "Every time an instruction is executed, scan watchpoints"
+  default n
 
 choice
   prompt "Reference design"
