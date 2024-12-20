@@ -23,24 +23,30 @@ int sprintf(char *out, const char *fmt, ...) {
       fmt++;
       if (*fmt == 'd') {
         int num = va_arg(args, int);
-        if (num < 0) {
-          out[i++] = '-';
-          num = -num;
+        if (num == 0) {
+          out[i++] = '0';
         }
-        int left = i;
-        while (num > 0) {
-          out[i++] = (num % 10) + '0';
-          num /= 10;
+        else {
+          if (num < 0) {
+            out[i++] = '-';
+            num = -num;
+          }
+          int left = i;
+          while (num > 0) {
+            out[i++] = (num % 10) + '0';
+            num /= 10;
+          }
+          int right = i-1;
+          char temp;
+          while (left < right) {
+            temp = out[left];
+            out[left] = out[right];
+            out[right] = temp;
+            left++;
+            right--;
+          }
         }
-        int right = i-1;
-        char temp;
-        while (left < right) {
-          temp = out[left];
-          out[left] = out[right];
-          out[right] = temp;
-          left++;
-          right--;
-        }
+        
         // panic("Not implemented");
       }
       else if (*fmt == 's') {
