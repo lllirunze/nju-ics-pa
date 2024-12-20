@@ -19,7 +19,8 @@
 #include <locale.h>
 #include "../monitor/sdb/sdb.h"
 
-/* The assembly code of instructions executed is only output to the screen
+/**
+ * The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
  * This is useful when you use the `si' command.
  * You can modify this value as you want.
@@ -32,7 +33,7 @@ static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
 /* Scan watchpoints, here we can manually edit CONFIG_WATCHPOINT to open the configuration. */
-static bool CONFIG_WATCHPOINT = false;
+// static bool CONFIG_WATCHPOINT = false;
 
 void device_update();
 
@@ -49,7 +50,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
       nemu_state.state = NEMU_STOP;
     }
   }
-  
+
 }
 
 static void exec_once(Decode *s, vaddr_t pc) {
