@@ -177,7 +177,14 @@ static int decode_exec(Decode *s) {
                                                                                   R(rd) = (int32_t)src1 % (int32_t)src2;
                                                                                 }
                                                                               }));
-  /* remu    */ INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, ({if (src2 != 0) R(rd) = src1 % src2;}));
+  /* remu    */ INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, ({
+                                                                                if (src2 == 0) {
+                                                                                  R(rd) = src1;
+                                                                                } 
+                                                                                else {
+                                                                                  R(rd) = src1 % src2;
+                                                                                }
+                                                                              }));
 
   // If all the previous pattern matching rules fail to match successfully, the instruction is considered illegal.
   /* inv     */ INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
