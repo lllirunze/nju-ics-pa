@@ -151,6 +151,12 @@ static int decode_exec(Decode *s) {
                                                                                 if ((int32_t)src2 != 0) {
                                                                                   R(rd) = (int32_t)src1 / (int32_t)src2;
                                                                                 }
+                                                                                else if ((int32_t)src2 <= (int32_t)0x80000000) {
+                                                                                  R(rd) = (int32_t)(-1<<31);
+                                                                                }
+                                                                                else {
+                                                                                  R(rd) = (int32_t)(-1);
+                                                                                }
                                                                               }));
   /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, ({if (src2 != 0) {R(rd) = src1 / src2;} else {R(rd) = src1;}}));
   /* rem     */ INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, ({if ((int32_t)src2 != 0) R(rd) = (int32_t)src1 % (int32_t)src2;}));
