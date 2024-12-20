@@ -22,9 +22,26 @@ int sprintf(char *out, const char *fmt, ...) {
     if (*fmt == '%') {
       fmt++;
       if (*fmt == 'd') {
-        // int num = va_arg(args, int);
-        // todo: I haven't finished '%d'.
-        panic("Not implemented");
+        int num = va_arg(args, int);
+        if (num < 0) {
+          out[i++] = '-';
+          num = -num;
+        }
+        int left = i;
+        while (num > 0) {
+          out[i++] = (num % 10) + '0';
+          num /= 10;
+        }
+        int right = i-1;
+        char temp;
+        while (left < right) {
+          temp = out[left];
+          out[left] = out[right];
+          out[right] = temp;
+          left++;
+          right--;
+        }
+        // panic("Not implemented");
       }
       else if (*fmt == 's') {
         char *str = va_arg(args, char*);
@@ -34,7 +51,7 @@ int sprintf(char *out, const char *fmt, ...) {
         }
       }
       else {
-        panic("Not implemented");
+        panic("Not implemented, we only have \%d and \%s.");
       }
     }
     else out[i++] = *fmt;
