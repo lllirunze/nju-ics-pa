@@ -158,7 +158,14 @@ static int decode_exec(Decode *s) {
                                                                                   R(rd) = (int32_t)src1 / (int32_t)src2;
                                                                                 }
                                                                               }));
-  /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, ({if (src2 != 0) {R(rd) = src1 / src2;} else {R(rd) = src1;}}));
+  /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, ({
+                                                                                if (src2 == 0) {
+                                                                                  R(rd) = 0x7fffffff;
+                                                                                } 
+                                                                                else {
+                                                                                  R(rd) = src1 / src2;
+                                                                                }
+                                                                              }));
   /* rem     */ INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, ({if ((int32_t)src2 != 0) R(rd) = (int32_t)src1 % (int32_t)src2;}));
   /* remu    */ INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, ({if (src2 != 0) R(rd) = src1 % src2;}));
 
