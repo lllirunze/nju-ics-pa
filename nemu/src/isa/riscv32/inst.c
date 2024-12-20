@@ -160,7 +160,7 @@ static int decode_exec(Decode *s) {
                                                                               }));
   /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, ({
                                                                                 if (src2 == 0) {
-                                                                                  R(rd) = (int32_t)(-1);
+                                                                                  R(rd) = 0xffffffff;
                                                                                 } 
                                                                                 else {
                                                                                   R(rd) = src1 / src2;
