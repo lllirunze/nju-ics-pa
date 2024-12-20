@@ -46,8 +46,6 @@ int sprintf(char *out, const char *fmt, ...) {
             right--;
           }
         }
-        
-        // panic("Not implemented");
       }
       else if (*fmt == 's') {
         char *str = va_arg(args, char*);
