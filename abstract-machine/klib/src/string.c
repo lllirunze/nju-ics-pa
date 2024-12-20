@@ -25,7 +25,7 @@ char *strcpy(char *dst, const char *src) {
 char *strncpy(char *dst, const char *src, size_t n) {
   // panic("Not implemented");
   size_t p = 0;
-  while(src[p] != '\0' && p<n) {
+  while(src[p] != '\0' && p < n) {
     dst[p] = src[p];
     p++;
   }
@@ -91,7 +91,7 @@ void *memmove(void *dst, const void *src, size_t n) {
 void *memcpy(void *out, const void *in, size_t n) {
   // panic("Not implemented");
   size_t p = 0;
-  while(p<n){
+  while(p < n){
     *((char*)out + p) = *((char*)in + p);
     p++;
   }
