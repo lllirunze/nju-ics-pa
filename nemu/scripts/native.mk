@@ -38,7 +38,7 @@ run: run-env
 # I/O form 1: Waiting for command input.
 	$(NEMU_EXEC)
 # I/O form 2: Automatically enter the commands 'c' and 'q'.
-	# @echo "c\nq" | $(NEMU_EXEC)
+# 	@echo "c\nq" | $(NEMU_EXEC)
 # I/O form 3: Suppress all output.
 # 	@echo "c\nq" | $(NEMU_EXEC) > /dev/null 2>&1
 
