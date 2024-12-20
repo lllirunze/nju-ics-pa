@@ -151,8 +151,8 @@ static int decode_exec(Decode *s) {
                                                                                 if ((int32_t)src2 != 0) {
                                                                                   R(rd) = (int32_t)src1 / (int32_t)src2;
                                                                                 }
-                                                                                else if ((int32_t)src2 <= (int32_t)0x80000000) {
-                                                                                  R(rd) = (int32_t)(-1<<31);
+                                                                                else if (src2 == 0x80000000) {
+                                                                                  R(rd) = 0x80000000;
                                                                                 }
                                                                                 else {
                                                                                   R(rd) = (int32_t)(-1);
