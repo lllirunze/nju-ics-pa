@@ -147,7 +147,7 @@ static int decode_exec(Decode *s) {
   /* mulh    */ INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = (SEXT(src1, 32) * SEXT(src2, 32)) >> xlen);
   /* mulhsu  */ INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulhsu , R, R(rd) = (SEXT(src1, 32) * (uint64_t)src2) >> xlen);
   /* mulhu   */ INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulhu  , R, R(rd) = ((uint64_t)src1 * (uint64_t)src2) >> xlen);
-  /* div     */ INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, ({if ((int32_t)src2 != 0) {R(rd) = (int32_t)src1 / (int32_t)src2;} else {R(rd) = (int32_t)(-1);}}));
+  /* div     */ INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, ({if ((int32_t)src2 != 0) {R(rd) = (int32_t)src1 / (int32_t)src2;} else {R(rd) = -1;}}));
   /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, ({if (src2 != 0) {R(rd) = src1 / src2;} else {R(rd) = src1;}}));
   /* rem     */ INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, ({if ((int32_t)src2 != 0) R(rd) = (int32_t)src1 % (int32_t)src2;}));
   /* remu    */ INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, ({if (src2 != 0) R(rd) = src1 % src2;}));
