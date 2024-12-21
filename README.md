@@ -166,6 +166,36 @@ git diff --stat pa0..pa1
 
 ## PA2 - Simple complex machines: Von Neumann computer systems
 
+### Where is "Hello World!" in the string table?
+
+Write a "Hello-World" program under Linux, compile it and find the string table of the ELF file by the above method, where do you find the "Hello World!" string in the string table? Why is it there?
+
+After writing hello.c:
+```c
+#include <stdio.h>
+
+int main() {
+  printf("Hello World!\n");
+  return 0;
+}
+```
+
+Run the following commands and we can get the result:
+
+```shell
+gcc -g -o hello hello.c
+readelf -x .rodata hello
+
+#result
+Hex dump of section '.rodata':
+  0x00002000 01000200 48656c6c 6f20576f 726c6421 ....Hello World!
+  0x00002010 00  
+```
+
+In C, string constants (such as “Hello, World!”) are stored as read-only global data. The compiler puts string constants into .rodata sections to save memory and to ensure that they are not modifiable (read-only property). 
+
+.strtab is specialized for storing symbol-related names (e.g., function names, variable names). "Hello, World!" is a string constant not directly related to a symbol, so it is not stored in .strtab.
+
 ### Issue
 
 * ~~RISC-V instruction tests: I haven't used those test sets.~~
