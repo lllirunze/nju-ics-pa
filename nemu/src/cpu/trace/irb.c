@@ -16,7 +16,7 @@
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
 
-#define MAX_IRING_BUF 10+1
+#define MAX_IRING_BUF 11
 
 typedef struct iringbuf {
     char buf[128];
