@@ -19,7 +19,7 @@ include $(NEMU_HOME)/scripts/build.mk
 include $(NEMU_HOME)/tools/difftest.mk
 
 compile_git:
-	$(call git_commit, "compile NEMU")
+#	$(call git_commit, "compile NEMU")
 $(BINARY):: compile_git
 
 # Some convenient rules
@@ -34,7 +34,7 @@ NEMU_EXEC := $(BINARY) $(ARGS) $(IMG)
 run-env: $(BINARY) $(DIFF_REF_SO)
 
 run: run-env
-	$(call git_commit, "run NEMU")
+# 	$(call git_commit, "run NEMU")
 # I/O form 1: Waiting for command input.
 	$(NEMU_EXEC)
 # I/O form 2: Automatically enter the commands 'c' and 'q'.
@@ -43,7 +43,7 @@ run: run-env
 # 	@echo "c\nq" | $(NEMU_EXEC) > /dev/null 2>&1
 
 gdb: run-env
-	$(call git_commit, "gdb NEMU")
+#	$(call git_commit, "gdb NEMU")
 	gdb -s $(BINARY) --args $(NEMU_EXEC)
 
 count:

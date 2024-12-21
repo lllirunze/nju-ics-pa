@@ -21,9 +21,17 @@ word_t vaddr_ifetch(vaddr_t addr, int len) {
 }
 
 word_t vaddr_read(vaddr_t addr, int len) {
+#ifdef CONFIG_MTRACE
+  log_write("Memory read 0x%08x at $pc=0x%08x\n", addr, cpu.pc);
+  // Log("Memory read 0x%08x at $pc=0x%08x", addr, cpu.pc);
+#endif
   return paddr_read(addr, len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data) {
+#ifdef CONFIG_MTRACE
+  log_write("Memory write %u to address 0x%08x at $pc=0x%08x\n", data, addr, cpu.pc);
+  // Log("Memory write %u to address 0x%08x at $pc=0x%08x", data, addr, cpu.pc);
+#endif
   paddr_write(addr, len, data);
 }
