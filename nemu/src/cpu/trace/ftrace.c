@@ -13,18 +13,19 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#ifndef __CPU_TRACE_H__
+#include <cpu/cpu.h>
+#include <cpu/decode.h>
+#include <cpu/trace.h>
 
-#define MAX_IRING_BUF 11
+void init_ftrace(const char *elf_file) {
+    printf("Initialize ftrace\n");
 
-typedef struct iringbuf {
-    char buf[128];
-    struct iringbuf *next;
-} iringbuf;
+    // FILE *elf_fp = fopen(elf_file, "rb");
+    // if (elf_fp == NULL) {
+    //     // Assert(elf_fp, "Can not open '%s'", elf_file);
+    //     printf("Can not open '%s'\n", elf_file);
+    //     assert(0);
+    // }
+    // Log("")
 
-void insert_IRingBuf(char *p);
-void display_IRingBuf();
-
-void init_ftrace(const char *elf_file);
-
-#endif
+}
