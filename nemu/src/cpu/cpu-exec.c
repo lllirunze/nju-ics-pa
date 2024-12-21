@@ -110,7 +110,9 @@ static void statistic() {
 void assert_fail_msg() {
   isa_reg_display();
   statistic();
+#ifdef CONFIG_ITRACE
   display_IRingBuf();
+#endif
 }
 
 /* Simulate how the CPU works. */
