@@ -15,13 +15,7 @@
 
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
-
-#define MAX_IRING_BUF 11
-
-typedef struct iringbuf {
-    char buf[128];
-    struct iringbuf *next;
-} iringbuf;
+#include <cpu/trace.h>
 
 static iringbuf iringbufs[MAX_IRING_BUF] = {};
 static iringbuf *head = NULL;

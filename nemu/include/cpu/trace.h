@@ -15,6 +15,13 @@
 
 #ifndef __CPU_TRACE_H__
 
+#define MAX_IRING_BUF 11
+
+typedef struct iringbuf {
+    char buf[128];
+    struct iringbuf *next;
+} iringbuf;
+
 void insert_IRingBuf(char *p);
 void display_IRingBuf();
 
