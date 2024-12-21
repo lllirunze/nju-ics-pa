@@ -16,7 +16,7 @@
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
 
-#define MAX_IRING_BUF 10
+#define MAX_IRING_BUF 10+1
 
 typedef struct iringbuf {
     char buf[128];
@@ -30,6 +30,10 @@ static bool initFlag = false;
 
 static void init_IRingBuf() {
     initFlag = true;
+    /**
+     * Recurring linked lists, in which a node needs to be occupied 
+     * as a condition for determining when the queue is full.
+     */
     int i;
     for (i=0; i<MAX_IRING_BUF; i++) {
         iringbufs[i].next = &iringbufs[(i+1)%MAX_IRING_BUF];
@@ -40,5 +44,24 @@ static void init_IRingBuf() {
 
 void insert_IRingBuf(char *p) {
     if (initFlag == false) init_IRingBuf();
-    
+    if (tail->next == head) {
+        // iringbufs is full
+        memset(head->buf, 0, sizeof(head->buf));
+        head = head->next;
+    }
+    memcpy(tail->buf, p, 128);
+    tail = tail->next;
+}
+
+void display_IRingBuf() {
+    if (head == tail) {
+        printf("The program hasn't started running yet.\n");
+        return;
+    }
+    iringbuf *cur = head;
+    while (cur->next != tail) {
+        printf("      %s\n", cur->buf);
+        cur = cur->next;
+    }
+    printf("  --> %s\n", cur->buf);
 }
