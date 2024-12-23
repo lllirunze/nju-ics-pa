@@ -13,32 +13,32 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include <cpu/decode.h>
+// #include <cpu/decode.h>
 
-#ifndef __CPU_TRACE_H__
+// #ifndef __CPU_TRACE_H__
 
-#define MAX_IRING_BUF 11
+// #define MAX_IRING_BUF 11
 
-typedef struct iringbuf {
-	char buf[128];
-	struct iringbuf *next;
-} iringbuf;
+// typedef struct iringbuf {
+// 	char buf[128];
+// 	struct iringbuf *next;
+// } iringbuf;
 
-typedef struct functab {
-	vaddr_t func_start;
-	vaddr_t func_end;
-	char func_name[128];
-	struct functab *next;
-} functab;
+// typedef struct functab {
+// 	vaddr_t func_start;
+// 	vaddr_t func_end;
+// 	char func_name[128];
+// 	struct functab *next;
+// } functab;
 
-void insert_IRingBuf(char *p);
-void display_IRingBuf();
+// void insert_IRingBuf(char *p);
+// void display_IRingBuf();
 
-void init_elf(const char *elf_file);
-void init_ftrace(const char *ftrace_file);
-void ftrace_call(Decode *s);
-void ftrace_ret(Decode *s);
-void ftrace_jal(Decode *s);
-void ftrace_jalr(Decode *s, uint32_t inst);
+// void init_elf(const char *elf_file);
+// void init_ftrace(const char *ftrace_file);
+// void ftrace_call(Decode *s);
+// void ftrace_ret(Decode *s);
+// void ftrace_jal(Decode *s);
+// void ftrace_jalr(Decode *s, uint32_t inst);
 
-#endif
+// #endif

@@ -17,16 +17,11 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
-#include <cpu/trace.h>
+#include <trace.h>
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
-
-// enum {
-//   TYPE_I, TYPE_U, TYPE_S,
-//   TYPE_N, // none
-// };
 
 enum {
   TYPE_R, TYPE_I, TYPE_S, TYPE_B, TYPE_U, TYPE_J,
@@ -170,24 +165,6 @@ static int decode_exec(Decode *s) {
   INSTPAT_END();
 
   R(0) = 0; // reset $zero to 0
-
-// #ifdef CONFIG_FTRACE
-//   uint32_t opcode = INSTPAT_INST(s) & 0b1111111;
-//   uint32_t funct3 = (INSTPAT_INST(s) >> 12) & 0b111;
-//   uint32_t jarl_imm = (INSTPAT_INST(s) >> 20) & 0b111111111111;
-//   if (INSTPAT_INST(s) == 0x00008067) {
-//     ftrace_ret(s);
-//   }
-//   else if (opcode == 0b1101111) {
-//     // printf("0x%08x: 0x%08x jal\n", s->pc, INSTPAT_INST(s));
-//     ftrace_call(s);
-//   }
-//   else if (opcode == 0b1100111 && funct3 == 0) {
-//     // printf("0x%08x: 0x%08x jalr\n", s->pc, INSTPAT_INST(s));
-//     if (jarl_imm == 0) ftrace_call(s);
-//     // else ftrace_call(s);
-//   }
-// #endif
 
   return 0;
 }

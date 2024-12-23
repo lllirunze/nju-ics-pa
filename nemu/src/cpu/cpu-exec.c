@@ -16,8 +16,8 @@
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
-#include <cpu/trace.h>
 #include <locale.h>
+#include <trace.h>
 #include "../monitor/sdb/sdb.h"
 
 /**
@@ -107,9 +107,15 @@ static void statistic() {
 void assert_fail_msg() {
   isa_reg_display();
   statistic();
+
 #ifdef CONFIG_ITRACE
   display_IRingBuf();
 #endif
+
+#ifdef CONFIG_FTRACE
+  close_ftrace();
+#endif
+
 }
 
 /* Simulate how the CPU works. */
