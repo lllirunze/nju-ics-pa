@@ -17,19 +17,21 @@
 #include <cpu/decode.h>
 #include <cpu/trace.h>
 #include <memory/paddr.h>
+#include <common.h>
 #include <elf.h>
 
 static functab *functab_head = NULL;
 static int level = 0;
+FILE *ftrace_fp = NULL;
 
-void init_ftrace(const char *elf_file) {
+void init_elf(const char *elf_file) {
     
 	FILE *elf_fp = fopen(elf_file, "rb");
 	if (elf_fp == NULL) {
 		printf("Can not open '%s'\n", elf_file);
 		assert(0);
 	}
-	Log("FTrace gets from %s", elf_file);
+	Log("Ftrace gets from %s", elf_file);
 
 	// read elf header
 	Elf32_Ehdr elf32_ehdr;
@@ -134,6 +136,17 @@ void init_ftrace(const char *elf_file) {
 
 }
 
+void init_ftrace(const char *ftrace_file) {
+	// printf("I will write calls and rets to ftrace file.\n");
+	ftrace_fp = stdout;
+	if (ftrace_file != NULL) {
+		FILE *fp = fopen(ftrace_file, "w");
+		Assert(fp, "Can not open '%s'", ftrace_file);
+		ftrace_fp = fp;
+	}
+	Log("Ftrace is written to %s", ftrace_file ? ftrace_file : "stdout");
+}
+
 char *get_function_name(vaddr_t addr) {
 	char *fname = NULL;
 	functab *cur = functab_head;
@@ -153,11 +166,11 @@ void ftrace_call(Decode *s) {
 	// <instr address(s->pc)>: call [target function(strtab(s->dnpc)) @ target address(s->dnpc)]
 	char *fname = get_function_name(s->dnpc);
 
-	printf("0x%08x: ", s->pc);
+	ftrace_write("0x%08x: ", s->pc);
 	int i;
-	for (i=0; i<level; i++) printf("  ");
+	for (i=0; i<level; i++) ftrace_write("  ");
 	level++;
-	printf("call [%s@0x%08x]\n", fname, s->dnpc);
+	ftrace_write("call [%s@0x%08x]\n", fname, s->dnpc);
 }
 
 void ftrace_ret(Decode *s) {
@@ -165,11 +178,11 @@ void ftrace_ret(Decode *s) {
 	// <instr address>: [ret ] [target function]
 	char *fname = get_function_name(s->pc);
 
-	printf("0x%08x: ", s->pc);
+	ftrace_write("0x%08x: ", s->pc);
 	level--;
 	int i;
-	for (i=0; i<level; i++) printf("  ");
-	printf("ret  [%s]\n", fname);
+	for (i=0; i<level; i++) ftrace_write("  ");
+	ftrace_write("ret  [%s]\n", fname);
 }
 
 void ftrace_jal(Decode *s) {

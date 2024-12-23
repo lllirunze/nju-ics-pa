@@ -15,6 +15,7 @@ LDFLAGS   += --gc-sections -e _start
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 # use elf file to ftrace
 NEMUFLAGS += --elf=$(IMAGE).elf
+NEMUFLAGS += --ftrace=$(shell dirname $(IMAGE).elf)/nemu-ftrace.txt
 
 MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = The insert-arg rule in Makefile will insert mainargs here.

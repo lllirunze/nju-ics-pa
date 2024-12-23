@@ -73,5 +73,16 @@ uint64_t get_time();
     log_write(__VA_ARGS__); \
   } while (0)
 
+// ----------- ftrace -----------
+
+#define ftrace_write(...) IFDEF(CONFIG_FTRACE \
+  do { \
+    extern FILE* ftrace_fp; \
+    if (ftrace_fp != NULL) { \
+      fprintf(ftrace_fp, __VA_ARGS__); \
+      fflush(ftrace_fp); \
+    } \
+  } while (0) \
+)
 
 #endif

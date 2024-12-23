@@ -34,7 +34,8 @@ typedef struct functab {
 void insert_IRingBuf(char *p);
 void display_IRingBuf();
 
-void init_ftrace(const char *elf_file);
+void init_elf(const char *elf_file);
+void init_ftrace(const char *ftrace_file);
 void ftrace_call(Decode *s);
 void ftrace_ret(Decode *s);
 void ftrace_jal(Decode *s);
