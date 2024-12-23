@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+#include <cpu/trace.h>
 
 #define R(i) gpr(i)
 #define Mr vaddr_read
@@ -101,8 +102,8 @@ static int decode_exec(Decode *s) {
   // RV32I Base Instruction Set
   /* lui     */ INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui    , U, R(rd) = imm);
   /* auipc   */ INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc  , U, R(rd) = s->pc + imm);
-  /* jal     */ INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->snpc, s->dnpc = s->pc + imm);
-  /* jalr    */ INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->snpc, s->dnpc = (src1 + imm) & (~1));
+  /* jal     */ INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->snpc, s->dnpc = s->pc + imm, ftrace_jal(s));
+  /* jalr    */ INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->snpc, s->dnpc = ((src1 + imm) & (~1)), ftrace_jalr(s, INSTPAT_INST(s)));
   /* beq     */ INSTPAT("??????? ????? ????? 000 ????? 11000 11", beq    , B, ({if (src1 == src2) s->dnpc = s->pc + imm;}));
   /* bne     */ INSTPAT("??????? ????? ????? 001 ????? 11000 11", bne    , B, ({if (src1 != src2) s->dnpc = s->pc + imm;}));
   /* blt     */ INSTPAT("??????? ????? ????? 100 ????? 11000 11", blt    , B, ({if ((sword_t)src1 < (sword_t)src2) s->dnpc = s->pc + imm;}));
@@ -146,49 +147,47 @@ static int decode_exec(Decode *s) {
   /* mulhsu  */ INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulhsu , R, R(rd) = (SEXT(src1, 32) * (uint64_t)src2) >> xlen);
   /* mulhu   */ INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulhu  , R, R(rd) = ((uint64_t)src1 * (uint64_t)src2) >> xlen);
   /* div     */ INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , R, ({
-                                                                                if ((int32_t)src2 == 0) {
-                                                                                  R(rd) = (int32_t)(-1);
-                                                                                }
-                                                                                else if ((int32_t)src1 == (int32_t)0x80000000 && (int32_t)src2 == (int32_t)(-1)) {
-                                                                                  R(rd) = 0x80000000;
-                                                                                }
-                                                                                else {
-                                                                                  R(rd) = (int32_t)src1 / (int32_t)src2;
-                                                                                }
-                                                                              }));
+                  if ((int32_t)src2 == 0) { R(rd) = (int32_t)(-1); }
+                  else if ((int32_t)src1 == (int32_t)0x80000000 && (int32_t)src2 == (int32_t)(-1)) { R(rd) = 0x80000000; }
+                  else { R(rd) = (int32_t)src1 / (int32_t)src2;}
+                }));
   /* divu    */ INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , R, ({
-                                                                                if (src2 == 0) {
-                                                                                  R(rd) = 0xffffffff;
-                                                                                } 
-                                                                                else {
-                                                                                  R(rd) = src1 / src2;
-                                                                                }
-                                                                              }));
+                  if (src2 == 0) { R(rd) = 0xffffffff; } 
+                  else { R(rd) = src1 / src2; }
+                }));
   /* rem     */ INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, ({
-                                                                                if ((int32_t)src2 == 0) {
-                                                                                  R(rd) = (int32_t)src1;
-                                                                                }
-                                                                                else if ((int32_t)src1 == (int32_t)0x80000000 && (int32_t)src2 == (int32_t)(-1)) {
-                                                                                  R(rd) = 0;
-                                                                                }
-                                                                                else {
-                                                                                  R(rd) = (int32_t)src1 % (int32_t)src2;
-                                                                                }
-                                                                              }));
+                  if ((int32_t)src2 == 0) { R(rd) = (int32_t)src1; }
+                  else if ((int32_t)src1 == (int32_t)0x80000000 && (int32_t)src2 == (int32_t)(-1)) { R(rd) = 0; }
+                  else { R(rd) = (int32_t)src1 % (int32_t)src2; }
+                }));
   /* remu    */ INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, ({
-                                                                                if (src2 == 0) {
-                                                                                  R(rd) = src1;
-                                                                                } 
-                                                                                else {
-                                                                                  R(rd) = src1 % src2;
-                                                                                }
-                                                                              }));
+                  if (src2 == 0) { R(rd) = src1; } 
+                  else { R(rd) = src1 % src2; }
+                }));
 
   // If all the previous pattern matching rules fail to match successfully, the instruction is considered illegal.
   /* inv     */ INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
 
   R(0) = 0; // reset $zero to 0
+
+// #ifdef CONFIG_FTRACE
+//   uint32_t opcode = INSTPAT_INST(s) & 0b1111111;
+//   uint32_t funct3 = (INSTPAT_INST(s) >> 12) & 0b111;
+//   uint32_t jarl_imm = (INSTPAT_INST(s) >> 20) & 0b111111111111;
+//   if (INSTPAT_INST(s) == 0x00008067) {
+//     ftrace_ret(s);
+//   }
+//   else if (opcode == 0b1101111) {
+//     // printf("0x%08x: 0x%08x jal\n", s->pc, INSTPAT_INST(s));
+//     ftrace_call(s);
+//   }
+//   else if (opcode == 0b1100111 && funct3 == 0) {
+//     // printf("0x%08x: 0x%08x jalr\n", s->pc, INSTPAT_INST(s));
+//     if (jarl_imm == 0) ftrace_call(s);
+//     // else ftrace_call(s);
+//   }
+// #endif
 
   return 0;
 }

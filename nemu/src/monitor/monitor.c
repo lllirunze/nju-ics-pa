@@ -86,7 +86,7 @@ static int parse_args(int argc, char *argv[]) {
     {"log"      , required_argument, NULL, 'l'},
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
-    {"ftrace"   , required_argument, NULL, 'f'},
+    {"elf"      , required_argument, NULL, 'e'},
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
@@ -97,14 +97,14 @@ static int parse_args(int argc, char *argv[]) {
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      case 'f': elf_file = optarg; break;
+      case 'e': elf_file = optarg; break;
       case 'h':
         printf("\n");
         printf("\t-b,--batch              run with batch mode\n");
         printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-        printf("\t-f,--ftrace=FILE        trace function calls and rets\n");
+        printf("\t-e,--elf=FILE           scan elf files and trace function calls\n");
         printf("\t-h,--help               display information about all args\n");
         printf("\n");
         break;
@@ -115,7 +115,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
-        printf("\t-f,--ftrace=FILE        trace function calls and rets\n");
+        printf("\t-e,--elf=FILE           scan elf files and trace function calls\n");
         printf("\t-h,--help               display information about all args\n");
         printf("\n");
         exit(0);

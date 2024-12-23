@@ -33,9 +33,6 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
-/* Scan watchpoints, here we can manually edit CONFIG_WATCHPOINT to open the configuration. */
-// static bool CONFIG_WATCHPOINT = false;
-
 void device_update();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
