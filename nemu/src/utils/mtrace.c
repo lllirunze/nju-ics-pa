@@ -13,24 +13,16 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include <isa.h>
 #include <trace.h>
-#include <memory/paddr.h>
 
-word_t vaddr_ifetch(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
-}
-
-word_t vaddr_read(vaddr_t addr, int len) {
 #ifdef CONFIG_MTRACE
-  mtrace_read(addr, cpu.pc);
-#endif
-  return paddr_read(addr, len);
+
+void mtrace_read(vaddr_t addr, vaddr_t pc) {
+  log_write("Memory read 0x%08x at $pc=0x%08x\n", addr, pc);
 }
 
-void vaddr_write(vaddr_t addr, int len, word_t data) {
-#ifdef CONFIG_MTRACE
-  mtrace_write(data, addr, cpu.pc);
-#endif
-  paddr_write(addr, len, data);
+void mtrace_write(word_t data, vaddr_t addr, vaddr_t pc) {
+  log_write("Memory write %u to address 0x%08x at $pc=0x%08x\n", data, addr, pc);
 }
+
+#endif

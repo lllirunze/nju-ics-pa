@@ -19,6 +19,8 @@
 #include <cpu/decode.h>
 #include <common.h>
 
+// ----------- itrace -----------
+
 #define MAX_IRING_BUF 11
 
 typedef struct iringbuf {
@@ -26,15 +28,17 @@ typedef struct iringbuf {
 	struct iringbuf *next;
 } iringbuf;
 
+void insert_IRingBuf(char *p);
+void display_IRingBuf();
+
+// ----------- ftrace -----------
+
 typedef struct functab {
 	vaddr_t func_start;
 	vaddr_t func_end;
 	char func_name[128];
 	struct functab *next;
 } functab;
-
-void insert_IRingBuf(char *p);
-void display_IRingBuf();
 
 void init_elf(const char *elf_file);
 void init_ftrace(const char *ftrace_file);
@@ -53,5 +57,10 @@ void ftrace_jalr(Decode *s, uint32_t inst);
     } \
   } while (0) \
 )
+
+// ----------- mtrace -----------
+
+void mtrace_read(vaddr_t addr, vaddr_t pc);
+void mtrace_write(word_t data, vaddr_t addr, vaddr_t pc);
 
 #endif

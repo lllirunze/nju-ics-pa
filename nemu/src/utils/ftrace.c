@@ -19,6 +19,8 @@
 #include <trace.h>
 #include <elf.h>
 
+#ifdef CONFIG_FTRACE
+
 static functab *functab_head = NULL;
 static int level = 0;
 FILE *ftrace_fp = NULL;
@@ -146,7 +148,6 @@ char *get_function_name(vaddr_t addr) {
 }
 
 void ftrace_call(Decode *s) {
-
 	// <instr address(s->pc)>: call [target function(strtab(s->dnpc)) @ target address(s->dnpc)]
 	char *fname = get_function_name(s->dnpc);
 
@@ -158,7 +159,6 @@ void ftrace_call(Decode *s) {
 }
 
 void ftrace_ret(Decode *s) {
-
 	// <instr address>: [ret ] [target function]
 	char *fname = get_function_name(s->pc);
 
@@ -170,17 +170,15 @@ void ftrace_ret(Decode *s) {
 }
 
 void ftrace_jal(Decode *s) {
-#ifdef CONFIG_FTRACE
 	ftrace_call(s);
-#endif
 }
 
 void ftrace_jalr(Decode *s, uint32_t inst) {
-#ifdef CONFIG_FTRACE
 	uint32_t rd = BITS(inst, 11, 7);
 	int32_t imm = SEXT(BITS(inst, 31, 20), 12);
 	if (inst == 0x00008067) ftrace_ret(s);
 	else if (rd == 1) ftrace_call(s);
 	else if (rd == 1 && imm == 0) ftrace_call(s);
-#endif
 }
+
+#endif

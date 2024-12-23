@@ -198,6 +198,7 @@ In C, string constants (such as “Hello, World!”) are stored as read-only glo
 
 ### Issue
 
-* ~~RISC-V instruction tests: I haven't used those test sets.~~
-  * [riscv-tests-am](https://github.com/NJU-ProjectN/riscv-tests-am)
+* RISC-V instruction tests: I haven't used those test sets.
+  * ~~[riscv-tests-am](https://github.com/NJU-ProjectN/riscv-tests-am)~~
   * [riscv-arch-test-am](https://github.com/NJU-ProjectN/riscv-arch-test-am)
+* mtrace: I want to refactor trace to 'nemu/src/utils'
