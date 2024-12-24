@@ -13,7 +13,8 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include <trace.h>
+#include <cpu/trace.h>
+#include <utils.h>
 
 #ifdef CONFIG_MTRACE
 

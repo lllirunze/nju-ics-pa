@@ -14,7 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
-#include <trace.h>
+#include <cpu/trace.h>
 #include <memory/paddr.h>
 
 void init_rand();

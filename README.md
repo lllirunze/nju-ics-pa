@@ -186,7 +186,7 @@ Run the following commands and we can get the result:
 gcc -g -o hello hello.c
 readelf -x .rodata hello
 
-#result
+# result
 Hex dump of section '.rodata':
   0x00002000 01000200 48656c6c 6f20576f 726c6421 ....Hello World!
   0x00002010 00  
@@ -195,6 +195,41 @@ Hex dump of section '.rodata':
 In C, string constants (such as “Hello, World!”) are stored as read-only global data. The compiler puts string constants into .rodata sections to save memory and to ensure that they are not modifiable (read-only property). 
 
 .strtab is specialized for storing symbol-related names (e.g., function names, variable names). "Hello, World!" is a string constant not directly related to a symbol, so it is not stored in .strtab.
+
+### Duplicated symbol table
+
+在Linux下编写一个Hello World程序, 然后使用strip命令丢弃可执行文件中的符号表:
+```shell
+gcc -o hello hello.c
+strip -s hello
+```
+
+用readelf查看hello的信息:
+```shell
+readelf -a hello
+```
+
+你会发现符号表被丢弃了, 此时的hello程序能成功运行吗?
+Answer: Yes
+
+目标文件中也有符号表, 我们同样可以丢弃它:
+```shell
+gcc -c hello.c
+strip -s hello.o
+```
+
+用readelf查看hello.o的信息, 你会发现符号表被丢弃了. 尝试对hello.o进行链接:
+```shell
+gcc -o hello hello.o
+
+# result
+/usr/bin/ld: error in hello.o(.eh_frame); no .eh_frame_hdr table will be created
+/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/Scrt1.o: in function `_start':
+(.text+0x1b): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+```
+
+你发现了什么问题? 尝试对比上述两种情况, 并分析其中的原因.
 
 ### Issue
 

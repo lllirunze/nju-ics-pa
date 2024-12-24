@@ -16,8 +16,8 @@
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
+#include <cpu/trace.h>
 #include <locale.h>
-#include <trace.h>
 #include "../monitor/sdb/sdb.h"
 
 /**

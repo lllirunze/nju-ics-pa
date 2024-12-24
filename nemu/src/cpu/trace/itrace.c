@@ -15,7 +15,7 @@
 
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
-#include <trace.h>
+#include <cpu/trace.h>
 
 static iringbuf iringbufs[MAX_IRING_BUF] = {};
 static iringbuf *head = NULL;

@@ -15,8 +15,8 @@
 
 #include <cpu/cpu.h>
 #include <cpu/decode.h>
+#include <cpu/trace.h>
 #include <memory/paddr.h>
-#include <trace.h>
 #include <elf.h>
 
 #ifdef CONFIG_FTRACE

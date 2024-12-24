@@ -9,7 +9,13 @@
 extern "C" {
 #endif
 
-//#define __NATIVE_USE_KLIB__
+/** 
+ * todo
+ * 
+ * If we use this macro, we can link klib with abstract-machine/am/src/native.
+ * If not using it, klib will be linked with glibc, which is used as the correct reference for comparison.
+ */
+// #define __NATIVE_USE_KLIB__
 
 // string.h
 void  *memset    (void *s, int c, size_t n);
