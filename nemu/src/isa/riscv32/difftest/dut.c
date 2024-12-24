@@ -26,7 +26,12 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
    * 'pc' should point to 'inst' when comparison is difference,
    * in order to print out some hints.
    */
-  return false;
+  int reg_num = ARRLEN(cpu.gpr);
+  int i;
+  for (i=0; i<reg_num; i++) {
+    if (gpr(i) != ref_r->gpr[check_reg_idx(i)]) return false;
+  }
+  return true;
 }
 
 void isa_difftest_attach() {

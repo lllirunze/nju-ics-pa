@@ -24,16 +24,18 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+  int reg_num = ARRLEN(cpu.gpr);
   int i;
-  for (i = 0; i < 32; i++) {
+  for (i = 0; i < reg_num; i++) {
     printf("%s\t0x%08x\t%u\n", reg_name(i), gpr(i), gpr(i));
   }
   printf("pc\t0x%08x\t%u\n", cpu.pc, cpu.pc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+  int reg_num = ARRLEN(cpu.gpr);
   int i;
-  for (i=0; i<32; i++) {
+  for (i=0; i<reg_num; i++) {
     if (strcmp(s, reg_name(i)) == 0) {
       return gpr(i);
     }
