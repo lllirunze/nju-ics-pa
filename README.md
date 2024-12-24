@@ -236,4 +236,5 @@ collect2: error: ld returned 1 exit status
 * RISC-V instruction tests: I haven't used those test sets.
   * ~~[riscv-tests-am](https://github.com/NJU-ProjectN/riscv-tests-am)~~
   * [riscv-arch-test-am](https://github.com/NJU-ProjectN/riscv-arch-test-am)
-* mtrace: I want to refactor trace to 'nemu/src/utils'
+* Spike doesn't support unaligned accesses.
+  * Executing an unaligned access instruction in Spike will throw an exception and make PC jump to 0. However, NEMU doesn't implement such a feature, so if you let NEMU and Spike execute such an instruction at the same time, DiffTest will report an error.

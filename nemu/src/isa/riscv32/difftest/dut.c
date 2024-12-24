@@ -19,7 +19,7 @@
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   /**
-   * todo: implement it to compare the registers in DUT with general registers.
+   * Implement it to compare the registers in DUT with general registers.
    * 
    * true if same, false otherwise
    * Specifically, if different (return false), 

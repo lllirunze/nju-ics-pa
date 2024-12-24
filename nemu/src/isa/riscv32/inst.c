@@ -137,6 +137,7 @@ static int decode_exec(Decode *s) {
   /* ebreak  */ INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   // RV32M Standard Extension
+  // todo: I want to upgrade RV32M by replacing the constant(32) with xlen
   /* mul     */ INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = (int32_t)src1 * (int32_t)src2);
   /* mulh    */ INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = (SEXT(src1, 32) * SEXT(src2, 32)) >> xlen);
   /* mulhsu  */ INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulhsu , R, R(rd) = (SEXT(src1, 32) * (uint64_t)src2) >> xlen);
