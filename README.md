@@ -238,3 +238,5 @@ collect2: error: ld returned 1 exit status
   * [riscv-arch-test-am](https://github.com/NJU-ProjectN/riscv-arch-test-am)
 * Spike doesn't support unaligned accesses.
   * Executing an unaligned access instruction in Spike will throw an exception and make PC jump to 0. However, NEMU doesn't implement such a feature, so if you let NEMU and Spike execute such an instruction at the same time, DiffTest will report an error.
+* Capture dead loop
+  * When the program is trapped in a dead loop, let the user program pause, and output the corresponding prompt message.
