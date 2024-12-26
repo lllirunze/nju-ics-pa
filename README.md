@@ -231,6 +231,19 @@ collect2: error: ld returned 1 exit status
 
 你发现了什么问题? 尝试对比上述两种情况, 并分析其中的原因.
 
+### Let's see how fast NEMU goes.
+
+* RISC-V 32
+  * dhrystone:     119 Marks
+  * coremark:      319 Marks
+  * microbench:    397 Marks
+  *         vs. 100000 Marks (i9-9900K @ 3.60GHz)
+* Native
+  * dhrystone:   58726 Marks
+  * coremark:    48690 Marks
+  * microbench:  48162 Marks
+  *         vs. 100000 Marks (i9-9900K @ 3.60GHz)
+
 ### Issue
 
 * RISC-V instruction tests: I haven't used those test sets.

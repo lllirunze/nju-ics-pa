@@ -31,6 +31,7 @@ static int flags = FLAGS_NONE;
 static int width = WIDTH_NONE;
 static int format_sequence = SEQ_NONE;
 static bool is_end = false;
+static char number_chars[BASE_HEX] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 void reset_format() {
   flags = FLAGS_NONE;
@@ -56,7 +57,10 @@ char *num2str(int num, int base) {
   if (num == 0) {
     buffer[index--] = '0';
   }
-  else if (num == INT32_MIN) return "-2147483648";
+  else if (num == INT32_MIN) {
+    // todo: INT32_MIN hasn't been padding yet.
+    return "-2147483648";
+  }
   else {
     bool is_negative = false;
     if (num < 0) {
@@ -64,7 +68,8 @@ char *num2str(int num, int base) {
       num = -num;
     }
     while (num > 0) {
-      buffer[index--] = (num % base) + '0';
+      // buffer[index--] = (num % base) + '0';
+      buffer[index--] = number_chars[num % base];
       num /= base;
     }
     if (is_negative) buffer[index--] = '-';
@@ -136,13 +141,27 @@ int vnprintf(size_t n, const char *fmt, va_list ap) {
           // specifier
           case 'd':
             set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
-            int num = va_arg(ap, int);
-            char *dec_str = num2str(num, BASE_DEC);
+            int dec_num = va_arg(ap, int);
+            char *dec_str = num2str(dec_num, BASE_DEC);
             while (*dec_str != '\0') {
               putch(*dec_str);
               dec_str++;
               len++;
             }
+            break;
+          case 'x':
+            set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
+            int hex_num = va_arg(ap, int);
+            
+            // panic("Not implemented: printf() format - %%[flags][width]x\n");
+
+            char *hex_str = num2str(hex_num, BASE_HEX);
+            while (*hex_str != '\0') {
+              putch(*hex_str);
+              hex_str++;
+              len++;
+            }
+
             break;
           case 'c':
             set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
@@ -173,7 +192,6 @@ int vnprintf(size_t n, const char *fmt, va_list ap) {
           case 'a':
           case 'A':
           case 'o':
-          case 'x':
           case 'X':
           case 'u':
           case 'f':
