@@ -14,16 +14,15 @@
 ***************************************************************************************/
 
 #include <cpu/trace.h>
-#include <utils.h>
 
-#ifdef CONFIG_MTRACE
+#ifdef CONFIG_DTRACE
 
-void mtrace_read(vaddr_t addr, vaddr_t pc) {
-  log_write("Memory:  read address " FMT_PADDR " at $pc=" FMT_WORD "\n", addr, pc);
+void dtrace_read(paddr_t addr, int len, IOMap *map, vaddr_t pc) {
+  log_write("Device:  read \"%s\" at address " FMT_PADDR "(len=%d) at $pc=" FMT_WORD "\n", map->name, addr, len, pc);
 }
 
-void mtrace_write(word_t data, vaddr_t addr, vaddr_t pc) {
-  log_write("Memory: write address " FMT_PADDR " with data=" FMT_DATA " at $pc=" FMT_WORD "\n", addr, data, pc);
+void dtrace_write(paddr_t addr, int len, word_t data, IOMap *map, vaddr_t pc) {
+  log_write("Device: write \"%s\" at address " FMT_PADDR "(len=%d) with data=" FMT_DATA " at $pc=" FMT_WORD "\n", map->name, addr, len, data, pc);
 }
 
 #endif

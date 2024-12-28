@@ -16,6 +16,7 @@
 #ifndef __CPU_TRACE_H__
 
 #include <cpu/decode.h>
+#include <device/map.h>
 #include <common.h>
 
 // ----------- itrace -----------
@@ -29,6 +30,11 @@ typedef struct iringbuf {
 
 void insert_IRingBuf(char *p);
 void display_IRingBuf();
+
+// ----------- mtrace -----------
+
+void mtrace_read(vaddr_t addr, vaddr_t pc);
+void mtrace_write(word_t data, vaddr_t addr, vaddr_t pc);
 
 // ----------- ftrace -----------
 
@@ -57,9 +63,9 @@ void ftrace_ret(Decode *s);
 void ftrace_jal(Decode *s);
 void ftrace_jalr(Decode *s, uint32_t inst);
 
-// ----------- mtrace -----------
+// ----------- dtrace -----------
 
-void mtrace_read(vaddr_t addr, vaddr_t pc);
-void mtrace_write(word_t data, vaddr_t addr, vaddr_t pc);
+void dtrace_read(paddr_t addr, int len, IOMap *map, vaddr_t pc);
+void dtrace_write(paddr_t addr, int len, word_t data, IOMap *map, vaddr_t pc);
 
 #endif

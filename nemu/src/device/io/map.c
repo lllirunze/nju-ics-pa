@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <cpu/trace.h>
 #include <memory/host.h>
 #include <memory/vaddr.h>
 #include <device/map.h>
@@ -58,6 +59,9 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
   paddr_t offset = addr - map->low;
   invoke_callback(map->callback, offset, len, false); // prepare data to read
   word_t ret = host_read(map->space + offset, len);
+#ifdef CONFIG_DTRACE
+  dtrace_read(addr, len, map, cpu.pc);
+#endif
   return ret;
 }
 
@@ -67,4 +71,7 @@ void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   paddr_t offset = addr - map->low;
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, true);
+#ifdef CONFIG_DTRACE
+  dtrace_write(addr, len, data, map, cpu.pc);
+#endif
 }
