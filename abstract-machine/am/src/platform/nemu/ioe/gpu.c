@@ -4,6 +4,7 @@
 #define SYNC_ADDR (VGACTL_ADDR + 4)
 
 void __am_gpu_init() {
+  // todo: This is background definition (test).
   // uint32_t gpu_config = inl(VGACTL_ADDR);
   // int w = (gpu_config >> 16) & 0xffff;  // todo: get the correct width
   // int h = gpu_config & 0xffff;          // todo: get the correct height

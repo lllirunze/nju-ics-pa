@@ -257,4 +257,3 @@ collect2: error: ld returned 1 exit status
   * I haven't implement stdio.h function fully.
 * Detect multiple keys being pressed at the same time
   * I have an idea to define `static int key_states[128] = {0};` to store the key status.
-  * Now I haven't test mario game of characters version yet.
