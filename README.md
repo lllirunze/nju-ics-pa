@@ -246,12 +246,15 @@ collect2: error: ld returned 1 exit status
 
 ### Issue
 
-* RISC-V instruction tests: I haven't used those test sets.
+* RISC-V instruction tests: I haven't used those test sets
   * ~~[riscv-tests-am](https://github.com/NJU-ProjectN/riscv-tests-am)~~
   * [riscv-arch-test-am](https://github.com/NJU-ProjectN/riscv-arch-test-am)
-* Spike doesn't support unaligned accesses.
+* Spike doesn't support unaligned accesses
   * Executing an unaligned access instruction in Spike will throw an exception and make PC jump to 0. However, NEMU doesn't implement such a feature, so if you let NEMU and Spike execute such an instruction at the same time, DiffTest will report an error.
 * Capture dead loop
   * When the program is trapped in a dead loop, let the user program pause, and output the corresponding prompt message.
 * Implement stdio.h klib
   * I haven't implement stdio.h function fully.
+* Detect multiple keys being pressed at the same time
+  * I have an idea to define `static int key_states[128] = {0};` to store the key status.
+  * Now I haven't test mario game of characters version yet.
