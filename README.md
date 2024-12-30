@@ -45,7 +45,7 @@ Here I choose **riscv-32**.
 
 ### We cannot get the right end when we first 'make run'
 
-The error is in **/ics2024/nemu/src/monitor/monitor.c**. We can just comment it out.
+The error is in ``/ics2024/nemu/src/monitor/monitor.c``. We can just comment it out.
 
 ```c
 // ics2024/nemu/src/monitor/monitor.c
@@ -60,7 +60,7 @@ static void welcome() {
 
 **cpu_exec(uint64_t n)** is used to control the number of instructions executed by CPU. In C, when -1 is converted to **unsigned long int** type, the value becomes a very large number $2^{64} -1$.
 
-Thus, cpu_exec(-1) will allow the program to execute as many instructions as possible until some other condition (e.g., NEMU_END, NEMU_ABORT, NEMU_QUIT) is triggered and the program is stopped.
+Thus, `cpu_exec(-1)` will allow the program to execute as many instructions as possible until some other condition (e.g., NEMU_END, NEMU_ABORT, NEMU_QUIT) is triggered and the program is stopped.
 
 ### Is cpu_exec(-1) an undefined behavior?
 
@@ -118,17 +118,17 @@ Machine-mode status register (mstatus) for riscv-32:
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------|    
 
 Machine-mode status register (mstatus) for riscv-64:   
-|----------|-------------------------------------------------------------------------------------    
-|    bit   | 63 |62  38|  37 |  36 |35      34|33      32|31  23|  22 | 21 |  20 |  19 |  18 |   
-|----------|----|------|-----|-----|----------|----------|------|-----|----|-----|-----|-----|---   
-| riscv-64 | SD | WPRI | MBE | SBE | SXL[1:0] | UXL[1:0] | WPRI | TSR | TW | TVM | MXR | SUM |    
-|----------|-------------------------------------------------------------------------------------   
+|----------|--------------------------------------------------------------------------------------------    
+|    bit   | 63 |62  38|  37 |  36 |35      34|33      32|31  23|  22 | 21 |  20 |  19 |  18 |  17  |       
+|----------|----|------|-----|-----|----------|----------|------|-----|----|-----|-----|-----|------|---    
+| riscv-64 | SD | WPRI | MBE | SBE | SXL[1:0] | UXL[1:0] | WPRI | TSR | TW | TVM | MXR | SUM | MPRV |       
+|----------|--------------------------------------------------------------------------------------------    
 
-        --------------------------------------------------------------------------------------------------------------|    
-           |  17  |16     15|14     13|12      11|10      9|  8  |   7  |  6  |   5  |   4  |  3  |   2  |  1  |   0  |    
-           |------|---------|---------|----------|---------|-----|------|-----|------|------|-----|------|-----|------|    
-           | MPRV | XS[1:0] | FS[1:0] | MPP[1:0] | VS[1:0] | SPP | MPIE | UBE | SPIE | WPRI | MIE | WPRI | SIE | WPRI |    
-        --------------------------------------------------------------------------------------------------------------|    
+        -------------------------------------------------------------------------------------------------------|    
+           |16     15|14     13|12      11|10      9|  8  |   7  |  6  |   5  |   4  |  3  |   2  |  1  |   0  |    
+        ---|---------|---------|----------|---------|-----|------|-----|------|------|-----|------|-----|------|    
+           | XS[1:0] | FS[1:0] | MPP[1:0] | VS[1:0] | SPP | MPIE | UBE | SPIE | WPRI | MIE | WPRI | SIE | WPRI |    
+        -------------------------------------------------------------------------------------------------------|    
 
 Reference: [mstatus](https://docs.amd.com/r/en-US/ug1629-microblaze-v-user-guide/Machine-Status-Register-mstatus)
 
@@ -166,11 +166,109 @@ git diff --stat pa0..pa1
 
 ## PA2 - Simple complex machines: Von Neumann computer systems
 
+### How does YEMU execute a program?
+
+```c
+while (1) {
+  /* fetch   */
+  opcode = inst.[type].[op];
+  switch (opcode) {
+    case ...:
+      /* decode  */
+      /* execute */
+      break;
+  }
+  /* update  */
+}
+```
+
+### How RISCV-32 encodes 32-bit constants directly into an instruction?
+
+riscv-32 use **2 steps** to accomplish loading command. Firstly, riscv-32 uses `lui` to load the upper 20 bits of a 32-bit constant and place them in a register while padding the lower 12 bits with zeros. Secondly, riscv-32 uses `addi` to add the remaining lower 12 bits of the immediate number to the register.
+
+```assembly
+# pseudo-instruction: li t0, 0x12345678
+lui t0, 0x12345
+addi t0, t0, 0x678
+```
+
+### Why is an error message output when an unimplemented instruction is executed?
+
+When an unimplemented instruction is executed, it enters the function `INV(s->pc)`
+
+```c
+// nemu/src/isa/riscv32/inst.c
+static int decode_exec(Decode *s) {
+  INSTPAT_START();
+  /* some implemented instruction */
+  INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
+  INSTPAT_END();
+}
+
+// nemu/include/cpu/cpu.h
+void invalid_inst(vaddr_t thispc);
+#define INV(thispc) invalid_inst(thispc)
+
+// nemu/src/engine/interpreter/hostcall.c
+void invalid_inst(vaddr_t thispc) {
+  /* print out some error information with isa logo */
+  set_nemu_state(NEMU_ABORT, thispc, -1);
+}
+```
+
+After outputing the error message, riscv-32 will set nemu state as `NEMU_ABORT`. Then the system will stop.
+
+### RV32M standard extension
+
+When we implement DIV[U] and REM[U], we need to consider some edge conditions.
+
+|    Condition    |  Dividend  | Divisor |    DIVU   | REMU |     DIV    | REM |
+|:---------------:|:----------:|:-------:|:---------:|:----:|:----------:|:---:|
+| Division by zero|      x     |     0   | $2^{L}-1$ |   x  |     -1     |  x  |
+| Overflow        | $-2^{L-1}$ |    -1   |     -     |   -  | $-2^{L-1}$ |  0  |
+
+### Running NEMU in batch mode
+
+When testing, we can set some arguments in Makefile so we don't need to type 'c' and 'q':
+
+```makefile
+# abstract-machine/scripts/platform/nemu.mk
+NEMUFLAGS += --batch
+```
+
+### Disappeared symbol
+
+```c
+// am-kernels/tests/cpu-tests/tests/add.c
+int add(int a, int b) {
+	int c = a + b;
+	return c;
+}
+#define NR_DATA LENGTH(test_data)
+```
+
+We define the macro "NR_DATA", and we also define the local variable c and the formal parameters "a" and "b", but we can't find them in the symbol table. Why?
+
+The macro is defined via the preprocessor with the value `LENGTH(test_data)`. During the preprocessing phase before compilation, the macro has been replaced with a specific value.
+
+Local variables and function arguments are not recorded in the symbol table because they don't need to be accessed across functions or files.
+
+### What constitutes a symbol?
+
+A symbol is an entity in a program that can be referenced by name. It usually consists of the following:
+
+* global variables
+* static variables
+* functions
+* special symbols generated by the compiler (e.g., `.text`, `.data`)
+
+
 ### Where is "Hello World!" in the string table?
 
-Write a "Hello-World" program under Linux, compile it and find the string table of the ELF file by the above method, where do you find the "Hello World!" string in the string table? Why is it there?
+Write a "Hello World" program under Linux, compile it and find the string table of the ELF file by the above method, where do you find the "Hello World!" string in the string table? Why is it there?
 
 After writing hello.c:
+
 ```c
 #include <stdio.h>
 
@@ -192,34 +290,27 @@ Hex dump of section '.rodata':
   0x00002010 00  
 ```
 
-In C, string constants (such as “Hello, World!”) are stored as read-only global data. The compiler puts string constants into .rodata sections to save memory and to ensure that they are not modifiable (read-only property). 
+In C, string constants (such as "Hello, World!") are stored as **read-only global data**. The compiler puts string constants into **.rodata** sections to save memory and to ensure that they are not modifiable (read-only property). 
 
 .strtab is specialized for storing symbol-related names (e.g., function names, variable names). "Hello, World!" is a string constant not directly related to a symbol, so it is not stored in .strtab.
 
 ### Duplicated symbol table
 
-在Linux下编写一个Hello World程序, 然后使用strip命令丢弃可执行文件中的符号表:
+Write a "Hello World" program under Linux, and then use `strip` command to discard the symbol table in the executable. View the hello infomation using `readelf`:
+
 ```shell
 gcc -o hello hello.c
 strip -s hello
-```
-
-用readelf查看hello的信息:
-```shell
 readelf -a hello
 ```
 
-你会发现符号表被丢弃了, 此时的hello程序能成功运行吗?
-Answer: Yes
+We'll notice that the symbol table has been discarded, so will the hello program run successfully? **Yes**
 
-目标文件中也有符号表, 我们同样可以丢弃它:
+There is also a symbol table in the target file, which we can discard as well. View the hello infomation using `readelf`, and we'll find that symbol table is discarded. Try to Trying to link to hello.o:
+
 ```shell
 gcc -c hello.c
 strip -s hello.o
-```
-
-用readelf查看hello.o的信息, 你会发现符号表被丢弃了. 尝试对hello.o进行链接:
-```shell
 gcc -o hello hello.o
 
 # result
@@ -229,7 +320,12 @@ gcc -o hello hello.o
 collect2: error: ld returned 1 exit status
 ```
 
-你发现了什么问题? 尝试对比上述两种情况, 并分析其中的原因.
+Try to compare the two situations and analyze the reasons.
+
+* Scenario 1: symbol table of the executable file is discarded
+  * Symbol table is important for debugging and disassembly, but at runtime, they are already resolved to specific addresses by the linker, so the program can still run after removing the symbol table from the executable file.
+* Scenario 2: symbol table fo target file is discarded
+  * **The target file relies on the symbol table at linking time**, which contains global symbols and unresolved external references (e.g, main function). `strip -s` removes the symbol table from hello.o, making it impossible for the target file to provide the necessary symbol information. During the linking phase, the linker needs to resolve the symbol for `main` from the target file but since the symbol table has been removed, the linker cannot find the definition of `main`, resulting in an error.
 
 ### Let's see how fast NEMU goes.
 
@@ -244,6 +340,10 @@ collect2: error: ld returned 1 exit status
   * microbench:  48162 Marks
   *         vs. 100000 Marks (i9-9900K @ 3.60GHz)
 
+### How the typing game works?
+
+Look at the code: `am-kernels/kernels/typing-game/game.c`
+
 ### Issue
 
 * RISC-V instruction tests: I haven't used those test sets
@@ -255,5 +355,14 @@ collect2: error: ld returned 1 exit status
   * When the program is trapped in a dead loop, let the user program pause, and output the corresponding prompt message.
 * Implement stdio.h klib
   * I haven't implement stdio.h function fully.
+* Real Time Clock
+  * I haven't implement AM_TIMER_RTC.
 * Detect multiple keys being pressed at the same time
   * I have an idea to define `static int key_states[128] = {0};` to store the key status.
+* Audio (optional)
+  * This code is copied and the reference is below:
+  * https://github.com/nops1ed/Nemu_Riscv32/blob/pa3/abstract-machine/am/src/platform/nemu/ioe/audio.c
+  * https://github.com/nops1ed/Nemu_Riscv32/blob/pa3/nemu/src/device/audio.c
+  * https://nju-projectn.github.io/ics-pa-gitbook/ics2024/2.5.html#%E5%A3%B0%E5%8D%A1
+  * I need to understand how the author implement it.
+
