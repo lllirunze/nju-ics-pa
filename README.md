@@ -344,6 +344,11 @@ Try to compare the two situations and analyze the reasons.
 
 Look at the code: `am-kernels/kernels/typing-game/game.c`
 
+### Compilation and linking
+
+<!-- todo: I need to answer these compulsory answer -->
+reference: https://nju-projectn.github.io/ics-pa-gitbook/ics2024/2.5.html#%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F
+
 ### Issue
 
 * RISC-V instruction tests: I haven't used those test sets
