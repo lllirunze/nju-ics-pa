@@ -164,7 +164,7 @@ git diff --stat pa0..pa1
 * ~~trace_and_difftest(): Although I implemented a cyclic scan of watchpoints, I did not create the macro CONFIG_WATCHPOINT.~~
   * I have created the macro CONFIG_WATCHPOINT..
 
-## PA2 - Simple complex machines: Von Neumann computer systems
+## PA2 - Simple complex machines: Von Neumann computer system
 
 ### How does YEMU execute a program?
 
@@ -371,3 +371,9 @@ reference: https://nju-projectn.github.io/ics-pa-gitbook/ics2024/2.5.html#%E5%86
   * https://nju-projectn.github.io/ics-pa-gitbook/ics2024/2.5.html#%E5%A3%B0%E5%8D%A1
   * I need to understand how the author implement it.
 
+## PA3 - Journey through time: batch system
+
+### Issue
+
+* Exception response mechanism in DIFFTEST
+  * In riscv-32, we need to set `mstatus` as 0x1800

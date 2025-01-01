@@ -44,3 +44,16 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   *success = false;
   return 0;
 }
+
+word_t *isa_reg_num2csr(word_t num) {
+  switch (num) {
+    case 0x300: return &cpu.sr.mstatus;
+    case 0x305: return &cpu.sr.mtvec;
+    case 0x341: return &cpu.sr.mepc;
+    case 0x342: return &cpu.sr.mcause;
+    default:
+      panic("Invalid CSR address!");
+      break;
+  }
+  return NULL;
+}

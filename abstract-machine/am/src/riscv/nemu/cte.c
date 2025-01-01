@@ -4,10 +4,22 @@
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
+void print_reg(Context *c) {
+  printf("mcause : %d\n", c->mcause);
+  printf("mstatus: %d\n", c->mstatus);
+  printf("mepc   : %d\n", c->mepc);
+  printf("$a7    : %d\n", c->GPR1);
+}
+
 Context* __am_irq_handle(Context *c) {
+
+  // print_reg(c);
+
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+      // todo: you need to handle the event number
+      case -1: ev.event = EVENT_YIELD; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
@@ -21,6 +33,9 @@ Context* __am_irq_handle(Context *c) {
 extern void __am_asm_trap(void);
 
 bool cte_init(Context*(*handler)(Event, Context*)) {
+
+  // todo: You need to find out the exception entry address.
+
   // initialize exception entry
   asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
 
@@ -47,4 +62,6 @@ bool ienabled() {
 }
 
 void iset(bool enable) {
+  // todo: now we don't implement the function which is related to interrupts
+  
 }

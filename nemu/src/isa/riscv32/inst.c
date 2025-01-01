@@ -20,6 +20,7 @@
 #include <cpu/trace.h>
 
 #define R(i) gpr(i)
+#define CSR(i) csr(i)
 #define Mr vaddr_read
 #define Mw vaddr_write
 
@@ -94,7 +95,7 @@ static int decode_exec(Decode *s) {
                 INSTPAT("??????? ????? ????? ??? ????? ????? ??",        ,  , );
    */
 
-  // RV32I Base Instruction Set
+  /* RV32I Base Instruction Set */
   /* lui     */ INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui    , U, R(rd) = imm);
   /* auipc   */ INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc  , U, R(rd) = s->pc + imm);
   /* jal     */ INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->snpc, s->dnpc = s->pc + imm, ({IFDEF(CONFIG_FTRACE, ftrace_jal(s));}));
@@ -133,10 +134,24 @@ static int decode_exec(Decode *s) {
   /* or      */ INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or     , R, R(rd) = src1 | src2);
   /* and     */ INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and    , R, R(rd) = src1 & src2);
   /* fence   */
-  /* ecall   */
+  /* ecall   */ INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(R(17), s->pc)); // R(17) is $a7
   /* ebreak  */ INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
-  // RV32M Standard Extension
+  /* RV32 Zicsr Standard Extension */
+  /* csrrw   */ INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, ({
+                  if (rd != 0) { R(rd) = CSR(imm); }
+                  CSR(imm) = src1;
+                }));
+  /* csrrs   */ INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, ({
+                  R(rd) = CSR(imm);
+                  if (BITS(s->isa.inst, 19, 15) != 0) { CSR(imm) |= src1; }
+                }));
+  /* csrrc   */
+  /* csrrwi  */
+  /* csrrsi  */
+  /* csrrci  */ 
+
+  /* RV32M Standard Extension */
   /* mul     */ INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = (sword_t)src1 * (sword_t)src2);
   /* mulh    */ INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = (SEXT(src1, xlen) * SEXT(src2, xlen)) >> xlen);
   /* mulhsu  */ INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulhsu , R, R(rd) = (SEXT(src1, xlen) * (uint64_t)src2) >> xlen);
@@ -160,8 +175,14 @@ static int decode_exec(Decode *s) {
                   else { R(rd) = src1 % src2; }
                 }));
 
+  /* Trap-Return Instruction */
+  /* sret    */
+  /* mret    */ INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = CSR(0x341));
+  
+
   // If all the previous pattern matching rules fail to match successfully, the instruction is considered illegal.
   /* inv     */ INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
+
   INSTPAT_END();
 
   R(0) = 0; // reset $zero to 0
