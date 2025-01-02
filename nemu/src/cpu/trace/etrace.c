@@ -15,34 +15,21 @@
 
 #include <isa.h>
 #include <cpu/trace.h>
-
-word_t isa_raise_intr(word_t NO, vaddr_t epc) {
-  /**
-   * TODO: Trigger an interrupt/exception with ``NO''.
-   * Then return the address of the interrupt/exception vector.
-   * 
-   * Attention:
-   * 1. PA don't care about privileged switching and you don't care about that.
-   * 2. You need to use isa_raise_intr() in the traps instead of exception.
-   */
-  // printf("mcause: %d\n", NO);
-  cpu.sr.mcause = NO;
-  cpu.sr.mepc = epc;
-
-  /**
-   * todo: when we find this is ecall instruction, 
-   * we need to add 4 to mepc.
-   * otherwise, mepc doesn't need to add 4.
-   */
-  cpu.sr.mepc += 4;
+#include <utils.h>
 
 #ifdef CONFIG_ETRACE
-  etrace_call(cpu.sr.mstatus, cpu.sr.mtvec, cpu.sr.mepc, cpu.sr.mcause, cpu.pc);
+
+void etrace_call(word_t mstatus, word_t mtvec, vaddr_t mepc, word_t mcause, vaddr_t pc) {
+  // log_write("Exception at $pc=" FMT_WORD "\n", pc);
+  // log_write("          mstatus: " FMT_WORD "\n", mstatus);
+  // log_write("          mtvec  : " FMT_WORD "\n", mtvec);
+  // log_write("          mepc   : " FMT_WORD "\n", mepc);
+  // log_write("          mcause : %d\n", mcause);
+  printf("Exception at $pc = " FMT_WORD "\n", pc);
+  printf("          mstatus: " FMT_WORD "\n", mstatus);
+  printf("          mtvec  : " FMT_WORD "\n", mtvec);
+  printf("          mepc   : " FMT_WORD "\n", mepc);
+  printf("          mcause : %d\n", mcause);
+}
+
 #endif
-
-  return cpu.sr.mtvec;
-}
-
-word_t isa_query_intr() {
-  return INTR_EMPTY;
-}

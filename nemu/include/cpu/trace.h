@@ -68,4 +68,8 @@ void ftrace_jalr(Decode *s, uint32_t inst);
 void dtrace_read(paddr_t addr, int len, IOMap *map, vaddr_t pc);
 void dtrace_write(paddr_t addr, int len, word_t data, IOMap *map, vaddr_t pc);
 
+// ----------- etrace -----------
+
+void etrace_call(word_t mstatus, word_t mtvec, vaddr_t mepc, word_t mcause, vaddr_t pc);
+
 #endif
