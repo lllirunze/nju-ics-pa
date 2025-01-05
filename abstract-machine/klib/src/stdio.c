@@ -50,9 +50,11 @@ void set_format_param(int seq, int f, bool end) {
   is_end = end;
 }
 
-char *num2str(int num, int base) {
+char *num2str(uint32_t num, int base) {
   buffer[BUFFER_MAX_SIZE-1] = '\0';
   int index = BUFFER_MAX_SIZE-2;
+
+  if (base == BASE_DEC) num = (int32_t)num;
 
   if (num == 0) {
     buffer[index--] = '0';
@@ -76,6 +78,7 @@ char *num2str(int num, int base) {
   }
 
   // todo: padding
+  // todo: if there exist both FLAGS_ZERO and negation, '-' needs to be before '0'.
   if (width != 0) {
     if ((flags & FLAGS_ZERO) == FLAGS_ZERO) {
       while (BUFFER_MAX_SIZE-2-index < width) buffer[index--] = '0';
@@ -152,16 +155,27 @@ int vnprintf(size_t n, const char *fmt, va_list ap) {
           case 'x':
             set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
             int hex_num = va_arg(ap, int);
-            
-            // panic("Not implemented: printf() format - %%[flags][width]x\n");
-
             char *hex_str = num2str(hex_num, BASE_HEX);
             while (*hex_str != '\0') {
               putch(*hex_str);
               hex_str++;
               len++;
             }
-
+            break;
+          case 'p':
+            set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
+            void *ptr = va_arg(ap, void*);
+            uintptr_t addr = (uintptr_t)ptr;
+            char *addr_str = num2str(addr, BASE_HEX);
+            putch('0');
+            len++;
+            putch('x');
+            len++;
+            while (*addr_str != '\0') {
+              putch(*addr_str);
+              addr_str++;
+              len++;
+            }
             break;
           case 'c':
             set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
@@ -180,6 +194,8 @@ int vnprintf(size_t n, const char *fmt, va_list ap) {
               len++;
             }
             break;
+          
+
 
           // todo: unfinished format
           case '-':
@@ -199,7 +215,6 @@ int vnprintf(size_t n, const char *fmt, va_list ap) {
           case 'E':
           case 'g':
           case 'G':
-          case 'p':
 
           default:
             panic("Not implemented: printf() format - %%[flags][width][.precision][length][specifier]\n");
