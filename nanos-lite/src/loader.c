@@ -1,6 +1,18 @@
 #include <proc.h>
 #include <elf.h>
 
+#if defined(__ISA_AM_NATIVE__)
+# define EXPECT_TYPE EM_X86_64
+#elif defined(__ISA_X86__)
+# define EXPECT_TYPE EM_386
+#elif defined(__ISA_RISCV32__)
+# define EXPECT_TYPE EM_RISCV
+#elif defined(__ISA_MIPS32__)
+# define EXPECT_TYPE EM_MIPS
+#else
+# error Unsupported ISA
+#endif
+
 // 从ramdisk中`offset`偏移处的`len`字节读入到`buf`中
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 // 把`buf`中的`len`字节写入到ramdisk中`offset`偏移处
@@ -31,6 +43,11 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   ramdisk_read(&ehdr, 0, sizeof(Elf_Ehdr));
   // check valid elf
   assert((*(uint32_t *)ehdr.e_ident == 0x464c457f));
+
+  // check ISA type in elf
+  if (ehdr.e_machine != EXPECT_TYPE) {
+    panic("Invalid ELF file ISA type: expected %d, got %d", EXPECT_TYPE, ehdr.e_machine);
+  }
 
   Elf_Phdr phdr[ehdr.e_phnum];
   ramdisk_read(phdr, ehdr.e_phoff, sizeof(Elf_Phdr)*ehdr.e_phnum);

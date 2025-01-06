@@ -377,3 +377,5 @@ reference: https://nju-projectn.github.io/ics-pa-gitbook/ics2024/2.5.html#%E5%86
 
 * Exception response mechanism in DIFFTEST
   * In riscv-32, we need to set `mstatus` as 0x1800
+* ~~Detect ISA type in ELF file~~
+  * If we use `native` to load 'dummy' in `riscv32`, it will be defined as an undefined behavior, which may happen some errors. We need to detect the ISA type in `loader.c`.

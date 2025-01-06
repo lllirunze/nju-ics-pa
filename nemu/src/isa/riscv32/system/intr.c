@@ -34,7 +34,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
    * we need to add 4 to mepc.
    * otherwise, mepc doesn't need to add 4.
    */
-  cpu.sr.mepc += 4;
+  // cpu.sr.mepc += 4;
 
 #ifdef CONFIG_ETRACE
   etrace_call(cpu.sr.mstatus, cpu.sr.mtvec, cpu.sr.mepc, cpu.sr.mcause, cpu.pc);

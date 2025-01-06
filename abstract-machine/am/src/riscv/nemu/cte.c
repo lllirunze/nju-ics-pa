@@ -20,10 +20,24 @@ Context* __am_irq_handle(Context *c) {
     switch (c->mcause) {
       // todo: you need to handle the event number
       case -1: ev.event = EVENT_YIELD; break;
+      case SYS_exit:
+      case SYS_yield: 
+        ev.event = EVENT_SYSCALL;
+        break;
       default: ev.event = EVENT_ERROR; break;
     }
 
     c = user_handler(ev, c);
+
+    /**
+     * todo: when we find this is ecall instruction, 
+     * we need to add 4 to mepc.
+     * otherwise, mepc doesn't need to add 4.
+     */
+    if (ev.event == EVENT_YIELD || ev.event == EVENT_SYSCALL) {
+      c->mepc += 4;
+    }
+  
     assert(c != NULL);
   }
 
