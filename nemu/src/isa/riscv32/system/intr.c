@@ -37,7 +37,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   // cpu.sr.mepc += 4;
 
 #ifdef CONFIG_ETRACE
-  etrace_call(cpu.sr.mstatus, cpu.sr.mtvec, cpu.sr.mepc, cpu.sr.mcause, cpu.pc);
+  etrace_call(cpu.sr.mstatus, cpu.sr.mtvec, cpu.sr.mepc, cpu.sr.mcause);
 #endif
 
   return cpu.sr.mtvec;

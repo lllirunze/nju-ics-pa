@@ -19,17 +19,8 @@
 
 #ifdef CONFIG_ETRACE
 
-void etrace_call(word_t mstatus, word_t mtvec, vaddr_t mepc, word_t mcause, vaddr_t pc) {
-  // log_write("Exception at $pc=" FMT_WORD "\n", pc);
-  // log_write("          mstatus: " FMT_WORD "\n", mstatus);
-  // log_write("          mtvec  : " FMT_WORD "\n", mtvec);
-  // log_write("          mepc   : " FMT_WORD "\n", mepc);
-  // log_write("          mcause : %d\n", mcause);
-  printf("Exception at $pc = " FMT_WORD "\n", pc);
-  printf("          mstatus: " FMT_WORD "\n", mstatus);
-  printf("          mtvec  : " FMT_WORD "\n", mtvec);
-  printf("          mepc   : " FMT_WORD "\n", mepc);
-  printf("          mcause : %d\n", mcause);
+void etrace_call(word_t mstatus, word_t mtvec, vaddr_t mepc, word_t mcause) {
+  Log("Exception: [mstatus=" FMT_WORD "][mtvec=" FMT_WORD "][mepc=" FMT_WORD "][mcause=%d]", mstatus, mtvec, mepc, mcause);
 }
 
 #endif
