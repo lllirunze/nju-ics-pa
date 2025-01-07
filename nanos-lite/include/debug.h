@@ -3,6 +3,12 @@
 
 #include <common.h>
 
+#define ANSI_FG_RED     "\33[1;31m"
+#define ANSI_FG_GREEN   "\33[1;32m"
+#define ANSI_NONE       "\33[0m"
+
+#define ANSI_FMT(str, fmt) fmt str ANSI_NONE
+
 #define Log(format, ...) \
   printf("\33[1;35m[%s,%d,%s] " format "\33[0m\n", \
       __FILE__, __LINE__, __func__, ## __VA_ARGS__)

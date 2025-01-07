@@ -13,6 +13,12 @@ int main() {
   Log("'Hello World!' from Nanos-lite");
   Log("Build time: %s, %s", __TIME__, __DATE__);
 
+#ifdef CONFIG_STRACE
+  Log("STrace: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
+#else
+  Log("STrace: %s", ANSI_FMT("OFF", ANSI_FG_RED));
+#endif
+
   init_mm();
 
   init_device();
