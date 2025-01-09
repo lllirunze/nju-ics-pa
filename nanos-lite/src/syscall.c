@@ -1,5 +1,6 @@
 #include <common.h>
 #include <trace.h>
+#include <fs.h>
 #include "syscall.h"
 
 void do_syscall(Context *c) {
@@ -47,6 +48,15 @@ void do_syscall(Context *c) {
       }
       else c->GPRx = -1;
 
+      break;
+    case SYS_brk:
+      /** 
+       * Because Nanos-lite is a single-task OS now, 
+       * any space can be used by user application.
+       * So, we can just return 0.
+       * In PA4, we will modify SYS_brk to implement memory allocation.
+       */
+      c->GPRx = 0;
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }

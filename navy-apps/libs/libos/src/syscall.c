@@ -45,6 +45,9 @@
 #error _syscall_ is not implemented
 #endif
 
+extern char _end;
+static intptr_t heap_end = (intptr_t)&_end;
+
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
   register intptr_t _gpr2 asm (GPR2) = a0;
@@ -72,7 +75,14 @@ int _write(int fd, void *buf, size_t count) {
 }
 
 void *_sbrk(intptr_t increment) {
-  return (void *)-1;
+  intptr_t prev_heap_end = heap_end;
+  heap_end += increment;
+  intptr_t ret = _syscall_(SYS_brk, heap_end, 0, 0);
+  if (ret == 0) return (void *)prev_heap_end;
+  else {
+    heap_end = prev_heap_end;
+    return (void *)-1;
+  }
 }
 
 int _read(int fd, void *buf, size_t count) {
