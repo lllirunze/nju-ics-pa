@@ -2,17 +2,6 @@
 #include <device.h>
 #include <ramdisk.h>
 
-typedef size_t (*ReadFn) (void *buf, size_t offset, size_t len);
-typedef size_t (*WriteFn) (const void *buf, size_t offset, size_t len);
-
-typedef struct {
-  char *name;         // filename
-  size_t size;        // file size
-  size_t disk_offset; // offset of file in ramdisk
-  ReadFn read;
-  WriteFn write;
-} Finfo;
-
 static int ft_size;
 static size_t fs_offset;
 
@@ -144,6 +133,15 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
       panic("not implemented.");
       break;
   }
-
   return -1;
+}
+
+// int check_fd_idx(int idx) {
+//   assert(idx >= 0 && idx < ft_size);
+//   return idx;
+// }
+
+const char* fs_name(int idx) {
+  assert(idx >= 0 && idx < ft_size);
+  return file_table[idx].name;
 }

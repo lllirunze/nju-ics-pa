@@ -5,7 +5,7 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-#define BUFFER_MAX_SIZE 128
+#define BUFFER_MAX_SIZE 1024
 
 // flags
 #define FLAGS_NONE      0b00000
