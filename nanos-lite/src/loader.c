@@ -1,4 +1,6 @@
 #include <proc.h>
+#include <fs.h>
+#include <ramdisk.h>
 #include <elf.h>
 
 #if defined(__ISA_AM_NATIVE__)
@@ -13,13 +15,6 @@
 # error Unsupported ISA
 #endif
 
-// 从ramdisk中`offset`偏移处的`len`字节读入到`buf`中
-size_t ramdisk_read(void *buf, size_t offset, size_t len);
-// 把`buf`中的`len`字节写入到ramdisk中`offset`偏移处
-// size_t ramdisk_write(const void *buf, size_t offset, size_t len);
-// 返回ramdisk的大小, 单位为字节
-// size_t get_ramdisk_size();
-
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
 # define Elf_Phdr Elf64_Phdr
@@ -27,6 +22,11 @@ size_t ramdisk_read(void *buf, size_t offset, size_t len);
 # define Elf_Ehdr Elf32_Ehdr
 # define Elf_Phdr Elf32_Phdr
 #endif
+
+/**
+ * Previously, we directly call ramdisk_read() to load user programs.
+ * As the number of files in ramdisk grows, this way isn't correct.
+ */
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
   /** 
@@ -37,27 +37,31 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
    * In the next phase, after we implement file system, we will use filename.
    * 
    */
-  // TODO();
+
+  int fd = fs_open(filename, 0, 0);
+  assert(fd != -1);
 
   Elf_Ehdr ehdr;
-  ramdisk_read(&ehdr, 0, sizeof(Elf_Ehdr));
+  assert(fs_read(fd, &ehdr, sizeof(Elf_Ehdr)) > 0);
+  
   // check valid elf
   assert((*(uint32_t *)ehdr.e_ident == 0x464c457f));
-
   // check ISA type in elf
-  if (ehdr.e_machine != EXPECT_TYPE) {
-    panic("Invalid ELF file ISA type: expected %d, got %d", EXPECT_TYPE, ehdr.e_machine);
-  }
+  assert(ehdr.e_machine == EXPECT_TYPE);
 
-  Elf_Phdr phdr[ehdr.e_phnum];
-  ramdisk_read(phdr, ehdr.e_phoff, sizeof(Elf_Phdr)*ehdr.e_phnum);
-  for (int i = 0; i < ehdr.e_phnum; i++) {
-    if (phdr[i].p_type == PT_LOAD) {
-      ramdisk_read((void*)phdr[i].p_vaddr, phdr[i].p_offset, phdr[i].p_memsz);
-      // set .bss with zeros
-      memset((void*)(phdr[i].p_vaddr+phdr[i].p_filesz), 0, phdr[i].p_memsz - phdr[i].p_filesz);
+  Elf_Phdr phdr;
+  size_t i, phoff;
+  for (i=0; i<ehdr.e_phnum; i++) {
+    phoff = i*ehdr.e_phentsize + ehdr.e_phoff;
+    fs_lseek(fd, phoff, SEEK_SET);
+    fs_read(fd, &phdr, sizeof(Elf_Phdr));
+    if (phdr.p_type == PT_LOAD) {
+      fs_lseek(fd, phdr.p_offset, SEEK_SET);
+      fs_read(fd, (void*)phdr.p_vaddr, phdr.p_filesz);
+      memset((void*)phdr.p_vaddr + phdr.p_filesz, 0, phdr.p_memsz - phdr.p_filesz);
     }
   }
+
   return ehdr.e_entry;
 }
 

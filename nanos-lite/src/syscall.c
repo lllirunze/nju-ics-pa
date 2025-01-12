@@ -23,31 +23,20 @@ void do_syscall(Context *c) {
       yield(); 
       c->GPRx = 0;
       break;
+    case SYS_open:
+      c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
+      break;
+    case SYS_read:
+      c->GPRx = fs_read(a[1], (void *)a[2], a[3]);
+      break;
     case SYS_write:
-      /**
-       * todo: sys_write (not complete)
-       * On success, the number of bytes written is returned.  
-       * On error, -1 is returned, and errno is set to indicate the error.
-       */
-      int fd = c->GPR2;
-      char *buf = (char *)c->GPR3;
-      size_t count = c->GPR4;
-      
-      c->GPRx = count;
-      if (fd == 1 || fd == 2) {
-        /** 
-         * check the value `fd`.
-         * if fd == 1 or 2, output the `len` size of `buf` 
-         * to serial port (use `putch`)
-        */
-        size_t i;
-        for (i=0; i<count; i++) {
-          putch(*buf);
-          buf++;
-        }
-      }
-      else c->GPRx = -1;
-
+      c->GPRx = fs_write(a[1], (void *)a[2], a[3]);
+      break;
+    case SYS_close:
+      c->GPRx = fs_close(a[1]);
+      break;
+    case SYS_lseek:
+      c->GPRx = fs_lseek(a[1], a[2], a[3]);
       break;
     case SYS_brk:
       /** 

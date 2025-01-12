@@ -21,8 +21,12 @@ Context* __am_irq_handle(Context *c) {
       // todo: you need to handle the event number
       case -1: ev.event = EVENT_YIELD; break;
       case SYS_exit:
-      case SYS_yield: 
+      case SYS_yield:
+      case SYS_open:
+      case SYS_read:
       case SYS_write:
+      case SYS_close:
+      case SYS_lseek:
       case SYS_brk:
         ev.event = EVENT_SYSCALL;
         break;
