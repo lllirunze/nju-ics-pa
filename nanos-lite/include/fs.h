@@ -18,6 +18,8 @@ typedef struct {
   WriteFn write;
 } Finfo;
 
+const char* fs_name(int idx);
+
 int fs_open(const char *pathname, int flags, int mode);
 int fs_close(int fd);
 
@@ -26,6 +28,5 @@ size_t fs_write(int fd, const void *buf, size_t len);
 size_t fs_lseek(int fd, size_t offset, int whence);
 
 // int check_fd_idx(int idx);
-const char* fs_name(int idx);
 
 #endif

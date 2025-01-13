@@ -34,6 +34,11 @@ static Finfo file_table[] __attribute__((used)) = {
 
 };
 
+const char* fs_name(int idx) {
+  assert(idx >= 0 && idx < ft_size);
+  return file_table[idx].name;
+}
+
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
@@ -141,7 +146,3 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
 //   return idx;
 // }
 
-const char* fs_name(int idx) {
-  assert(idx >= 0 && idx < ft_size);
-  return file_table[idx].name;
-}

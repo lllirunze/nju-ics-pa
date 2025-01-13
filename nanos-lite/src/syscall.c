@@ -1,6 +1,7 @@
 #include <common.h>
 #include <trace.h>
 #include <fs.h>
+#include <sys/time.h>
 #include "syscall.h"
 
 void do_syscall(Context *c) {
@@ -46,6 +47,9 @@ void do_syscall(Context *c) {
        * In PA4, we will modify SYS_brk to implement memory allocation.
        */
       c->GPRx = 0;
+      break;
+    case SYS_gettimeofday:
+      
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }

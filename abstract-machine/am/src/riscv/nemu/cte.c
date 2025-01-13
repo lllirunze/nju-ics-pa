@@ -28,6 +28,7 @@ Context* __am_irq_handle(Context *c) {
       case SYS_close:
       case SYS_lseek:
       case SYS_brk:
+      case SYS_gettimeofday:
         ev.event = EVENT_SYSCALL;
         break;
       default: ev.event = EVENT_ERROR; break;

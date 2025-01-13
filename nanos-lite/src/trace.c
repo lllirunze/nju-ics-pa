@@ -12,7 +12,6 @@ const char* syscall_names[] = {
   "SYS_signal", "SYS_execve", "sis_fork",   "SYS_link",
   "SYS_unlink", "SYS_wait",   "SYS_times",  "SYS_gettimeofday",
 };
-
 const int sys_size = sizeof(syscall_names)/sizeof(syscall_names[0]);
 
 void strace_call(Context *c) {
