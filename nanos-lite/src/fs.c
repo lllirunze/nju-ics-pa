@@ -5,7 +5,7 @@
 static int ft_size;
 static size_t fs_offset;
 
-enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
+enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB, FD_EVENTS};
 
 size_t invalid_read(void *buf, size_t offset, size_t len) {
   panic("should not reach here");
@@ -19,9 +19,11 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
 
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
-  [FD_STDIN]  = {"stdin",  0, 0, invalid_read, invalid_write},
-  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
-  [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
+  [FD_STDIN]  = {"stdin",       0, 0, invalid_read, invalid_write},
+  [FD_STDOUT] = {"stdout",      0, 0, invalid_read, serial_write},
+  [FD_STDERR] = {"stderr",      0, 0, invalid_read, serial_write},
+  [FD_FB]     = {"fd_fb",       0, 0, invalid_read, invalid_write},
+  [FD_EVENTS] = {"/dev/events", 0, 0, events_read,  invalid_write},
 #include "files.h"
   
   /**
@@ -30,6 +32,10 @@ static Finfo file_table[] __attribute__((used)) = {
    * 2. We only consider write of STDOUT and STDERR. 
    *    (using putch() to output it to serial port)
    * 3. Other operations are ignored.
+   */
+
+  /**
+   * todo: add `/dev/events` to support keyboard events.
    */
 
 };
@@ -47,11 +53,7 @@ void init_fs() {
 }
 
 int fs_open(const char *pathname, int flags, int mode) {
-  /**
-   * 1. If fs_open doesn't find `pathname`, nanos will end by assertion.
-   * 2. To simplify, we allow all user program can read/write all existing file.
-   *    So we can ignore `flags` and `mode` in fs_open.
-   */ 
+
   int i=0;
   for (; i<ft_size; i++) {
     if (file_table[i].name != NULL && strcmp(file_table[i].name, pathname) == 0) {
@@ -63,19 +65,13 @@ int fs_open(const char *pathname, int flags, int mode) {
 }
 
 int fs_close(int fd) {
-  /**
-   * 1. fs_close() directly return 0, 
-   *    because simple file system doesn't maintain the status of opening files.
-   */
   return 0;
 }
 
 size_t fs_read(int fd, void *buf, size_t len) {
-  /** 
-   * 1. Use ramdisk_read() and ramdisk_write() to read/write files.
-   * 2. Because the size of all files is fixed, offset cannot exceed the edge of file.
-   */
+
   if (fd < 0 || fd >= ft_size) return -1;
+  if (file_table[fd].read != NULL) return file_table[fd].read(buf, 0, len);
   if (file_table[fd].size < 0) return -1;
   if (len < 0) return -1;
 
@@ -89,10 +85,7 @@ size_t fs_read(int fd, void *buf, size_t len) {
 }
 
 size_t fs_write(int fd, const void *buf, size_t len) {
-  /** 
-   * 1. Use ramdisk_read() and ramdisk_write() to read/write files.
-   * 2. Because the size of all files is fixed, offset cannot exceed the edge of file.
-   */
+
   if (fd < 0 || fd >= ft_size) return -1;
   if (file_table[fd].write != NULL) return file_table[fd].write(buf, 0, len);
   if (file_table[fd].size < 0) return -1;
@@ -108,9 +101,7 @@ size_t fs_write(int fd, const void *buf, size_t len) {
 }
 
 size_t fs_lseek(int fd, size_t offset, int whence) {
-  /**
-   * 1. Because the size of all files is fixed, offset cannot exceed the edge of file.
-   */
+
   if (fd < 0 || fd >= ft_size) return -1;
 
   switch (whence) {

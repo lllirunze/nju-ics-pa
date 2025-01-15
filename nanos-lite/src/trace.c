@@ -28,7 +28,10 @@ void strace_call(Context *c) {
       Log("System call: [%s, %s]", sys_name(a[0]), fs_name(a[1]));
       break;
     case SYS_read:
+      Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
+      break;
     case SYS_write:
+      if (strcmp("stderr", fs_name(a[1])) == 0) break;
       Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
       break;
     default:

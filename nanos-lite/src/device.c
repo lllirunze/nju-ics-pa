@@ -16,11 +16,6 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
-  /**
-   * Serial port is a character device, 
-   * the corresponding byte sequence doesn't have the concept of "position",
-   * so the offset parameter ca be ignored.
-   */
   char *data = (char *)buf;
   size_t i;
   for (i=0; i<len; i++) {
@@ -31,7 +26,19 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
 }
 
 size_t events_read(void *buf, size_t offset, size_t len) {
-  return 0;
+  /**
+   * todo: read events
+   * 1. write events to `buf` with `len` bytes.
+   * 2. return the actual length.
+   * 3. The keyboard name has already been defined in `names`.
+   * 4. We need to use API of IOE to gain the input of devices.
+   * 5. If there doesn't exist valid keyboard, return 0.
+   */
+  AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
+  if (ev.keycode == AM_KEY_NONE) return 0;
+  // int _len = printf("%s %s\n", (ev.keydown ? "kd" : "ku"), keyname[ev.keycode]);
+  int _len = snprintf(buf, len, "%s %s", (ev.keydown ? "kd" : "ku"), keyname[ev.keycode]);
+  return _len;
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {

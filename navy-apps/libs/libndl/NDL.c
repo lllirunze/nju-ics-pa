@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <assert.h>
 #include <unistd.h>
 #include <sys/time.h>
 
@@ -13,14 +15,25 @@ static struct timeval tv;
 static struct timezone tz;
 static uint64_t start_usec, current_usec;
 
+static int fd_events = -1;
+
 uint32_t NDL_GetTicks() {
-  // todo: return microseconds
   gettimeofday(&tv, &tz);
   current_usec = tv.tv_sec * 1000000 + tv.tv_usec;
+  // return microseconds
   return (current_usec-start_usec)/1000;
 }
 
 int NDL_PollEvent(char *buf, int len) {
+  /**
+   * todo: abstract the input into files
+   * this api read an event information from `/dev/events`.
+   * 1. write events to `buf` with `len` bytes
+   * 2. If reading a valid event, return 1.
+   *    Otherwise return 0.
+   */
+  assert(fd_events >= 0);
+  if (read(fd_events, buf, len) > 0) return 1;
   return 0;
 }
 
@@ -67,8 +80,10 @@ int NDL_Init(uint32_t flags) {
   }
   gettimeofday(&tv, &tz);
   start_usec = tv.tv_sec * 1000000 + tv.tv_usec;
+  fd_events = open("/dev/events", O_RDONLY);
   return 0;
 }
 
 void NDL_Quit() {
+  close(fd_events);
 }
