@@ -34,6 +34,8 @@ void strace_call(Context *c) {
       if (strcmp("stderr", fs_name(a[1])) == 0) break;
       Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
       break;
+    case SYS_gettimeofday:
+      break;
     default:
       Log("System call: [%s]" , sys_name(a[0]));
       break;
