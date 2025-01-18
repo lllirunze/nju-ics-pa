@@ -36,11 +36,6 @@ Context* __am_irq_handle(Context *c) {
 
     c = user_handler(ev, c);
 
-    /**
-     * todo: when we find this is ecall instruction, 
-     * we need to add 4 to mepc.
-     * otherwise, mepc doesn't need to add 4.
-     */
     if (ev.event == EVENT_YIELD || ev.event == EVENT_SYSCALL) {
       c->mepc += 4;
     }

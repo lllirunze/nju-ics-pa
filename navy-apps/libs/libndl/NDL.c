@@ -25,13 +25,6 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  /**
-   * todo: abstract the input into files
-   * this api read an event information from `/dev/events`.
-   * 1. write events to `buf` with `len` bytes
-   * 2. If reading a valid event, return 1.
-   *    Otherwise return 0.
-   */
   assert(fd_events >= 0);
   if (read(fd_events, buf, len) > 0) return 1;
   return 0;

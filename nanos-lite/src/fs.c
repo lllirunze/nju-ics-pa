@@ -34,10 +34,6 @@ static Finfo file_table[] __attribute__((used)) = {
    * 3. Other operations are ignored.
    */
 
-  /**
-   * todo: add `/dev/events` to support keyboard events.
-   */
-
 };
 
 const char* fs_name(int idx) {
@@ -131,9 +127,3 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
   }
   return -1;
 }
-
-// int check_fd_idx(int idx) {
-//   assert(idx >= 0 && idx < ft_size);
-//   return idx;
-// }
-
