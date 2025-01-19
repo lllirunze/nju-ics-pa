@@ -39,3 +39,4 @@ The following subprojects/components are included. Some of them are not fully im
   * [x] Detect ISA type in ELF file
   * [x] `SYS_write`
   * [ ] Center the canvas in `NDL_DrawRect`
+  * [ ] Implement `fixedpt fixedpt_fromfloat(void *p)` which can transfer floating parameter to `fixedpt` type

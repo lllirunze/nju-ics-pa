@@ -46,8 +46,8 @@ void NDL_OpenCanvas(int *w, int *h) {
   canvas_w = *w;
   canvas_h = *h; 
 
-  printf("screen size: %d x %d\n", screen_w, screen_h);
-  printf("canvas size: %d x %d\n", canvas_w, canvas_h);
+  // printf("screen size: %d x %d\n", screen_w, screen_h);
+  // printf("canvas size: %d x %d\n", canvas_w, canvas_h);
 
   if (getenv("NWM_APP")) {
     int fbctl = 4;
