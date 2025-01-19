@@ -5,17 +5,47 @@
 #include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
-  panic("not implemented\n");
+  /**
+   * This performs a fast blit from the source surface to the destination surface.
+   */
+  // panic("not implemented\n");
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+
+  /** 
+   * The width and height in `srerect` determine the size of copied rectangle.
+   * Only the position is used in `dstrect` (the width and height are ignored).
+   * If `srcrect` is NULL, the entire surface is copied.
+   * If `dstrect` is NULL, thn the destination position (upper left corner) is (0, 0).
+   * The final blit rectangle is saved in `dstrect` after all clipping is performed (`srcrect` is not modified).
+   */
+
+  // If `srcrect` is NULL, the entire surface is copied.
+  uint32_t w, h;
+  if (!srcrect) { w = src->w; h = src->h; }
+  else { w = srcrect->w; h = srcrect->h; }
+  assert(w <= dst->w && h <= dst->h);
+  // If `dstrect` is NULL, thn the destination position (upper left corner) is (0, 0).
+  int32_t x, y;
+  if (!dstrect) { x = 0; y = 0; }
+  else { x = dstrect->x; y = dstrect->y; }
+  
+  int i;
+  for (i=0; i<h; i++) {
+    memcpy(dst->pixels + x*sizeof(uint32_t) + (y+i)*(dst->w)*sizeof(uint32_t), src->pixels + i*w*sizeof(uint32_t), w*sizeof(uint32_t));
+  }
+
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  panic("not implemented\n");
+  // panic("not implemented\n");
+
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  panic("not implemented\n");
+  // panic("not implemented\n");
+  if (x == 0 && y == 0 && w == 0 && h == 0) {w = s->w; h = s->h;}
+  NDL_DrawRect((uint32_t *)(s->pixels), x, y, w, h);
 }
 
 // APIs below are already implemented.
@@ -196,10 +226,12 @@ uint32_t SDL_MapRGBA(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b, uint
 }
 
 int SDL_LockSurface(SDL_Surface *s) {
-  panic("not implemented\n");
+  // panic("not implemented\n");
+
   return 0;
 }
 
 void SDL_UnlockSurface(SDL_Surface *s) {
-  panic("not implemented\n");
+  // panic("not implemented\n");
+
 }
