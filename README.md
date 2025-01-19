@@ -38,3 +38,4 @@ The following subprojects/components are included. Some of them are not fully im
   * [ ] Exception response mechanism in `DIFFTEST`: In riscv-32, we need to set `mstatus` as 0x1800
   * [x] Detect ISA type in ELF file
   * [x] `SYS_write`
+  * [ ] Center the canvas in `NDL_DrawRect`

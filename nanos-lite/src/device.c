@@ -33,12 +33,6 @@ size_t events_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
-  /**
-   * todo: get the size of screen
-   * 1. write `buf` with `len` size.
-   * 2. ignore `offset`
-   * 3. We assume that the file doesn't support `lseek`
-   */
   AM_GPU_CONFIG_T gc = io_read(AM_GPU_CONFIG);
   if (gc.present == false) panic("should not reach here");
   int width = gc.width, height = gc.height;
@@ -47,7 +41,12 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  AM_GPU_CONFIG_T gc = io_read(AM_GPU_CONFIG);
+  offset = offset / 4;
+  int w = offset % gc.width;
+  int h = offset / gc.width;
+  io_write(AM_GPU_FBDRAW, w, h, (void *)buf, len/4, 1, true);
+  return 1;
 }
 
 intptr_t timer_read(struct timeval *tv, struct timezone *tz) {

@@ -22,7 +22,7 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_STDIN]    = {"stdin",          0, 0, invalid_read,  invalid_write},
   [FD_STDOUT]   = {"stdout",         0, 0, invalid_read,  serial_write},
   [FD_STDERR]   = {"stderr",         0, 0, invalid_read,  serial_write},
-  [FD_FB]       = {"fd_fb",          0, 0, invalid_read,  invalid_write},
+  [FD_FB]       = {"/dev/fb",        0, 0, invalid_read,  fb_write},
   [FD_EVENTS]   = {"/dev/events",    0, 0, events_read,   invalid_write},
   [FD_DISPINFO] = {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write}, 
 #include "files.h"
@@ -46,6 +46,8 @@ const char* fs_name(int idx) {
 void init_fs() {
   // TODO: initialize the size of /dev/fb
   ft_size = sizeof(file_table)/sizeof(file_table[0]);
+  AM_GPU_CONFIG_T gc = io_read(AM_GPU_CONFIG);
+  file_table[FD_FB].size = gc.width * gc.height * sizeof(uint32_t);
   Log("Initializing file system: %d items", ft_size);
 }
 
@@ -84,7 +86,7 @@ size_t fs_read(int fd, void *buf, size_t len) {
 size_t fs_write(int fd, const void *buf, size_t len) {
 
   if (fd < 0 || fd >= ft_size) return -1;
-  if (file_table[fd].write != NULL) return file_table[fd].write(buf, 0, len);
+  if (file_table[fd].write != NULL) return file_table[fd].write(buf, fs_offset, len);
   if (file_table[fd].size < 0) return -1;
   if (len < 0) return -1;
 

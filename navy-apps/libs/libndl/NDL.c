@@ -19,6 +19,7 @@ static uint64_t start_usec, current_usec;
 
 static int fd_events = -1;
 static int fd_screen = -1;
+static int fd_frmbuf = -1;
 
 uint32_t NDL_GetTicks() {
   gettimeofday(&tv, &tz);
@@ -39,6 +40,15 @@ int NDL_PollEvent(char *buf, int len) {
 }
 
 void NDL_OpenCanvas(int *w, int *h) {
+
+  if(*w == 0 || *w > screen_w) *w = screen_w;
+  if(*h == 0 || *h > screen_h) *h = screen_h;
+  canvas_w = *w;
+  canvas_h = *h; 
+
+  printf("screen size: %d x %d\n", screen_w, screen_h);
+  printf("canvas size: %d x %d\n", canvas_w, canvas_h);
+
   if (getenv("NWM_APP")) {
     int fbctl = 4;
     fbdev = 5;
@@ -57,36 +67,18 @@ void NDL_OpenCanvas(int *w, int *h) {
     close(fbctl);
   }
 
-  /**
-   * todo: get the size of screen
-   * 1. record the size of canvas
-   * 2. this size can't exceed the size of screen.
-   * 3. open canvas with <(*w) x (*h)>
-   * 4. if both (*w) and (*h) are 0, 
-   *    set the screen as canvas 
-   *    set (*w) and (*h) as the size of screen
-   */
-  if (*w == 0 && *h == 0) {
-    canvas_w = screen_w;
-    canvas_h = screen_h;
-    *w = screen_w;
-    *h = screen_h;
-  }
-  else {
-    assert((*w) <= screen_w && (*h) <= screen_h);
-    canvas_w = *w;
-    canvas_h = *h;
-  }
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
-  /**
-   * todo: draw the figure
-   * 1. draw the figure with `w * h` size at the pixel (x, y)
-   * 2. sync this region to screen
-   * 3. the pixels are stored in row-based prioritization
-   * 4. the pixel's form: `00RRGGBB`
-   */
+  assert(x >= 0 && y >= 0 && x+w <= screen_w && y+h <= screen_h);
+  fd_frmbuf = open("/dev/fb", O_WRONLY);
+  assert(fd_frmbuf >= 0);
+  int i;
+  for (i=0; i<h; i++) {
+    lseek(fd_frmbuf, (x + (y+i)*screen_w)*sizeof(uint32_t), SEEK_SET);
+    write(fd_frmbuf, (void *)(pixels + i*w), w*sizeof(uint32_t));
+  }
+  close(fd_frmbuf);
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
@@ -108,16 +100,9 @@ void NDL_GetScreenSize() {
   assert(fd_screen >= 0);
   char buf[128];
   read(fd_screen, buf, sizeof(buf));
-  char *str1 = strtok(buf, ":");
-  assert(strcmp(str1, "WIDTH") == 0);
-  char *str2 = strtok(NULL, "\n");
-  assert(str2 != NULL);
-  screen_w = atoi(str2);
-  char *str3 = strtok(NULL, ":");
-  assert(strcmp(str3, "HEIGHT") == 0);
-  char *str4 = strtok(NULL, "\n");
-  assert(str4 != NULL);
-  screen_h = atoi(str4);
+  sscanf(buf, "WIDTH: %d\nHEIGHT: %d\n", &screen_w, &screen_h);
+  canvas_w = screen_w;
+  canvas_h = screen_h;
   close(fd_screen);
 }
 
