@@ -21,8 +21,19 @@ int SDL_PushEvent(SDL_Event *ev) {
 
 int SDL_PollEvent(SDL_Event *ev) {
   // panic("not implemented\n");
-
-  return 0;
+  char buf[64];
+  if (!NDL_PollEvent(buf, sizeof(buf))) return 0;
+  int len = strlen(buf);
+  buf[len-1] = '\0';
+  ev->type = (buf[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  int i;
+  for (i=0; i<keysize; i++) {
+    if (strcmp(keyname[i], buf+3) == 0) {
+      ev->key.keysym.sym = i;
+      break;
+    }
+  }
+  return 1;
 }
 
 int SDL_WaitEvent(SDL_Event *event) {
@@ -31,7 +42,6 @@ int SDL_WaitEvent(SDL_Event *event) {
   while (!NDL_PollEvent(buf, sizeof(buf)));
   int len = strlen(buf);
   buf[len-1] = '\0';
-  // printf("%s", buf);
   event->type = (buf[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
   int i;
   for (i=0; i<keysize; i++) {
@@ -40,8 +50,6 @@ int SDL_WaitEvent(SDL_Event *event) {
       break;
     }
   }
-  // printf("key down: %d, key code: %d\n", event->type, event->key.keysym.sym);
-
   return 1;
 }
 

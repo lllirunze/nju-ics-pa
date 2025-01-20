@@ -40,3 +40,4 @@ The following subprojects/components are included. Some of them are not fully im
   * [x] `SYS_write`
   * [ ] Center the canvas in `NDL_DrawRect`
   * [ ] Implement `fixedpt fixedpt_fromfloat(void *p)` which can transfer floating parameter to `fixedpt` type
+  * [ ] Built-in `echo` command in NTerm
