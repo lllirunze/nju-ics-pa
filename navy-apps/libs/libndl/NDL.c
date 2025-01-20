@@ -29,11 +29,7 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  if (read(fd_events, buf, len) > 0) {
-    // close(fd_events);
-    return 1;
-  }
-  // close(fd_events);
+  if (read(fd_events, buf, len) > 0) return 1;
   return 0;
 }
 
@@ -69,7 +65,7 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   int i;
   for (i=0; i<h; i++) {
     lseek(fd_frmbuf, (x + (y+i)*screen_w)*sizeof(uint32_t), SEEK_SET);
-    write(fd_frmbuf, (void *)(pixels + i*w), w*sizeof(uint32_t));
+    assert(write(fd_frmbuf, (void *)(pixels + i*w), w*sizeof(uint32_t)) >= 0);
   }
 }
 
@@ -89,7 +85,7 @@ int NDL_QueryAudio() {
 
 void NDL_GetScreenSize() {
   char buf[128];
-  read(fd_screen, buf, sizeof(buf));
+  assert(read(fd_screen, buf, sizeof(buf)) >= 0);
   sscanf(buf, "WIDTH: %d\nHEIGHT: %d\n", &screen_w, &screen_h);
   canvas_w = screen_w;
   canvas_h = screen_h;

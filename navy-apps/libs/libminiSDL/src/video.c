@@ -5,28 +5,19 @@
 #include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
-  // panic("not implemented\n");
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 
-  /** 
-   * The width and height in `srerect` determine the size of copied rectangle.
-   * Only the position is used in `dstrect` (the width and height are ignored).
-   * If `srcrect` is NULL, the entire surface is copied.
-   * If `dstrect` is NULL, thn the destination position (upper left corner) is (0, 0).
-   * The final blit rectangle is saved in `dstrect` after all clipping is performed (`srcrect` is not modified).
-   */
-
   uint32_t w, h;
-  if (srcrect == NULL) { w = src->w; h = src->h; }
+  if (!srcrect) { w = src->w; h = src->h; }
   else { w = srcrect->w; h = srcrect->h; }
   assert(w <= dst->w && h <= dst->h);
   
   int32_t x, y;
-  if (dstrect == NULL) { x = 0; y = 0; }
+  if (!dstrect) { x = 0; y = 0; }
   else { x = dstrect->x; y = dstrect->y; }
   
-  int i;
+  uint32_t i;
   for (i=0; i<h; i++) {
     memcpy(dst->pixels + x*sizeof(uint32_t) + (y+i)*(dst->w)*sizeof(uint32_t), src->pixels + i*w*sizeof(uint32_t), w*sizeof(uint32_t));
   }
@@ -34,12 +25,21 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  // panic("not implemented\n");
-
+  uint32_t w, h;
+  int32_t x, y;
+  if (!dstrect) { x = 0; y = 0; w = dst->w; h = dst->h; }
+  else { x = dstrect->x; y = dstrect->y; w = dstrect->w; h = dstrect->h; }
+  assert(w <= dst->w && h <= dst->h);
+  
+  uint32_t i, j;
+  for (i=y; i<y+h; i++) {
+    for (j=x; j<x+w; j++) {
+      *((uint32_t *)dst->pixels + i*w + j) = color;
+    }
+  }
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  // panic("not implemented\n");
   if (x == 0 && y == 0 && w == 0 && h == 0) {w = s->w; h = s->h;}
   NDL_DrawRect((uint32_t *)(s->pixels), x, y, w, h);
 }
