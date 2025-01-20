@@ -5,9 +5,6 @@
 #include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
-  /**
-   * This performs a fast blit from the source surface to the destination surface.
-   */
   // panic("not implemented\n");
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
@@ -20,14 +17,13 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
    * The final blit rectangle is saved in `dstrect` after all clipping is performed (`srcrect` is not modified).
    */
 
-  // If `srcrect` is NULL, the entire surface is copied.
   uint32_t w, h;
-  if (!srcrect) { w = src->w; h = src->h; }
+  if (srcrect == NULL) { w = src->w; h = src->h; }
   else { w = srcrect->w; h = srcrect->h; }
   assert(w <= dst->w && h <= dst->h);
-  // If `dstrect` is NULL, thn the destination position (upper left corner) is (0, 0).
+  
   int32_t x, y;
-  if (!dstrect) { x = 0; y = 0; }
+  if (dstrect == NULL) { x = 0; y = 0; }
   else { x = dstrect->x; y = dstrect->y; }
   
   int i;

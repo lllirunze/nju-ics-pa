@@ -29,13 +29,11 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  fd_events = open("/dev/events", O_RDONLY);
-  assert(fd_events >= 0);
   if (read(fd_events, buf, len) > 0) {
-    close(fd_events);
+    // close(fd_events);
     return 1;
   }
-  close(fd_events);
+  // close(fd_events);
   return 0;
 }
 
@@ -45,9 +43,6 @@ void NDL_OpenCanvas(int *w, int *h) {
   if(*h == 0 || *h > screen_h) *h = screen_h;
   canvas_w = *w;
   canvas_h = *h; 
-
-  // printf("screen size: %d x %d\n", screen_w, screen_h);
-  // printf("canvas size: %d x %d\n", canvas_w, canvas_h);
 
   if (getenv("NWM_APP")) {
     int fbctl = 4;
@@ -71,14 +66,11 @@ void NDL_OpenCanvas(int *w, int *h) {
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   assert(x >= 0 && y >= 0 && x+w <= screen_w && y+h <= screen_h);
-  fd_frmbuf = open("/dev/fb", O_WRONLY);
-  assert(fd_frmbuf >= 0);
   int i;
   for (i=0; i<h; i++) {
     lseek(fd_frmbuf, (x + (y+i)*screen_w)*sizeof(uint32_t), SEEK_SET);
     write(fd_frmbuf, (void *)(pixels + i*w), w*sizeof(uint32_t));
   }
-  close(fd_frmbuf);
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
@@ -96,14 +88,11 @@ int NDL_QueryAudio() {
 }
 
 void NDL_GetScreenSize() {
-  fd_screen = open("/proc/dispinfo", O_RDONLY);
-  assert(fd_screen >= 0);
   char buf[128];
   read(fd_screen, buf, sizeof(buf));
   sscanf(buf, "WIDTH: %d\nHEIGHT: %d\n", &screen_w, &screen_h);
   canvas_w = screen_w;
   canvas_h = screen_h;
-  close(fd_screen);
 }
 
 int NDL_Init(uint32_t flags) {
@@ -112,10 +101,21 @@ int NDL_Init(uint32_t flags) {
   }
   gettimeofday(&tv, &tz);
   start_usec = tv.tv_sec * 1000000 + tv.tv_usec;
+
+  fd_events = open("/dev/events", O_RDONLY);
+  assert(fd_events >= 0);
+  fd_screen = open("/proc/dispinfo", O_RDONLY);
+  assert(fd_screen >= 0);
+  fd_frmbuf = open("/dev/fb", O_WRONLY);
+  assert(fd_frmbuf >= 0);
+
   NDL_GetScreenSize();
+  
   return 0;
 }
 
 void NDL_Quit() {
-  
+  close(fd_frmbuf);
+  close(fd_screen);
+  close(fd_events);
 }
