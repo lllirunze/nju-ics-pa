@@ -12,7 +12,30 @@ SDL_Surface* IMG_Load_RW(SDL_RWops *src, int freesrc) {
 }
 
 SDL_Surface* IMG_Load(const char *filename) {
-  return NULL;
+  /**
+   * make decoded pixels into `Surface` type
+   * 1. open file using `libc` and get the `size` of file
+   * 2. init `buf[size]`
+   * 3. write the whole file to `buf`
+   * 4. call STBIMG_LoadFromMemory() (use `buf` and `size` as parameters), which returns `*SDL_Surface`
+   * 5. close file, free `buf`
+   * 6. return `*SDL_Surface`
+   */
+  FILE *fp;
+
+  fp = fopen(filename, "rb");
+  if (fp == NULL) {
+    printf("image %s isn't found.\n", filename);
+    return NULL;
+  }
+  fseek(fp, 0, SEEK_END);
+  size_t size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  char *buf = (char *)SDL_malloc(size);
+  assert(fread(buf, size, 1, fp));
+  SDL_Surface *surface = STBIMG_LoadFromMemory(buf, size);
+  SDL_free(buf);
+  return surface;
 }
 
 int IMG_isPNG(SDL_RWops *src) {
