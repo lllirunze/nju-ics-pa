@@ -1,10 +1,14 @@
 #include <NDL.h>
 #include <sdl-video.h>
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
+  
+  printf("SDL_BlitSurface\n");
+
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 
@@ -25,6 +29,9 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
+
+  printf("SDL_FillRect\n");
+
   uint32_t w, h;
   int32_t x, y;
   if (!dstrect) { x = 0; y = 0; w = dst->w; h = dst->h; }
@@ -39,9 +46,44 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   }
 }
 
+/*
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  if (!x && !y && !w && !h) {
+    w = s->w;
+    h = s->h;
+  }
+  uint32_t* pixels = (uint32_t*)s->pixels;
+  if (s->format->BitsPerPixel == 8) {
+    pixels = (uint32_t*)malloc(sizeof(uint32_t) * s->w * s->h);
+    SDL_Color *colors = s->format->palette->colors;
+    for (int i = 0; i < s->w * s->h; ++ i) {
+      pixels[i] = (colors[s->pixels[i]].a << 24) | (colors[s->pixels[i]].r << 16) | (colors[s->pixels[i]].g << 8) | colors[s->pixels[i]].b;
+      // if direct assign, the color would be 0x00BBGGRR
+    }
+  }
+  NDL_DrawRect(pixels, x, y, w, h);
+  if (s->format->BitsPerPixel == 8)
+    free(pixels);
+}
+*/
+
+void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+
+  printf("SDL_UpdateRect\n");
+
   if (x == 0 && y == 0 && w == 0 && h == 0) {w = s->w; h = s->h;}
   NDL_DrawRect((uint32_t *)(s->pixels), x, y, w, h);
+  // uint32_t* pixels = (uint32_t*)s->pixels;
+  // if (s->format->BitsPerPixel == 8) {
+  //   pixels = (uint32_t*)malloc(sizeof(uint32_t) * s->w * s->h);
+  //   SDL_Color *colors = s->format->palette->colors;
+  //   for (int i = 0; i < s->w * s->h; ++ i) {
+  //     pixels[i] = (colors[s->pixels[i]].a << 24) | (colors[s->pixels[i]].r << 16) | (colors[s->pixels[i]].g << 8) | colors[s->pixels[i]].b;
+  //     // if direct assign, the color would be 0x00BBGGRR
+  //   }
+  // }
+  // NDL_DrawRect(pixels, x, y, w, h);
+  // if (s->format->BitsPerPixel == 8) free(pixels);
 }
 
 // APIs below are already implemented.
@@ -59,6 +101,9 @@ static inline int maskToShift(uint32_t mask) {
 
 SDL_Surface* SDL_CreateRGBSurface(uint32_t flags, int width, int height, int depth,
     uint32_t Rmask, uint32_t Gmask, uint32_t Bmask, uint32_t Amask) {
+
+  printf("SDL_CreateRGBSurface\n");
+
   assert(depth == 8 || depth == 32);
   SDL_Surface *s = malloc(sizeof(SDL_Surface));
   assert(s);
@@ -126,6 +171,9 @@ SDL_Surface* SDL_SetVideoMode(int width, int height, int bpp, uint32_t flags) {
 }
 
 void SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
+  
+  printf("SDL_SoftStretch\n");
+  
   assert(src && dst);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
   assert(dst->format->BitsPerPixel == 8);
@@ -148,11 +196,17 @@ void SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     SDL_BlitSurface(src, &rect, dst, dstrect);
   }
   else {
+    printf("%d %d %d %d\n",w , dstrect->w ,h , dstrect->h);
+    // it seems that, must set pal window size to 320 * 200
+    // or this unimplemented strech will fail
     assert(0);
   }
 }
 
 void SDL_SetPalette(SDL_Surface *s, int flags, SDL_Color *colors, int firstcolor, int ncolors) {
+  
+  printf("SDL_SetPalette\n");
+
   assert(s);
   assert(s->format);
   assert(s->format->palette);
@@ -173,6 +227,9 @@ void SDL_SetPalette(SDL_Surface *s, int flags, SDL_Color *colors, int firstcolor
 }
 
 static void ConvertPixelsARGB_ABGR(void *dst, void *src, int len) {
+
+  printf("ConvertPixelsARGB_ABGR\n");
+
   int i;
   uint8_t (*pdst)[4] = dst;
   uint8_t (*psrc)[4] = src;
@@ -200,6 +257,9 @@ static void ConvertPixelsARGB_ABGR(void *dst, void *src, int len) {
 }
 
 SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, uint32_t flags) {
+  
+  printf("SDL_ConvertSurface\n");
+  
   assert(src->format->BitsPerPixel == 32);
   assert(src->w * src->format->BytesPerPixel == src->pitch);
   assert(src->format->BitsPerPixel == fmt->BitsPerPixel);
@@ -215,6 +275,9 @@ SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, uint32_t
 }
 
 uint32_t SDL_MapRGBA(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+  
+  printf("SDL_MapRGBA\n");
+  
   assert(fmt->BytesPerPixel == 4);
   uint32_t p = (r << fmt->Rshift) | (g << fmt->Gshift) | (b << fmt->Bshift);
   if (fmt->Amask) p |= (a << fmt->Ashift);

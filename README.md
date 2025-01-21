@@ -41,3 +41,4 @@ The following subprojects/components are included. Some of them are not fully im
   * [ ] Center the canvas in `NDL_DrawRect`
   * [ ] Implement `fixedpt fixedpt_fromfloat(void *p)` which can transfer floating parameter to `fixedpt` type
   * [ ] Built-in `echo` command in NTerm
+  * [ ] Although I get the [data](https://www.52pojie.cn/thread-1011448-1-1.html) of PAL, I can't run this game.
