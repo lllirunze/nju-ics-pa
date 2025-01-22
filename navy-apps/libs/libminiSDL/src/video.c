@@ -46,27 +46,6 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   }
 }
 
-/*
-void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  if (!x && !y && !w && !h) {
-    w = s->w;
-    h = s->h;
-  }
-  uint32_t* pixels = (uint32_t*)s->pixels;
-  if (s->format->BitsPerPixel == 8) {
-    pixels = (uint32_t*)malloc(sizeof(uint32_t) * s->w * s->h);
-    SDL_Color *colors = s->format->palette->colors;
-    for (int i = 0; i < s->w * s->h; ++ i) {
-      pixels[i] = (colors[s->pixels[i]].a << 24) | (colors[s->pixels[i]].r << 16) | (colors[s->pixels[i]].g << 8) | colors[s->pixels[i]].b;
-      // if direct assign, the color would be 0x00BBGGRR
-    }
-  }
-  NDL_DrawRect(pixels, x, y, w, h);
-  if (s->format->BitsPerPixel == 8)
-    free(pixels);
-}
-*/
-
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
 
   printf("SDL_UpdateRect\n");
