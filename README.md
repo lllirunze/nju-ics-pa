@@ -18,7 +18,15 @@ The following subprojects/components are included. Some of them are not fully im
 * [Nanos-lite](https://github.com/NJU-ProjectN/nanos-lite)
 * [Navy-apps](https://github.com/NJU-ProjectN/navy-apps)
 
+## Preface
+
+I have written an adaptation of ics-pa for Tianjin University once in 2020, writing the x86 version. 
+But for some well known reasons, my experiment was actually no different from the copy, and that experiment only went up to pa3 at that time. 
+So I would like to complete an ics experiment in its entirety for the original version from Nanjing University to give me a consolation for [2440072_计算机系统综合实践](https://github.com/superpung/TJU-CourseSharing/tree/main/2440072_%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%BB%BC%E5%90%88%E5%AE%9E%E8%B7%B5).
+
 ## Issues:
+
+Most of the issues here are optional content or little bugs that don't affect the required questions too much.
 
 * **PA1**
   * [x] cmd_d: I don't actually return the watchpoints to `free_`, and I just left it unused.
@@ -42,3 +50,4 @@ The following subprojects/components are included. Some of them are not fully im
   * [ ] Implement `fixedpt fixedpt_fromfloat(void *p)` which can transfer floating parameter to `fixedpt` type
   * [ ] Built-in `echo` command in NTerm
   * [x] Although I get the [data](https://blog.csdn.net/weixin_63603830/article/details/134065932) of PAL, I can't run this game.
+  * [ ] In PAL, there are some game operations that need to be implemented in order to control the role.
