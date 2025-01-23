@@ -13,43 +13,46 @@ static const char *keyname[] = {
 
 #define keysize (sizeof(keyname) / sizeof(keyname[0]))
 
+static uint8_t keystate[keysize];
+
 int SDL_PushEvent(SDL_Event *ev) {
   // panic("not implemented\n");
-
   return 0;
 }
 
 int SDL_PollEvent(SDL_Event *ev) {
-  // panic("not implemented\n");
   char buf[64];
   if (!NDL_PollEvent(buf, sizeof(buf))) return 0;
-  int len = strlen(buf);
-  buf[len-1] = '\0';
-  ev->type = (buf[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  char type[4], name[32];
+  sscanf(buf, "%s %s\n", type, name);
   int i;
   for (i=0; i<keysize; i++) {
-    if (strcmp(keyname[i], buf+3) == 0) {
+    if (strcmp(keyname[i], name) == 0) {
       ev->key.keysym.sym = i;
       break;
     }
   }
+  ev->type = (type[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  ev->key.type = (type[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  keystate[ev->key.keysym.sym] = (type[1] == 'd') ? 1 : 0;
   return 1;
 }
 
 int SDL_WaitEvent(SDL_Event *event) {
-  // panic("not implemented\n");
   char buf[64];
   while (!NDL_PollEvent(buf, sizeof(buf)));
-  int len = strlen(buf);
-  buf[len-1] = '\0';
-  event->type = (buf[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  char type[4], name[32];
+  sscanf(buf, "%s %s\n", type, name);
   int i;
   for (i=0; i<keysize; i++) {
-    if (strcmp(keyname[i], buf+3) == 0) {
+    if (strcmp(keyname[i], name) == 0) {
       event->key.keysym.sym = i;
       break;
     }
   }
+  event->type = (type[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  event->key.type = (type[1] == 'd') ? SDL_KEYDOWN : SDL_KEYUP;
+  keystate[event->key.keysym.sym] = (type[1] == 'd') ? 1 : 0;
   return 1;
 }
 
@@ -60,7 +63,6 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
 }
 
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  // panic("not implemented\n");
-
-  return NULL;
+  if (numkeys) *numkeys = keysize;
+  return &keystate;
 }

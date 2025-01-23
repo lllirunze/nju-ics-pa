@@ -29,7 +29,7 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  if (read(fd_events, buf, len) > 0) return 1;
+  if (read(fd_events, buf, len)) return 1;
   return 0;
 }
 
@@ -84,8 +84,9 @@ int NDL_QueryAudio() {
 }
 
 void NDL_GetScreenSize() {
-  char buf[128];
+  char buf[64];
   assert(read(fd_screen, buf, sizeof(buf)) >= 0);
+  printf("%s", buf);
   sscanf(buf, "WIDTH: %d\nHEIGHT: %d\n", &screen_w, &screen_h);
   canvas_w = screen_w;
   canvas_h = screen_h;
