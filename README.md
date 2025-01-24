@@ -26,7 +26,7 @@ So I would like to complete an ics experiment in its entirety for the original v
 
 ## Issues:
 
-Most of the issues here are optional content or little bugs that don't affect the required questions too much.
+Most of the issues here are optional tasks or little bugs that don't affect the required questions too much.
 
 * **PA1**
   * [x] cmd_d: I don't actually return the watchpoints to `free_`, and I just left it unused.
@@ -45,9 +45,18 @@ Most of the issues here are optional content or little bugs that don't affect th
 * **PA3**
   * [ ] Exception response mechanism in `DIFFTEST`: In riscv-32, we need to set `mstatus` as 0x1800
   * [x] Detect ISA type in ELF file
-  * [x] `SYS_write`
   * [ ] Center the canvas in `NDL_DrawRect`
   * [ ] Implement `fixedpt fixedpt_fromfloat(void *p)` which can transfer floating parameter to `fixedpt` type
   * [ ] Built-in `echo` command in NTerm
-  * [x] Although I get the [data](https://blog.csdn.net/weixin_63603830/article/details/134065932) of PAL, I can't run this game.
-  * [ ] In PAL, there are some game operations that need to be implemented in order to control the role.
+  * [ ] Implement PAL
+    * [x] Get the configuration [data](https://blog.csdn.net/weixin_63603830/article/details/134065932) in order to run PAL.
+    * [ ] There are some game operations that need to be implemented in order to control the role.
+  * [ ] Implement other apps in Navy
+    * [ ] am-kernels
+    * [ ] FCEUX
+    * [ ] os-lab0
+  * [ ] Audio: NJU Player
+    * [ ] PAL with soundscape
+    * [ ] Flappy Bird with soundscape
+  * [ ] Free-switching DiffTest mode
+  * [ ] Implement snapshots (save and load)
