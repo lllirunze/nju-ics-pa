@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <SDL.h>
 
+static char buf[256];
 char handle_key(SDL_Event *ev);
 
 static void sh_printf(const char *format, ...) {
@@ -23,12 +24,16 @@ static void sh_prompt() {
 }
 
 static void sh_handle_cmd(const char *cmd) {
-  printf("%s", cmd);
+  memset(buf, 0, 256);
+  strncpy(buf, cmd, 255);
+  strtok(buf, "\n");
+  execvp(buf, NULL);
 }
 
 void builtin_sh_run() {
   sh_banner();
   sh_prompt();
+  setenv("PATH", "/bin", 0);
 
   while (1) {
     SDL_Event ev;

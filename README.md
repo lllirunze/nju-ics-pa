@@ -42,6 +42,7 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
   * [ ] Real Time Clock: I haven't implement `AM_TIMER_RTC`.
   * [ ] Detect multiple keys being pressed at the same time: I have an idea to define `static int key_states[128] = {0};` to store the key status.
   * [x] Audio (optional)
+  * [ ] `printf("%p")` may return negative values.
 * **PA3**
   * [ ] Exception response mechanism in `DIFFTEST`: In riscv-32, we need to set `mstatus` as 0x1800
   * [x] Detect ISA type in ELF file
@@ -60,3 +61,4 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
     * [ ] Flappy Bird with soundscape
   * [ ] Free-switching DiffTest mode
   * [ ] Implement snapshots (save and load)
+  * [ ] Add startup music

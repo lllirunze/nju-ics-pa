@@ -29,7 +29,7 @@ void init_proc() {
   // load program here
 
   // todo: call naive_uload(NULL, NULL)
-  naive_uload(NULL, "/bin/menu");
+  naive_uload(NULL, "/bin/nterm");
 
 }
 

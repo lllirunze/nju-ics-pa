@@ -25,14 +25,9 @@ void do_syscall(Context *c) {
 
   switch (a[0]) {
     case SYS_exit:
-      // naive_uload(NULL, "/bin/nterm");
-      // halt(a[1]);
-      // c->GPRx = a[1];
       sys_exit(a[1]);
       break;
     case SYS_yield: 
-      // yield(); 
-      // c->GPRx = 0;
       c->GPRx = sys_yield();
       break;
     case SYS_open:
@@ -57,11 +52,9 @@ void do_syscall(Context *c) {
        * So, we can just return 0.
        * In PA4, we will modify SYS_brk to implement memory allocation.
        */
-      // c->GPRx = 0;
       c->GPRx = sys_brk();
       break;
     case SYS_execve:
-      // we ignore `argv` and `envp`
       c->GPRx = sys_execve((void*)a[1], (void*)a[2], (void*)a[3]);
       break;
     case SYS_gettimeofday:
@@ -87,6 +80,7 @@ int sys_brk() {
 }
 
 int sys_execve(const char *fname, char * const argv[], char *const envp[]) {
+  // we ignore `argv` and `envp`
   naive_uload(NULL, fname);
   return -1;
 }
