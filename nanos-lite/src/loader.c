@@ -45,7 +45,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   assert(fs_read(fd, &ehdr, sizeof(Elf_Ehdr)) > 0);
   
   // check valid elf
-  assert((*(uint32_t *)ehdr.e_ident == 0x464c457f));
+  assert(*(uint32_t *)ehdr.e_ident == 0x464c457f);
   // check ISA type in elf
   assert(ehdr.e_machine == EXPECT_TYPE);
 

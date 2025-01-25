@@ -11,9 +11,10 @@ typedef size_t (*ReadFn) (void *buf, size_t offset, size_t len);
 typedef size_t (*WriteFn) (const void *buf, size_t offset, size_t len);
 
 typedef struct {
-  char *name;         // filename
-  size_t size;        // file size
-  size_t disk_offset; // offset of file in ramdisk
+  char *name;           // filename
+  size_t size;          // file size
+  size_t disk_offset;   // offset of file in ramdisk
+  size_t fseek_offset;  // offset of file in fseek
   ReadFn read;
   WriteFn write;
 } Finfo;

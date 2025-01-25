@@ -56,7 +56,7 @@ char *num2str(int32_t num, int base) {
   int index = BUFFER_MAX_SIZE-2;
   bool is_negative = false;
 
-  // if (base == BASE_DEC) num = (int32_t)num;
+  if (base == BASE_DEC) num = (int32_t)num;
 
   if (num == 0) {
     buffer[index--] = '0';
@@ -205,6 +205,7 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
             void *ptr = va_arg(ap, void*);
             uintptr_t addr = (uintptr_t)ptr;
             char *addr_str = num2str(addr, BASE_HEX);
+
             sputch(out, '0', len++);
             if (len == n-1) {out[len] = '\0'; return len;}
             sputch(out, 'x', len++);

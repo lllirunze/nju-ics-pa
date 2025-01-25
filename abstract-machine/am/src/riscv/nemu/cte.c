@@ -4,16 +4,7 @@
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
-void print_reg(Context *c) {
-  printf("mcause : %d\n", c->mcause);
-  printf("mstatus: %d\n", c->mstatus);
-  printf("mepc   : %d\n", c->mepc);
-  printf("$a7    : %d\n", c->GPR1);
-}
-
 Context* __am_irq_handle(Context *c) {
-
-  // print_reg(c);
 
   if (user_handler) {
     Event ev = {0};
@@ -28,6 +19,7 @@ Context* __am_irq_handle(Context *c) {
       case SYS_close:
       case SYS_lseek:
       case SYS_brk:
+      case SYS_execve:
       case SYS_gettimeofday:
         ev.event = EVENT_SYSCALL;
         break;

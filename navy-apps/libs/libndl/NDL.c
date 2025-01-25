@@ -86,7 +86,7 @@ int NDL_QueryAudio() {
 void NDL_GetScreenSize() {
   char buf[64];
   assert(read(fd_screen, buf, sizeof(buf)) >= 0);
-  printf("%s", buf);
+  // printf("%s", buf);
   sscanf(buf, "WIDTH: %d\nHEIGHT: %d\n", &screen_w, &screen_h);
   canvas_w = screen_w;
   canvas_h = screen_h;

@@ -2,7 +2,15 @@
 #include <trace.h>
 #include <fs.h>
 #include <device.h>
+#include <proc.h>
 #include "syscall.h"
+
+void naive_uload(PCB *pcb, const char *filename);
+
+void sys_exit(int status);
+int sys_yield();
+int sys_brk();
+int sys_execve(const char *fname, char * const argv[], char *const envp[]);
 
 void do_syscall(Context *c) {
   uintptr_t a[4];
@@ -17,15 +25,18 @@ void do_syscall(Context *c) {
 
   switch (a[0]) {
     case SYS_exit:
-      halt(a[1]);
-      c->GPRx = a[1];
+      // naive_uload(NULL, "/bin/nterm");
+      // halt(a[1]);
+      // c->GPRx = a[1];
+      sys_exit(a[1]);
       break;
     case SYS_yield: 
-      yield(); 
-      c->GPRx = 0;
+      // yield(); 
+      // c->GPRx = 0;
+      c->GPRx = sys_yield();
       break;
     case SYS_open:
-      c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
+      c->GPRx = fs_open((char *)a[1], a[2], a[3]);
       break;
     case SYS_read:
       c->GPRx = fs_read(a[1], (void *)a[2], a[3]);
@@ -46,11 +57,36 @@ void do_syscall(Context *c) {
        * So, we can just return 0.
        * In PA4, we will modify SYS_brk to implement memory allocation.
        */
-      c->GPRx = 0;
+      // c->GPRx = 0;
+      c->GPRx = sys_brk();
+      break;
+    case SYS_execve:
+      // we ignore `argv` and `envp`
+      c->GPRx = sys_execve((void*)a[1], (void*)a[2], (void*)a[3]);
       break;
     case SYS_gettimeofday:
       c->GPRx = timer_read((struct timeval *)a[1], (struct timezone *)a[2]);
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
+}
+
+void sys_exit(int status) {
+  sys_execve("/bin/nterm", NULL, NULL);
+  halt(status);
+  return;
+}
+
+int sys_yield() {
+  yield(); 
+  return 0;
+}
+
+int sys_brk() {
+  return 0;
+}
+
+int sys_execve(const char *fname, char * const argv[], char *const envp[]) {
+  naive_uload(NULL, fname);
+  return -1;
 }

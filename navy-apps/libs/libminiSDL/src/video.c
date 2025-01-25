@@ -55,9 +55,10 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       if (sdl_color.val == sdl_palette->colors[color_index].val) break;
     }
     if (color_index == sdl_palette->ncolors) {
-      sdl_palette->ncolors++;
-      sdl_palette->colors = realloc(sdl_palette->colors, (sdl_palette->ncolors) * (sizeof (*sdl_palette->colors)));
-      sdl_palette->colors[sdl_palette->ncolors-1] = sdl_color;
+      // sdl_palette->ncolors++;
+      // sdl_palette->colors = realloc(sdl_palette->colors, (sdl_palette->ncolors) * (sizeof (*sdl_palette->colors)));
+      // sdl_palette->colors[sdl_palette->ncolors-1] = sdl_color;
+      color_index = 0;
     }
     
     for (i=y; i<y+h; i++) {
