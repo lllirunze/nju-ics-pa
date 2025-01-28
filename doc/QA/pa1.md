@@ -25,7 +25,7 @@ Thus, `cpu_exec(-1)` will allow the program to execute as many instructions as p
 
 ## Is cpu_exec(-1) an undefined behavior?
 
-Taking -1 as an argument does **not** result in undefined behavior. It causes n to be converted to the maximum value of type uint64_t. This is legal and well defined behavior in the C99 standard.
+Passing a negative number to an unsigned number is an undefined behaviour, and the C standard is not packing the punch of being able to convert to binary literal quantities (but most implementations do convert to binary literals.
 
 Reference: [C99 standard - chapter 6.3.1.3](https://www.dii.uchile.cl/~daespino/files/Iso_C_1999_definition.pdf)
 
