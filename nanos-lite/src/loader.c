@@ -23,11 +23,6 @@
 # define Elf_Phdr Elf32_Phdr
 #endif
 
-/**
- * Previously, we directly call ramdisk_read() to load user programs.
- * As the number of files in ramdisk grows, this way isn't correct.
- */
-
 static uintptr_t loader(PCB *pcb, const char *filename) {
   /** 
    * todo: now we can ignore these parameters.

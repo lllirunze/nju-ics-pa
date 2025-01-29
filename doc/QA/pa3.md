@@ -273,59 +273,87 @@ So edit `GPR?` macro in `riscv.h`.
 
 ## What is the hello.c?  Where does it come from, and where does it go? 
 
-First, `hello.c` is compiled into an ELF file under the `navy-apps/tests/hello/build`. Then the executable file is renamed and placed in `nanos-lite/build` and placed at [ramdisk_start, ramdisk_end]. Secondly, nanos-lite and abstract-machine are compiled into ELF files and sent to nemu.
+First, `hello.c` is compiled into an ELF file under the `navy-apps/tests/hello/build`. Then the executable file is renamed and placed in `nanos-lite/build` and placed at [ramdisk_start, ramdisk_end]. Finally, nanos-lite and abstract-machine are compiled into ELF files and sent to nemu.
 
+## Implement complete file system
 
+Here we need to know where we should write code:
 
+```c
+// navy-apps/libs/libos/src/syscall.c
+int _open(const char *path, int flags, mode_t mode) {...}
+int _write(int fd, void *buf, size_t count) {...}
+void *_sbrk(intptr_t increment) {...}
+int _read(int fd, void *buf, size_t count) {...}
+int _close(int fd) {...}
+off_t _lseek(int fd, off_t offset, int whence) {...}
+int _gettimeofday(struct timeval *tv, struct timezone *tz) {...}
+int _execve(const char *fname, char * const argv[], char *const envp[]) {...}
+```
 
+```c
+// abstract-machine/am/src/riscv/nemu/cte.c
+Context* __am_irq_handle(Context *c) {
+  if (user_handler) {
+    Event ev = {0};
+    switch (c->mcause) {
+      case SYS_...: ev.event = EVENT_SYSCALL; break;
+      default:      ev.event = EVENT_ERROR;   break;
+    }
+  return c;
+}
+```
 
+```c
+// nanos-lite/src/syscall.c
+void do_syscall(Context *c) {
+  uintptr_t a[4];
+  switch (a[0]) {
+    case SYS_...: c->GPRx = ...; break;
+    default: panic("Unhandled syscall ID = %d", a[0]);
+  }
+}
+```
 
+Writing the code for these three parts and the corresponding functions enables the syscall.
 
+## Implement NDL_GetTicks()
 
+Here we need to notice that `NDL_GetTicks` will return **microseconds**. So we write the code:
 
+```c
+uint32_t NDL_GetTicks() {
+  gettimeofday(&tv, &tz);
+  current_usec = tv.tv_sec * 1000000 + tv.tv_usec;
+  return (current_usec-start_usec)/1000;
+}
+```
 
+Attention: In order to compile the `navy-apps/tests` successfully, we need to add NDL lib to Makefile.
 
+```make
+# navy-apps/Makefile
+LIBS += libc libos libndl libminiSDL
+```
 
+## Use fopen() or open()?
 
+Use `open()`. `open()` can operate character devices, `fopen()` is usually operating *regular file*, read will take a buffer (i.e. read and write a character is not 100% read and write to disk).
 
+## fixedpt
 
+Let `fixedpt A = a << FIXEDPT_FBITS, B = b << FIXEDPT_FBITS;`, We get the following equation:
 
+```
+A + B = (a + b) << FIXEDPT_FBITS;
+A - B = (a - b) << FIXEDPT_FBITS;
+A * B = (a * b) >> FIXEDPT_FBITS;
+A / B = (a << FIXEDPT_FBITS) / b;
+floor(A) = A & 0xffffff00;
+ceil(A) = (floor(A) == A) ? A : A + FIXEDPT_ONE;
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Note that multiplication and division need to extend the range of data types, i.e. `uint32_t` temporarily needs to be extended to `uint64_t`.
 
 ### Unable to convert PDF
 

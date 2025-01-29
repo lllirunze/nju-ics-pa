@@ -3,7 +3,6 @@
 #include <ramdisk.h>
 
 static int ft_size;
-// static size_t fs_offset;
 
 enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB, FD_EVENTS, FD_DISPINFO};
 
@@ -26,14 +25,6 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_EVENTS]   = {"/dev/events",     0, 0, 0, events_read,   invalid_write},
   [FD_DISPINFO] = {"/proc/dispinfo",  0, 0, 0, dispinfo_read, invalid_write}, 
 #include "files.h"
-  
-  /**
-   * 1. The sentence `#include "files.h"` is used to add other files into `file_table`.
-   *    You don't need to do anything else to add the contents of these files.
-   * 2. We only consider write of STDOUT and STDERR. 
-   *    (using putch() to output it to serial port)
-   * 3. Other operations are ignored.
-   */
 
 };
 
@@ -56,7 +47,6 @@ int fs_open(const char *pathname, int flags, int mode) {
   int i=0;
   for (; i<ft_size; i++) {
     if (file_table[i].name != NULL && strcmp(file_table[i].name, pathname) == 0) {
-      // fs_offset = file_table[i].disk_offset;
       file_table[i].fseek_offset = 0;
       return i;
     }
@@ -76,12 +66,6 @@ size_t fs_read(int fd, void *buf, size_t len) {
   if (file_table[fd].size < 0) return -1;
   if (len < 0) return -1;
 
-  // if (fs_offset + len > file_table[fd].disk_offset + file_table[fd].size) {
-  //   len = file_table[fd].disk_offset + file_table[fd].size - fs_offset;
-  // }
-  // ramdisk_read(buf, fs_offset, len);
-  // fs_offset += len;
-
   if (file_table[fd].fseek_offset + len > file_table[fd].size) {
     len = file_table[fd].size - file_table[fd].fseek_offset;
   }
@@ -94,16 +78,9 @@ size_t fs_read(int fd, void *buf, size_t len) {
 size_t fs_write(int fd, const void *buf, size_t len) {
 
   if (fd < 0 || fd >= ft_size) return -1;
-  // if (file_table[fd].write != NULL) return file_table[fd].write(buf, fs_offset, len);
   if (file_table[fd].write != NULL) return file_table[fd].write(buf, file_table[fd].disk_offset + file_table[fd].fseek_offset, len);
   if (file_table[fd].size < 0) return -1;
   if (len < 0) return -1;
-
-  // if (fs_offset + len > file_table[fd].disk_offset + file_table[fd].size) {
-  //   len = file_table[fd].disk_offset + file_table[fd].size - fs_offset;
-  // }
-  // ramdisk_write(buf, fs_offset, len);
-  // fs_offset += len;
   
   if (file_table[fd].fseek_offset + len > file_table[fd].size) {
     len = file_table[fd].size - file_table[fd].fseek_offset;
@@ -121,8 +98,6 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
   switch (whence) {
     case SEEK_SET:
       if (offset >= 0 && offset <= file_table[fd].size) {
-        // fs_offset = file_table[fd].disk_offset + offset;
-        // return fs_offset - file_table[fd].disk_offset;
         file_table[fd].fseek_offset = offset;
         return file_table[fd].fseek_offset;
       } 
@@ -130,8 +105,6 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     case SEEK_CUR:
       if (file_table[fd].fseek_offset + offset >= 0 && 
           file_table[fd].fseek_offset + offset <= file_table[fd].size) {
-        // fs_offset = fs_offset + offset;
-        // return fs_offset - file_table[fd].disk_offset;
         file_table[fd].fseek_offset += offset;
         return file_table[fd].fseek_offset;
       }
@@ -139,8 +112,6 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     case SEEK_END:
       if (file_table[fd].size + offset >= 0 &&
           file_table[fd].size + offset <= file_table[fd].size) {
-        // fs_offset = file_table[fd].disk_offset + file_table[fd].size + offset;
-        // return fs_offset - file_table[fd].disk_offset;
         file_table[fd].fseek_offset = file_table[fd].size + offset;
         return file_table[fd].fseek_offset;
       }
