@@ -16,7 +16,6 @@ static const char *keyname[] = {
 static uint8_t keystate[keysize];
 
 int SDL_PushEvent(SDL_Event *ev) {
-  // panic("not implemented\n");
   return 0;
 }
 
@@ -57,8 +56,6 @@ int SDL_WaitEvent(SDL_Event *event) {
 }
 
 int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
-  // panic("not implemented\n");
-
   return 0;
 }
 

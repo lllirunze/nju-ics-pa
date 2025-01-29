@@ -36,13 +36,7 @@ void *malloc(size_t size) {
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-  // panic("Not implemented");
-
-  // todo: reference: am-kernels/benchmarks/microbench/src/bench.c
-
-  // initialize heap
   if (!heap_break) heap_break = (void *)ROUNDUP(heap.start, 8);
-
   size = (size_t)ROUNDUP(size, 8);
   char *addr = heap_break;
   heap_break += size;
@@ -50,15 +44,13 @@ void *malloc(size_t size) {
   for (uint64_t *p = (uint64_t *)addr; p != (uint64_t *)heap_break; p++) {
     *p = 0;
   }
-  // assert((uintptr_t)heap_break - (uintptr_t)heap.start <= PMEM_SIZE);
   return addr;
-
 #endif
   return NULL;
 }
 
 void free(void *ptr) {
-  // todo: Now we only allocate memories but don't free.
+
 }
 
 #endif

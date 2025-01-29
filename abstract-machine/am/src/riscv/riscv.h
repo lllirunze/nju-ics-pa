@@ -31,7 +31,6 @@ enum { MODE_U, MODE_S, MODE_M = 3 };
 #define MSTATUS_UXL  0
 #endif
 
-// system call number
 enum {
   SYS_exit,
   SYS_yield,

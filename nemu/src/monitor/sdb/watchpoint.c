@@ -55,7 +55,6 @@ static WP *new_wp() {
 }
 
 static void free_wp(WP *wp) {
-  // Here I didn't return wp to free_.
   wp->next = free_;
   wp->old_val = 0;
   memset(wp->expression, 0, sizeof(wp->expression));
@@ -92,7 +91,6 @@ int set_wp(char* args) {
   }
 
   strcpy(wp->expression, args);
-  // wp->expression = str;
   wp->old_val = result;
 
   if (head == NULL) {
@@ -161,7 +159,6 @@ void delete_wp(int n) {
 }
 
 bool scan_wp(vaddr_t pc) {
-  // printf("scan once.\n");
   bool check = false;
   bool success;
   WP *cur = head;

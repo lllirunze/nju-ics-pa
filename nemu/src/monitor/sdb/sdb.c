@@ -57,10 +57,7 @@ static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
   char *str = strtok(args, " ");
-  if (str == NULL) {
-    // printf("No arguments.\n");
-    cpu_exec(1);
-  }
+  if (str == NULL) cpu_exec(1);
   else {
     uint64_t step = strtoul(str, NULL, 10);
     cpu_exec(step);
@@ -71,7 +68,6 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
 
-  // printf("Print out register status or watchpoints.\n");
   char *str = strtok(args, " ");
   if (str == NULL) {
     printf("Error: Invalid number of arguments.\n");
@@ -113,11 +109,6 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  /* simplified version, which specifies that the expression EXPR can only contain a hexadecimal number. */
-  // expr = expr + 2;
-  // vaddr_t src = (vaddr_t)strtoul(expr, NULL, 16);
-
-  /* full version, but there cannot be any spaces in EXPR. */
   bool success = true;
   vaddr_t src = expr(EXPR, &success);
   if (success == false) {
@@ -140,29 +131,21 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
 
-  /* Attention: No spaces in the expression. */
-  // char *str = strtok(NULL, " ");
-
   if (args == NULL) {
     printf("Error: No expression.\n");
     printf("Usage: p EXPR\n");
     return 0;
   }
-  // printf("%s\n", args);
 
   bool success = true;
   word_t result = expr(args, &success);
-  if (success == false) {
-    printf("Error: Unable to calculate correctly.\n");
-  }
+  if (success == false) printf("Error: Unable to calculate correctly.\n");
   else printf("%u\n", result);
 
   return 0;
 }
 
 static int cmd_w(char *args) {
-
-  // char *str = strtok(NULL, " ");
 
   if (args == NULL) {
     printf("Error: No expression.\n");
@@ -197,8 +180,6 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
-  /* TODO: Add more commands */
   { "si", "Execute the program step by step", cmd_si },
   { "info", "Print out register status or watchpoints", cmd_info },
   { "x", "Scan memory and output N consecutive 4-byte characters in hex format", cmd_x },

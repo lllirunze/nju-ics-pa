@@ -24,7 +24,6 @@ static int fd_frmbuf = -1;
 uint32_t NDL_GetTicks() {
   gettimeofday(&tv, &tz);
   current_usec = tv.tv_sec * 1000000 + tv.tv_usec;
-  // return microseconds
   return (current_usec-start_usec)/1000;
 }
 
@@ -86,7 +85,6 @@ int NDL_QueryAudio() {
 void NDL_GetScreenSize() {
   char buf[64];
   assert(read(fd_screen, buf, sizeof(buf)) >= 0);
-  // printf("%s", buf);
   sscanf(buf, "WIDTH: %d\nHEIGHT: %d\n", &screen_w, &screen_h);
   canvas_w = screen_w;
   canvas_h = screen_h;

@@ -34,7 +34,6 @@ void init_elf(const char *elf_file) {
 	}
 	Log("Ftrace gets from %s", elf_file);
 
-	// read elf header
 	Elf32_Ehdr elf32_ehdr;
 	assert (fread(&elf32_ehdr, sizeof(elf32_ehdr), 1, elf_fp) == 1);
 	if (memcmp(elf32_ehdr.e_ident, ELFMAG, SELFMAG) != 0) {
@@ -43,18 +42,14 @@ void init_elf(const char *elf_file) {
 		assert(0);
 	}
 
-	// get the number of section headers
 	int sh_num = elf32_ehdr.e_shnum;
 	assert(sh_num > 0);
-	// printf("Number of section headers: %d\n", sh_num);
 	
-	// read section headers
 	fseek(elf_fp, elf32_ehdr.e_shoff, SEEK_SET);
 	Elf32_Shdr *elf32_shdr = malloc(sizeof(Elf32_Shdr) * sh_num);
 	assert(elf32_shdr);
 	assert(fread(elf32_shdr, sizeof(Elf32_Shdr), sh_num, elf_fp) == sh_num);
 
-	// find symbol table and string table
 	Elf32_Shdr *elf32_shdr_entry_symtab = NULL;
 	Elf32_Shdr *elf32_shdr_entry_strtab = NULL;
 	int i;
@@ -69,30 +64,23 @@ void init_elf(const char *elf_file) {
 	assert (elf32_shdr_entry_symtab);
 	assert (elf32_shdr_entry_strtab);
 
-	// get the number of symbol table
 	assert (elf32_shdr_entry_symtab->sh_size > 0 || elf32_shdr_entry_symtab->sh_entsize > 0);
 	int symtab_num = elf32_shdr_entry_symtab->sh_size / elf32_shdr_entry_symtab->sh_entsize;
 	assert (symtab_num > 0);
-	// printf("Number of symbol table: %d\n", symtab_num);
 
-	// read symbol table
 	fseek(elf_fp, elf32_shdr_entry_symtab->sh_offset, SEEK_SET);
 	Elf32_Sym *elf32_symtab = malloc(sizeof(Elf32_Sym) * symtab_num);
 	assert(elf32_symtab);
 	assert(fread(elf32_symtab, sizeof(Elf32_Sym), symtab_num, elf_fp) == symtab_num);
 
-	// get the size of string table
 	assert(elf32_shdr_entry_strtab->sh_size > 0);
 	int strtab_size = elf32_shdr_entry_strtab->sh_size;
-	// printf("The size of string table: %d\n", strtab_size);
 
-	// read string table
 	fseek(elf_fp, elf32_shdr_entry_strtab->sh_offset, SEEK_SET);
 	char *elf32_strtab = malloc(sizeof(char) * strtab_size);
 	assert(elf32_strtab);
 	assert(fread(elf32_strtab, strtab_size, 1, elf_fp) == 1);
 
-	// We need to get all items whose type is 'FUNC' in the symbol table and store it.
   for (i=0; i<symtab_num; i++) {
 		if (ELF32_ST_TYPE(elf32_symtab[i].st_info) == STT_FUNC) {
 			if (in_pmem(elf32_symtab[i].st_value)) {
@@ -108,11 +96,9 @@ void init_elf(const char *elf_file) {
 	}
 
 	free(elf32_shdr);
-	// free(elf32_shdr_entry_symtab);
-	// free(elf32_shdr_entry_strtab);
 	free(elf32_symtab);
 	free(elf32_strtab);
-	
+
 	fclose(elf_fp);
 }
 
@@ -136,7 +122,6 @@ char *get_function_name(vaddr_t addr) {
 	char *fname = NULL;
 	functab *cur = functab_head;
 	while (cur != NULL) {
-    // check if address falls within [value, value+size)
 		if (cur->func_start <= addr && addr < cur->func_end) {
 			fname = cur->func_name;
 			break;
@@ -148,9 +133,7 @@ char *get_function_name(vaddr_t addr) {
 }
 
 void ftrace_call(Decode *s) {
-	// <instr address(s->pc)>: call [target function(strtab(s->dnpc)) @ target address(s->dnpc)]
 	char *fname = get_function_name(s->dnpc);
-
 	ftrace_write("0x%08x: ", s->pc);
 	int i;
 	for (i=0; i<level; i++) ftrace_write("  ");
@@ -159,9 +142,7 @@ void ftrace_call(Decode *s) {
 }
 
 void ftrace_ret(Decode *s) {
-	// <instr address>: [ret ] [target function]
 	char *fname = get_function_name(s->pc);
-
 	ftrace_write("0x%08x: ", s->pc);
 	level--;
 	int i;

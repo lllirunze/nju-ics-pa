@@ -39,7 +39,6 @@ static void init_IRingBuf() {
 void insert_IRingBuf(char *p) {
     if (initFlag == false) init_IRingBuf();
     if (tail->next == head) {
-        // iringbufs is full
         memset(head->buf, 0, sizeof(head->buf));
         head = head->next;
     }

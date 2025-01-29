@@ -49,7 +49,7 @@ enum {
 
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
-// #define immR() do {} while(0)
+
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
 #define immB() do { *imm = (SEXT(BITS(i, 31, 31), 1) << 12) | (BITS(i, 7, 7) << 11) | (BITS(i, 30, 25) << 5) | (BITS(i, 11, 8) << 1); } while(0)
@@ -86,14 +86,7 @@ static int decode_exec(Decode *s) {
   __VA_ARGS__ ; \
 }
 
-  // execute
   INSTPAT_START();
-
-  /**
-   * INSTPAT(pattern string, instruction name, instruction type, execution operation); 
-   * 
-                INSTPAT("??????? ????? ????? ??? ????? ????? ??",        ,  , );
-   */
 
   /* RV32I Base Instruction Set */
   /* lui     */ INSTPAT("??????? ????? ????? ??? ????? 01101 11", lui    , U, R(rd) = imm);
@@ -134,8 +127,8 @@ static int decode_exec(Decode *s) {
   /* or      */ INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or     , R, R(rd) = src1 | src2);
   /* and     */ INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and    , R, R(rd) = src1 & src2);
   /* fence   */
-  /* ecall   */ INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(R(17), s->pc)); // R(17) is $a7
-  /* ebreak  */ INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  /* ecall   */ INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(R(17), s->pc));
+  /* ebreak  */ INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10)));
 
   /* RV32 Zicsr Standard Extension */
   /* csrrw   */ INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, ({
@@ -179,8 +172,6 @@ static int decode_exec(Decode *s) {
   /* sret    */
   /* mret    */ INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = CSR(0x341));
   
-
-  // If all the previous pattern matching rules fail to match successfully, the instruction is considered illegal.
   /* inv     */ INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
 
   INSTPAT_END();
@@ -191,8 +182,6 @@ static int decode_exec(Decode *s) {
 }
 
 int isa_exec_once(Decode *s) {
-  // instrcution fetch
   s->isa.inst = inst_fetch(&s->snpc, 4);
-  // instruction decode
   return decode_exec(s);
 }

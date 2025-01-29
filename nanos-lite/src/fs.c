@@ -35,7 +35,6 @@ const char* fs_name(int idx) {
 
 
 void init_fs() {
-  // TODO: initialize the size of /dev/fb
   ft_size = sizeof(file_table)/sizeof(file_table[0]);
   AM_GPU_CONFIG_T gc = io_read(AM_GPU_CONFIG);
   file_table[FD_FB].size = gc.width * gc.height * sizeof(uint32_t);

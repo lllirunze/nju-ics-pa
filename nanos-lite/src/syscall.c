@@ -80,7 +80,6 @@ int sys_brk() {
 }
 
 int sys_execve(const char *fname, char * const argv[], char *const envp[]) {
-  // we ignore `argv` and `envp`
   naive_uload(NULL, fname);
   return -1;
 }

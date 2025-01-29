@@ -118,17 +118,8 @@ static bool make_token(char *e) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
-
-        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
-
         position += substr_len;
 
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
-         * to record the token in the array `tokens'. For certain types
-         * of tokens, some extra actions should be performed.
-         */
-        
         if (substr_len > 32) {
           printf("Error: The token is too long.\n");
           return false;
@@ -167,43 +158,33 @@ static bool make_token(char *e) {
             tokens[nr_token].type = rules[i].token_type;
             strncpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].priority = rules[i].priority;
-            // printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           case '-':
-            // todo: We need to determine whether it is a negation operator.
             if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == TK_REG || tokens[nr_token-1].type == ')')) {
-              // minus
               tokens[nr_token].type = '-';
               tokens[nr_token].priority = 4;
             }
             else {
-              // negation
               tokens[nr_token].type = TK_NEG;
               tokens[nr_token].priority = 2;
             }
             strncpy(tokens[nr_token].str, substr_start, substr_len);
-            // printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           case '*':
-            // todo: We need to determine whether it is a dereference operator.
             if (nr_token != 0 && (tokens[nr_token-1].type == TK_DEC || tokens[nr_token-1].type == TK_HEX || tokens[nr_token-1].type == TK_REG || tokens[nr_token-1].type == ')')) {
-              // minus
               tokens[nr_token].type = '*';
               tokens[nr_token].priority = 3;
             }
             else {
-              // negation
               tokens[nr_token].type = TK_DEREF;
               tokens[nr_token].priority = 2;
             }
             strncpy(tokens[nr_token].str, substr_start, substr_len);
-            // printf("%d\t%s\t%d\n", tokens[nr_token].type, tokens[nr_token].str, tokens[nr_token].priority);
             nr_token++;
             break;
           default: break;
-          // default: TODO();
         }
 
         break;
@@ -220,26 +201,14 @@ static bool make_token(char *e) {
 }
 
 bool check_parentheses(int left, int right) {
-  /* Example:
-   * "(2 - 1)"             // true
-   * "(4 + 3 * (2 - 1))"   // true
-   * "4 + 3 * (2 - 1)"     // false, the whole expression is not surrounded by a matched pair of parentheses
-   * "(4 + 3)) * ((2 - 1)" // false, bad expression
-   * "(4 + 3) * (2 - 1)"   // false, the leftmost '(' and the rightmost ')' are not matched
-   */
   if (tokens[left].type != '(' || tokens[right].type != ')') return false;
   int layer = 0;
   int i;
   for (i = left; i < right; i++) {
-    if (tokens[i].type == '(') {
-      layer++;
-    }
-    else if (tokens[i].type == ')') {
-      layer--;
-    }
+    if (tokens[i].type == '(') layer++;
+    else if (tokens[i].type == ')') layer--;
     if (layer <= 0) return false;
   }
-
   return (layer == 1);
 }
 
@@ -248,7 +217,6 @@ int check_priority(int left, int right) {
   int i;
   int layer = 0;
   for (i = left; i <= right; i++) {
-    // Operator precedence within parentheses is not considered.
     if (tokens[i].type == '(') layer++;
     else if (tokens[i].type == ')') layer--;
     if (layer != 0) continue;
@@ -262,7 +230,6 @@ int find_dominate_operator(int left, int right, int pri, bool leftToRight) {
   int layer = 0;
   if (leftToRight == false) {
     for (i = left; i <= right; i++) {
-      // Operator precedence within parentheses is not considered.
       if (tokens[i].type == '(') layer++;
       else if (tokens[i].type == ')') layer--;
       if (layer != 0) continue;
@@ -271,7 +238,6 @@ int find_dominate_operator(int left, int right, int pri, bool leftToRight) {
   }
   else {
     for (i = right; i >= left; i--) {
-      // Operator precedence within parentheses is not considered.
       if (tokens[i].type == '(') layer++;
       else if (tokens[i].type == ')') layer--;
       if (layer != 0) continue;
@@ -283,16 +249,11 @@ int find_dominate_operator(int left, int right, int pri, bool leftToRight) {
 
 word_t eval(int left, int right, bool *success) {
   if (left > right) {
-    /* Bad expression. */
     Log("Bad expression between %d and %d.", left, right);
     *success = false;
     return 0;
   }
   else if (left == right) {
-    /* Single token.
-     * For now this token should be a number.
-     * Return the value of the number.
-     */
     int num_type = tokens[left].type;
     switch(num_type) {
       case TK_HEX:
@@ -308,13 +269,8 @@ word_t eval(int left, int right, bool *success) {
         return (word_t)strtoul(dec_str, NULL, 10);
       case TK_REG:
         char *reg_str;
-        if (strcmp(tokens[left].str, "$0") == 0) {
-          reg_str = tokens[left].str;
-        }
-        else {
-          reg_str = tokens[left].str+1;
-        }
-        // printf("register: %s\n", reg_str);
+        if (strcmp(tokens[left].str, "$0") == 0) reg_str = tokens[left].str;
+        else reg_str = tokens[left].str+1;
         return isa_reg_str2val(reg_str, success);
       default:
         Log("Unknown number %s in the position %d.", tokens[left].str, left);
@@ -323,34 +279,15 @@ word_t eval(int left, int right, bool *success) {
     }
   }
   else if (check_parentheses(left, right) == true) {
-    /* The expression is surrounded by a matched pair or parentheses.
-     * If that is the case, just throw away the parentheses.
-     */
     return eval(left+1, right-1, success);
   }
   else {
-    /* int op = the position of dominant operator in the token expression. */
     int dominate_priority = check_priority(left, right);
-    /* 
-     * Associativity determines the order in which multiple operators 
-     * of the same priority are evaluated when they appear together. 
-     * There are two common associativity types:
-     * 
-     * Left-to-right associativity (most operators, such as +, -, *, /, etc.)
-     * Right-to-left associativity (such as the negative operator -, the dereference operator *)
-     */
     bool leftToRight;
-    if (dominate_priority == 2 || dominate_priority == 13 || dominate_priority == 14) {
-      // right-to-left
-      leftToRight = false;
-    }
-    else {
-      // left-to-right
-      leftToRight = true;
-    }
-    // printf("%d\n", leftToRight);
+    if (dominate_priority == 2 || dominate_priority == 13 || dominate_priority == 14) leftToRight = false;
+    else leftToRight = true;
+
     int op = find_dominate_operator(left, right, dominate_priority, leftToRight);
-    // printf("%d, %s, %d\n", op, tokens[op].str, tokens[op].type);
     int op_type = tokens[op].type;
 
     word_t val1, val2;
@@ -423,10 +360,6 @@ word_t expr(char *e, bool *success) {
     *success = false;
     return 0;
   }
-
-  /* TODO: Insert codes to evaluate the expression. */
-
-  // return eval(0, nr_token-1, success);
   word_t result = eval(0, nr_token-1, success);
   free_token();
   return result;

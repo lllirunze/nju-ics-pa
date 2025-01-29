@@ -9,7 +9,6 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      // todo: you need to handle the event number
       case -1: ev.event = EVENT_YIELD; break;
       case SYS_exit:
       case SYS_yield:
@@ -68,6 +67,5 @@ bool ienabled() {
 }
 
 void iset(bool enable) {
-  // todo: now we don't implement the function which is related to interrupts
-  
+
 }
