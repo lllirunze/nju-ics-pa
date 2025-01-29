@@ -24,6 +24,12 @@ I have written an adaptation of ics-pa for Tianjin University once in 2020, writ
 But for some well known reasons, my experiment was actually no different from the copy, and that experiment only went up to pa3 at that time. 
 So I would like to complete an ics experiment in its entirety for the original version from Nanjing University to give me a consolation for [天津大学-计算机系统综合实践](https://github.com/superpung/TJU-CourseSharing/tree/main/2440072_%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%BB%BC%E5%90%88%E5%AE%9E%E8%B7%B5).
 
+## Blog
+
+- [PA0](https://lllirunze.cn/2025/01/27/NJU-ICS-PA0/)
+- [PA1-1](https://lllirunze.cn/2025/01/27/NJU-ICS-PA1-1/)
+- [PA1-2]
+
 ## Issues:
 
 Most of the issues here are optional tasks or little bugs that don't affect the required questions too much.
