@@ -68,3 +68,5 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
   * [ ] Free-switching DiffTest mode
   * [ ] Implement snapshots (save and load)
   * [ ] Add startup music
+* **PA4**
+  * [ ] DiffTest for Context: set `mstatus` as 0x1800

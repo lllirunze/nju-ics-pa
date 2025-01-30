@@ -37,6 +37,7 @@ Context* __am_irq_handle(Context *c) {
   return c;
 }
 
+// todo: context switch
 extern void __am_asm_trap(void);
 
 bool cte_init(Context*(*handler)(Event, Context*)) {
@@ -51,7 +52,10 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  // todo: context switch
+  Context *c = (Context*)kstack.end - 1;
+  c->mepc = (uintptr_t)entry;
+  return c;
 }
 
 void yield() {
