@@ -71,3 +71,4 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
 * **PA4**
   * [ ] DiffTest for Context: set `mstatus` as 0x1800
   * [ ] [RT-Thread](https://nju-projectn.github.io/ics-pa-gitbook/ics2024/4.1.html#rt-thread%E9%80%89%E5%81%9A) (optional)
+  * [ ] Implement context switching in Nanos-lite(native)

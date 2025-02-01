@@ -1,6 +1,7 @@
 #include <proc.h>
 #include <fs.h>
 #include <ramdisk.h>
+#include <loader.h>
 #include <elf.h>
 
 #if defined(__ISA_AM_NATIVE__)
@@ -66,3 +67,14 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
+void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
+  pcb->cp = kcontext((Area){pcb->stack, pcb->stack+STACK_SIZE}, entry, arg);
+}
+
+void context_uload(PCB *pcb, const char *filename) {
+  Area area = {.start=pcb->stack, .end=pcb->stack + STACK_SIZE};
+  uintptr_t entry = loader(pcb, filename);
+  Log("Jump to entry = %p", entry);
+  pcb->cp = ucontext(NULL, area, (void *)entry);
+  pcb->cp->GPRx = (uintptr_t)heap.end;
+}

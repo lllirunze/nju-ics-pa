@@ -1,4 +1,5 @@
 #include <proc.h>
+#include <loader.h>
 
 #define MAX_NR_PROC 4
 
@@ -6,14 +7,10 @@ static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static PCB pcb_boot = {};
 PCB *current = NULL;
 
-void naive_uload(PCB *pcb, const char *filename);
+// void naive_uload(PCB *pcb, const char *filename);
 
 void switch_boot_pcb() {
   current = &pcb_boot;
-}
-
-void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
-  pcb->cp = kcontext((Area){pcb->stack, pcb->stack+STACK_SIZE}, entry, arg);
 }
 
 void hello_fun(void *arg) {
@@ -30,8 +27,15 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, "hello nanos-lite-1");
-  context_kload(&pcb[1], hello_fun, "hello nanos-lite-2");
+  // implement context switching in Nanos-lite
+  // context_kload(&pcb[0], hello_fun, "hello nanos-lite-1");
+  // context_kload(&pcb[1], hello_fun, "hello nanos-lite-2");
+  // switch_boot_pcb();
+  
+  // implement multiple programs
+  context_kload(&pcb[0], hello_fun, "hello nanos-lite");
+  // context_uload(&pcb[0], "/bin/hello");
+  context_uload(&pcb[1], "/bin/pal");
   switch_boot_pcb();
 
   Log("Initializing processes...");
