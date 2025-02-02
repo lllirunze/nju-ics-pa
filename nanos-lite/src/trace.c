@@ -14,6 +14,11 @@ const char* syscall_names[] = {
 };
 const int sys_size = sizeof(syscall_names)/sizeof(syscall_names[0]);
 
+const char* lseek_names[] = {
+  "SEEK_SET", "SEEK_CUR", "SEEK_END"
+};
+const int lsk_size = sizeof(lseek_names)/sizeof(lseek_names[0]);
+
 void strace_call(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;
@@ -31,10 +36,12 @@ void strace_call(Context *c) {
       Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
       break;
     case SYS_write:
-      Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
+      // Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
       break;
-    case SYS_brk:
     case SYS_lseek:
+      Log("System call: [%s, %s, offset: %d bytes, whence: %s]", sys_name(a[0]), fs_name(a[1]), a[2] , lsk_name(a[3]));
+    case SYS_brk:
+      break;
     case SYS_gettimeofday:
       break;
     default:

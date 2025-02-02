@@ -20,6 +20,17 @@ static inline const char* sys_name(int idx) {
   return syscall_names[check_sys_idx(idx)];
 }
 
+static inline int check_lsk_idx(int idx) {
+  extern const int lsk_size;
+  assert(idx >= 0 && idx < lsk_size);
+  return idx;
+}
+
+static inline const char* lsk_name(int idx) {
+  extern const char* lseek_names[];
+  return lseek_names[check_lsk_idx(idx)];
+}
+
 #endif
 
 #endif

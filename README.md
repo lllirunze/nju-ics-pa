@@ -72,3 +72,6 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
   * [ ] DiffTest for Context: set `mstatus` as 0x1800
   * [ ] [RT-Thread](https://nju-projectn.github.io/ics-pa-gitbook/ics2024/4.1.html#rt-thread%E9%80%89%E5%81%9A) (optional)
   * [ ] Implement context switching in Nanos-lite(native)
+  * [x] Multi-program: pal and hello_fun
+    * If I add `yield()` in `serial_write`, `events_read` and `fb_write`, we cannot run multi-program. But if we remove `yield()` of `fb_write`, we can run it. This is not what we expect.
+    * The code itself is fine, if you add `yield()` to `fb_write`, it outputs "hello, nanos-lite" once every time it loads 1600 bytes. however, a frame needs to be loaded 318400 bytes to do this, so it needs to wait to output "hello, nanos-lite" 199 times before it loads a frame, which is particularly slow, but it doesn't mean that the code's logic is wrong. If we want it to be smoother, we just need to comment out `yield()` in `fb_write`.

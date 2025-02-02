@@ -17,8 +17,7 @@ static const char *keyname[256] __attribute__((used)) = {
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
 
-  printf("serial_write -- yield\n");
-  yield();
+  // yield();
 
   char *data = (char *)buf;
   size_t i;
@@ -31,8 +30,7 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
 
 size_t events_read(void *buf, size_t offset, size_t len) {
 
-  printf("event_read  -- yield\n");
-  yield();
+  // yield();
 
   AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
   if (ev.keycode == AM_KEY_NONE) return 0;
@@ -50,11 +48,6 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
 
-  /**
-   *  todo: Why is it that I can run both by removing the yield() but not by adding the yield()?
-   *  My expectation is that adding yield() to all three functions is runnable.
-   */ 
-  // printf("fb_write    -- yield\n");
   // yield();
 
   AM_GPU_CONFIG_T gc = io_read(AM_GPU_CONFIG);
@@ -62,8 +55,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   int w = offset % gc.width;
   int h = offset / gc.width;
   io_write(AM_GPU_FBDRAW, w, h, (void *)buf, len/4, 1, true);
-  // return 1;
-  return len;
+  return 1;
 }
 
 intptr_t timer_read(struct timeval *tv, struct timezone *tz) {
