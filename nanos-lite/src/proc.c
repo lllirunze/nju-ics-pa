@@ -1,5 +1,6 @@
 #include <proc.h>
 #include <loader.h>
+#include <memory.h>
 
 #define MAX_NR_PROC 4
 
@@ -27,26 +28,34 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
+
   // implement context switching in Nanos-lite
   // context_kload(&pcb[0], hello_fun, "hello nanos-lite-1");
   // context_kload(&pcb[1], hello_fun, "hello nanos-lite-2");
   // switch_boot_pcb();
   
   // implement multiple programs
-  context_kload(&pcb[0], hello_fun, "hello nanos-lite");
+  // context_kload(&pcb[0], hello_fun, "hello nanos-lite");
   // context_uload(&pcb[0], "/bin/hello");
-  context_uload(&pcb[1], "/bin/pal");
+  // context_uload(&pcb[1], "/bin/pal");
+
+  // implement multiple programs with parameters
+  char* argv[] = { "--skip", NULL };
+  char* envp[] = { NULL };
+  // context_kload(&pcb[0], hello_fun, "hello nanos-lite");
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");
 
-  // naive_uload(NULL, "/bin/nterm");
+  // naive_uload(NULL, "/bin/pal");
 }
 
 Context* schedule(Context *prev) {
   // return NULL;
   current->cp = prev;
-  printf("switch to %d\n", (current == &pcb[0] ? 1 : 0));
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  // printf("switch to %d\n", (current == &pcb[0] ? 1 : 0));
+  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current = &pcb[1];
   return current->cp;
 }

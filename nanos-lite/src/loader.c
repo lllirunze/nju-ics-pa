@@ -24,7 +24,7 @@
 # define Elf_Phdr Elf32_Phdr
 #endif
 
-static uintptr_t loader(PCB *pcb, const char *filename) {
+uintptr_t loader(PCB *pcb, const char *filename) {
   /** 
    * todo: now we can ignore these parameters.
    * 
@@ -71,10 +71,50 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
   pcb->cp = kcontext((Area){pcb->stack, pcb->stack+STACK_SIZE}, entry, arg);
 }
 
-void context_uload(PCB *pcb, const char *filename) {
-  Area area = {.start=pcb->stack, .end=pcb->stack + STACK_SIZE};
+void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]) {
+  // Area area = {.start=pcb->stack, .end=pcb->stack + STACK_SIZE};
+  // uintptr_t entry = loader(pcb, filename);
+  // Log("Jump to entry = %p", entry);
+  // pcb->cp = ucontext(NULL, area, (void *)entry);
+  // pcb->cp->GPRx = (uintptr_t)heap.end;
+
+  // todo: change context_uload
+  Area kstack;
+  uintptr_t ustack = (uintptr_t)(new_page(8) + 8 * PGSIZE);
+  kstack.start = pcb; // this is for PCB on stack, processed by kernel
+  kstack.end = &pcb->stack[sizeof(pcb->stack)];
   uintptr_t entry = loader(pcb, filename);
-  Log("Jump to entry = %p", entry);
-  pcb->cp = ucontext(NULL, area, (void *)entry);
-  pcb->cp->GPRx = (uintptr_t)heap.end;
+  pcb->cp = ucontext(NULL, kstack, (void*)entry);
+  
+  // Set argv, envp
+  int argv_count = 0;
+  int envp_count = 0;
+  char* _argv[20] = {0};
+  char* _envp[20] = {0}; // tmp solution
+  // collect arg count
+  if (argv) while (argv[argv_count]) argv_count ++;
+  if (envp) while (envp[envp_count]) envp_count ++;
+  // copy strings
+  for (int i = 0; i < envp_count; ++ i) {
+    ustack -= strlen(envp[i]) + 1;
+    strcpy((char*)ustack, envp[i]);
+    _envp[i] = (char*)ustack;
+  }
+  for (int i = 0; i < argv_count; ++ i) {
+    ustack -= strlen(argv[i]) + 1;
+    strcpy((char*)ustack, argv[i]);
+    _argv[i] = (char*)ustack;
+  }
+  // copy argv table
+  size_t envp_size = sizeof(char*) * (envp_count + 1);
+  size_t argv_size = sizeof(char*) * (argv_count + 1);
+  ustack -= envp_size; // there should be a null at the end 
+  memcpy((void*) ustack, _envp, envp_size);
+  ustack -= argv_size;
+  memcpy((void*) ustack, _argv, argv_size);
+  // set argc
+  ustack -= sizeof(uintptr_t);
+  *(uintptr_t *)ustack = argv_count;
+  // set stack pos
+  pcb->cp->GPRx = ustack;
 }
