@@ -38,12 +38,26 @@ void init_proc() {
   // context_kload(&pcb[0], hello_fun, "hello nanos-lite");
   // context_uload(&pcb[0], "/bin/hello");
   // context_uload(&pcb[1], "/bin/pal");
+  // switch_boot_pcb();
 
   // implement multiple programs with parameters
-  char* argv[] = { "--skip", NULL };
-  char* envp[] = { NULL };
   // context_kload(&pcb[0], hello_fun, "hello nanos-lite");
-  context_uload(&pcb[1], "/bin/pal", argv, envp);
+  // char* argv[] = { "--skip", NULL };
+  // char* envp[] = { NULL };
+  // context_uload(&pcb[1], "/bin/pal", argv, envp);
+  // switch_boot_pcb();
+
+  // implement execve() with parameter
+  // First step
+  // char* argv[] = { "/bin/exec-test", "1", NULL };
+  // char* envp[] = { NULL };
+  // context_uload(&pcb[1], "/bin/exec-test", argv, envp);
+  // switch_boot_pcb();
+  // Second step
+  char* argv[] = { NULL };
+  char* envp[] = { NULL };
+  context_uload(&pcb[1], "/bin/menu", argv, envp);
+  // context_uload(&pcb[1], "/bin/nterm", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");

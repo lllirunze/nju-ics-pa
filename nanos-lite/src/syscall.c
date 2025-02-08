@@ -3,9 +3,10 @@
 #include <fs.h>
 #include <device.h>
 #include <proc.h>
+#include <loader.h>
 #include "syscall.h"
 
-void naive_uload(PCB *pcb, const char *filename);
+// void naive_uload(PCB *pcb, const char *filename);
 
 void sys_exit(int status);
 int sys_yield();
@@ -46,16 +47,11 @@ void do_syscall(Context *c) {
       c->GPRx = fs_lseek(a[1], a[2], a[3]);
       break;
     case SYS_brk:
-      /** 
-       * Because Nanos-lite is a single-task OS now, 
-       * any space can be used by user application.
-       * So, we can just return 0.
-       * In PA4, we will modify SYS_brk to implement memory allocation.
-       */
       c->GPRx = sys_brk();
       break;
     case SYS_execve:
       c->GPRx = sys_execve((void*)a[1], (void*)a[2], (void*)a[3]);
+      while(1);
       break;
     case SYS_gettimeofday:
       c->GPRx = timer_read((struct timeval *)a[1], (struct timezone *)a[2]);
@@ -65,7 +61,7 @@ void do_syscall(Context *c) {
 }
 
 void sys_exit(int status) {
-  sys_execve("/bin/nterm", NULL, NULL);
+  sys_execve("/bin/nterm", (char *const[1]){ NULL }, (char *const[1]) { NULL });
   halt(status);
   return;
 }
@@ -76,10 +72,21 @@ int sys_yield() {
 }
 
 int sys_brk() {
+  /** 
+   * Because Nanos-lite is a single-task OS now, 
+   * any space can be used by user application.
+   * So, we can just return 0.
+   * In PA4, we will modify SYS_brk to implement memory allocation.
+   */
   return 0;
 }
 
-int sys_execve(const char *fname, char * const argv[], char *const envp[]) {
-  naive_uload(NULL, fname);
+int sys_execve(const char *fname, char *const argv[], char *const envp[]) {
+  // naive_uload(NULL, fname);
+  // return -1;
+  
+  context_uload(current, fname, argv, envp);
+  switch_boot_pcb();
+  yield();
   return -1;
 }

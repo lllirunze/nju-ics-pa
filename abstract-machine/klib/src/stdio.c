@@ -91,6 +91,23 @@ char *num2str(int32_t num, int base) {
   return &buffer[index+1];
 }
 
+char *ptr2str(uintptr_t num, int base) {
+  buffer[BUFFER_MAX_SIZE-1] = '\0';
+  int index = BUFFER_MAX_SIZE-2;
+
+  if (num == 0) {
+    buffer[index--] = '0';
+  }
+  else {
+    while (num > 0) {
+      buffer[index--] = number_chars[num % base];
+      num /= base;
+    }
+  }
+
+  return &buffer[index+1];
+}
+
 void sputch(char *out, char ch, int len) {
   if (out) out[len] = ch;
   else putch(ch);
@@ -201,18 +218,34 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
             }
             break;
           case 'p':
+            // set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
+            // void *ptr = va_arg(ap, void*);
+            // uintptr_t addr = (uintptr_t)ptr;
+            // char *addr_str = num2str(addr, BASE_HEX);
+
+            // sputch(out, '0', len++);
+            // if (len == n-1) {out[len] = '\0'; return len;}
+            // sputch(out, 'x', len++);
+            // if (len == n-1) {out[len] = '\0'; return len;}
+            // while (*addr_str != '\0') {
+            //   sputch(out, *addr_str, len++);
+            //   addr_str++;
+            //   if (len == n-1) {out[len] = '\0'; return len;}
+            // }
+            // break;
+
             set_format_param(SEQ_SPECIFIER, FLAGS_NONE, true);
             void *ptr = va_arg(ap, void*);
             uintptr_t addr = (uintptr_t)ptr;
-            char *addr_str = num2str(addr, BASE_HEX);
+            char *ptr_str = ptr2str(addr, BASE_HEX);
 
             sputch(out, '0', len++);
             if (len == n-1) {out[len] = '\0'; return len;}
             sputch(out, 'x', len++);
             if (len == n-1) {out[len] = '\0'; return len;}
-            while (*addr_str != '\0') {
-              sputch(out, *addr_str, len++);
-              addr_str++;
+            while (*ptr_str != '\0') {
+              sputch(out, *ptr_str, len++);
+              ptr_str++;
               if (len == n-1) {out[len] = '\0'; return len;}
             }
             break;

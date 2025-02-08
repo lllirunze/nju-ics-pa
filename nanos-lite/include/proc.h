@@ -17,6 +17,7 @@ typedef union {
 } PCB;
 
 extern PCB *current;
+void switch_boot_pcb();
 Context* schedule(Context *prev);
 
 #endif

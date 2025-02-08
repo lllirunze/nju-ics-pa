@@ -48,7 +48,7 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
   * [ ] Real Time Clock: I haven't implement `AM_TIMER_RTC`.
   * [ ] Detect multiple keys being pressed at the same time: I have an idea to define `static int key_states[128] = {0};` to store the key status.
   * [x] Audio (optional)
-  * [ ] `printf("%p")` may return negative values.
+  * [x] `printf("%p")` may return negative values.
 * **PA3**
   * [ ] Exception response mechanism in `DIFFTEST`: In riscv-32, we need to set `mstatus` as 0x1800
   * [x] Detect ISA type in ELF file
@@ -75,3 +75,11 @@ Most of the issues here are optional tasks or little bugs that don't affect the 
   * [x] Multi-program: pal and hello_fun
     * If I add `yield()` in `serial_write`, `events_read` and `fb_write`, we cannot run multi-program. But if we remove `yield()` of `fb_write`, we can run it. This is not what we expect.
     * The code itself is fine, if you add `yield()` to `fb_write`, it outputs "hello, nanos-lite" once every time it loads 1600 bytes. however, a frame needs to be loaded 318400 bytes to do this, so it needs to wait to output "hello, nanos-lite" 199 times before it loads a frame, which is particularly slow, but it doesn't mean that the code's logic is wrong. If we want it to be smoother, we just need to comment out `yield()` in `fb_write`.
+  * [ ] Implement `execve()` with parameter
+    * [x] exec-test
+    * [ ] menu: if I test pal in menu, it will output "address (0x00ffffff) is out of bound at pc = 0x83034564".
+    * [ ] NTerm
+
+```c
+printf("Function: %s, Line: %d\n", __FUNCTION__, __LINE__);
+```

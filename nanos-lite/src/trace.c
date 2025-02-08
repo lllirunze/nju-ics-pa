@@ -33,19 +33,22 @@ void strace_call(Context *c) {
       Log("System call: [%s, %s]", sys_name(a[0]), fs_name(a[1]));
       break;
     case SYS_read:
-      Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
+      // Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
       break;
     case SYS_write:
       // Log("System call: [%s, %s, %d bytes]", sys_name(a[0]), fs_name(a[1]), a[3]);
       break;
     case SYS_lseek:
-      Log("System call: [%s, %s, offset: %d bytes, whence: %s]", sys_name(a[0]), fs_name(a[1]), a[2] , lsk_name(a[3]));
+      // Log("System call: [%s, %s, offset: %d bytes, whence: %s]", sys_name(a[0]), fs_name(a[1]), a[2] , lsk_name(a[3]));
     case SYS_brk:
+      break;
+    case SYS_execve:
+      Log("System call: [%s, fname: %s, argv: %p, envp: unknown]", sys_name(a[0]), (char *)a[1], a[2]);
       break;
     case SYS_gettimeofday:
       break;
     default:
-      Log("System call: [%s]" , sys_name(a[0]));
+      Log("System call: [%s]", sys_name(a[0]));
       break;
   }
 }

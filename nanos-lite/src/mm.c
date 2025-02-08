@@ -3,14 +3,17 @@
 static void *pf = NULL;
 
 void* new_page(size_t nr_page) {
-  // return NULL;
-  // pf has been inited in init_mm
-  void *old_pf = pf;
-  memset(pf, 0, nr_page * PGSIZE);
-  pf += nr_page * PGSIZE;
-  assert(pf < (void *)heap.end);
-  // Log("new page allocated in %p", old);
-  return old_pf;
+  // // pf has been inited in init_mm
+  // void *old_pf = pf;
+  // memset(pf, 0, nr_page * PGSIZE);
+  // pf += nr_page * PGSIZE;
+  // assert(pf < (void *)heap.end);
+  // // Log("new page allocated in %p", old);
+  // return old_pf;
+
+  void *ret = pf;
+  pf = (void*)((uintptr_t)pf + PGSIZE * nr_page);
+  return ret;
 }
 
 #ifdef HAS_VME
