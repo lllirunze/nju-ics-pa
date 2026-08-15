@@ -3,6 +3,9 @@
 This project is the programming assignment of the class ICS(Introduction to Computer System)
 in Department of Computer Science and Technology, Nanjing University.
 
+The default target architecture for this workspace is **riscv32**. Follow the
+relevant PA document for each component's exact ISA configuration and command.
+
 For the guide of this programming assignment,
 refer to https://nju-projectn.github.io/ics-pa-gitbook/ics2025/
 

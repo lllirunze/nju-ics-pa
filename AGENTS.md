@@ -2,8 +2,9 @@
 
 ## Project Structure & Module Organization
 
-This repository is the ICS2025 Programming Assignment workspace. The top level
-contains the course launcher and shared settings:
+This repository is the ICS2025 Programming Assignment workspace, targeting
+**riscv32** by default. The top level contains the course launcher and shared
+settings:
 
 - `docs/` is the local, static ICS2025 guide. Start at `docs/index.html`; the
   PA milestones are `PA0.html` through `PA4.html`.
@@ -42,10 +43,10 @@ by the current PA document.
 ## Testing Guidelines
 
 There is no repository-wide test runner before components are initialized.
-Build and run the designated PA tests from the relevant component, then record
-the exact command and observable result in the commit message or report when
-appropriate. Treat successful compilation alone as insufficient when the guide
-names functional tests.
+Build and run the designated PA tests from the relevant component. Use the
+component-specific RISC-V 32 configuration named by the guide, then record the
+exact command and observable result when appropriate. Treat successful
+compilation alone as insufficient when the guide names functional tests.
 
 ## Commits and Changes
 
