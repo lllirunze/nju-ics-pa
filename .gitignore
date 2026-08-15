@@ -1,0 +1,30 @@
+# Operating-system and editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Reproducible build outputs from course subprojects
+build/
+out/
+*.o
+*.d
+*.a
+*.so
+*.gcda
+*.gcno
+
+# Test and runtime artifacts
+*.trace
+*.tmp
+core
+core.*
