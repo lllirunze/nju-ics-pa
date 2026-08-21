@@ -11,7 +11,7 @@
 - [x] 实现 iringbuf。
 - [x] 实现 mtrace。
 - [x] 实现 ftrace。
-- [ ] 完成 DiffTest 的寄存器状态比较。
+- [x] 完成 DiffTest 的寄存器状态比较。
 - [ ] 实现 `printf()`。
 - [ ] 实现 `AM_TIMER_UPTIME`。
 - [ ] 实现 `malloc()` 和 `free()`。
