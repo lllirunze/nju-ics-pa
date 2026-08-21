@@ -12,8 +12,8 @@
 - [x] 实现 mtrace。
 - [x] 实现 ftrace。
 - [x] 完成 DiffTest 的寄存器状态比较。
-- [ ] 实现 `printf()`。
-- [ ] 实现 `AM_TIMER_UPTIME`。
+- [x] 实现 `printf()`。
+- [x] 实现 `AM_TIMER_UPTIME`。
 - [ ] 实现 `malloc()` 和 `free()`。
 - [ ] 实现 dtrace。
 - [ ] 实现键盘 IOE（`AM_INPUT_KEYBRD`）。

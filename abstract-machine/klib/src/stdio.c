@@ -21,15 +21,18 @@ static void append_char(char *out, size_t n, size_t *len, char c) {
 }
 
 static void append_unsigned(char *out, size_t n, size_t *len, unsigned int value,
-                            unsigned int base, bool uppercase) {
-  char digits[] = "0123456789abcdef";
-  if (uppercase) strcpy(digits, "0123456789ABCDEF");
+                            unsigned int base, bool uppercase, int width, char pad) {
+  const char *digits = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
   char buf[sizeof(value) * 8];
   int count = 0;
   do {
     buf[count ++] = digits[value % base];
     value /= base;
   } while (value != 0);
+  while (count < width) {
+    append_char(out, n, len, pad);
+    width --;
+  }
   while (count > 0) append_char(out, n, len, buf[-- count]);
 }
 
@@ -42,6 +45,17 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
     }
 
     fmt ++;
+    bool zero_pad = false;
+    if (*fmt == '0') {
+      zero_pad = true;
+      fmt ++;
+    }
+    int width = 0;
+    while (*fmt >= '0' && *fmt <= '9') {
+      width = width * 10 + (*fmt - '0');
+      fmt ++;
+    }
+    char pad = zero_pad ? '0' : ' ';
     switch (*fmt) {
       case '%': append_char(out, n, &len, '%'); break;
       case 'c': append_char(out, n, &len, (char)va_arg(ap, int)); break;
@@ -54,13 +68,25 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
       case 'd': {
         int value = va_arg(ap, int);
         unsigned int magnitude = value < 0 ? 0u - (unsigned int)value : (unsigned int)value;
-        if (value < 0) append_char(out, n, &len, '-');
-        append_unsigned(out, n, &len, magnitude, 10, false);
+        if (value < 0 && !zero_pad && width > 0) {
+          int digits = 1;
+          for (unsigned int tmp = magnitude; tmp >= 10; tmp /= 10) digits ++;
+          while (width > digits + 1) {
+            append_char(out, n, &len, ' ');
+            width --;
+          }
+          append_char(out, n, &len, '-');
+          append_unsigned(out, n, &len, magnitude, 10, false, 0, pad);
+        } else {
+          if (value < 0) append_char(out, n, &len, '-');
+          append_unsigned(out, n, &len, magnitude, 10, false,
+              width - (value < 0 ? 1 : 0), pad);
+        }
         break;
       }
-      case 'u': append_unsigned(out, n, &len, va_arg(ap, unsigned int), 10, false); break;
-      case 'x': append_unsigned(out, n, &len, va_arg(ap, unsigned int), 16, false); break;
-      case 'X': append_unsigned(out, n, &len, va_arg(ap, unsigned int), 16, true); break;
+      case 'u': append_unsigned(out, n, &len, va_arg(ap, unsigned int), 10, false, width, pad); break;
+      case 'x': append_unsigned(out, n, &len, va_arg(ap, unsigned int), 16, false, width, pad); break;
+      case 'X': append_unsigned(out, n, &len, va_arg(ap, unsigned int), 16, true, width, pad); break;
       case '\0': fmt --; break;
       default:
         append_char(out, n, &len, '%');
