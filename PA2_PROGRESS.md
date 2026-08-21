@@ -9,7 +9,7 @@
 - [x] 实现 klib 字符串处理函数。
 - [x] 实现 `sprintf()`。
 - [x] 实现 iringbuf。
-- [ ] 实现 mtrace。
+- [x] 实现 mtrace。
 - [ ] 实现 ftrace。
 - [ ] 完成 DiffTest 的寄存器状态比较。
 - [ ] 实现 `printf()`。
