@@ -140,6 +140,7 @@ SDL_Surface* SDL_CreateRGBSurface(uint32_t flags, int width, int height, int dep
   s->flags = flags;
   s->format = malloc(sizeof(SDL_PixelFormat));
   assert(s->format);
+  memset(s->format, 0, sizeof(SDL_PixelFormat));
   if (depth == 8) {
     s->format->palette = malloc(sizeof(SDL_Palette));
     assert(s->format->palette);
@@ -211,6 +212,10 @@ void SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   int h = (srcrect == NULL ? src->h : srcrect->h);
 
   assert(dstrect);
+  assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
+  assert(x + w <= src->w && y + h <= src->h);
+  assert(dstrect->x >= 0 && dstrect->y >= 0 && dstrect->w >= 0 && dstrect->h >= 0);
+  assert(dstrect->x + dstrect->w <= dst->w && dstrect->y + dstrect->h <= dst->h);
   if(w == dstrect->w && h == dstrect->h) {
     /* The source rectangle and the destination rectangle
      * are of the same size. If that is the case, there
@@ -221,9 +226,15 @@ void SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     rect.w = w;
     rect.h = h;
     SDL_BlitSurface(src, &rect, dst, dstrect);
-  }
-  else {
-    assert(0);
+  } else {
+    for (int dst_y = 0; dst_y < dstrect->h; dst_y++) {
+      int src_y = y + dst_y * h / dstrect->h;
+      uint8_t *dst_row = dst->pixels + (dstrect->y + dst_y) * dst->pitch + dstrect->x;
+      uint8_t *src_row = src->pixels + src_y * src->pitch + x;
+      for (int dst_x = 0; dst_x < dstrect->w; dst_x++) {
+        dst_row[dst_x] = src_row[dst_x * w / dstrect->w];
+      }
+    }
   }
 }
 
@@ -231,18 +242,13 @@ void SDL_SetPalette(SDL_Surface *s, int flags, SDL_Color *colors, int firstcolor
   assert(s);
   assert(s->format);
   assert(s->format->palette);
-  assert(firstcolor == 0);
+  assert(colors != NULL);
+  assert(firstcolor >= 0 && ncolors >= 0);
+  assert(firstcolor + ncolors <= 256);
 
-  s->format->palette->ncolors = ncolors;
-  memcpy(s->format->palette->colors, colors, sizeof(SDL_Color) * ncolors);
+  memcpy(s->format->palette->colors + firstcolor, colors, sizeof(SDL_Color) * ncolors);
 
   if(s->flags & SDL_HWSURFACE) {
-    assert(ncolors == 256);
-    for (int i = 0; i < ncolors; i ++) {
-      uint8_t r = colors[i].r;
-      uint8_t g = colors[i].g;
-      uint8_t b = colors[i].b;
-    }
     SDL_UpdateRect(s, 0, 0, 0, 0);
   }
 }
