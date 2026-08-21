@@ -5,9 +5,9 @@
 - [x] 构建并运行 `cpu-tests` 的 `dummy` 程序。
 - [x] 实现运行 `dummy` 所需的 RISC-V 32 指令（`addi`、`jal`、`jalr`、`sw`）。
 - [x] 实现 PA2 `cpu-tests` 所需的 RV32I/RV32M 指令（特权异常路径中的 `ecall` 除外）。
-- [ ] 通过完整 `cpu-tests`（`string`、`hello-str` 仍依赖后续 klib 实现）。
-- [ ] 实现 klib 字符串处理函数。
-- [ ] 实现 `sprintf()`。
+- [x] 通过完整 `cpu-tests`。
+- [x] 实现 klib 字符串处理函数。
+- [x] 实现 `sprintf()`。
 - [ ] 实现 iringbuf。
 - [ ] 实现 mtrace。
 - [ ] 实现 ftrace。
