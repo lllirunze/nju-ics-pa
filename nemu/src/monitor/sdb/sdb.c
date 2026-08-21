@@ -71,11 +71,55 @@ static int cmd_info(char *args) {
   char *subcmd = args == NULL ? NULL : strtok(args, " ");
 
   if (subcmd == NULL) {
-    printf("Usage: info r\n");
+    printf("Usage: info r|w\n");
   } else if (strcmp(subcmd, "r") == 0) {
     isa_reg_display();
+  } else if (strcmp(subcmd, "w") == 0) {
+    display_watchpoints();
   } else {
     printf("Unknown info subcommand '%s'\n", subcmd);
+  }
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  if (args == NULL) {
+    printf("Usage: w EXPR\n");
+    return 0;
+  }
+
+  bool success = false;
+  word_t value = expr(args, &success);
+  if (!success) {
+    printf("Bad expression\n");
+    return 0;
+  }
+
+  int number;
+  if (!add_watchpoint(args, value, &number)) {
+    printf("Watchpoint expression is too long\n");
+    return 0;
+  }
+  printf("Watchpoint %d: %s\n", number, args);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  if (args == NULL) {
+    printf("Usage: d N\n");
+    return 0;
+  }
+
+  char *end = NULL;
+  errno = 0;
+  long number = strtol(args, &end, 10);
+  if (errno != 0 || end == args || *end != '\0' || number < 0) {
+    printf("Usage: d N, where N is a non-negative integer\n");
+    return 0;
+  }
+
+  if (!delete_watchpoint(number)) {
+    printf("No watchpoint number %ld\n", number);
   }
   return 0;
 }
@@ -147,6 +191,8 @@ static struct {
   { "info", "Display program information", cmd_info },
   { "p", "Evaluate an expression", cmd_p },
   { "x", "Examine N words starting from EXPR", cmd_x },
+  { "w", "Set a watchpoint for EXPR", cmd_w },
+  { "d", "Delete watchpoint N", cmd_d },
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */

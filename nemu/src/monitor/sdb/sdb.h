@@ -19,5 +19,9 @@
 #include <common.h>
 
 word_t expr(char *e, bool *success);
+bool add_watchpoint(const char *expression, word_t value, int *number);
+bool delete_watchpoint(int number);
+void display_watchpoints();
+void check_watchpoints();
 
 #endif

@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -22,7 +23,7 @@
 #include <errno.h>
 
 enum {
-  TK_NOTYPE = 256, TK_NUM,
+  TK_NOTYPE = 256, TK_NUM, TK_REG, TK_EQ, TK_NEQ, TK_AND, TK_DEREF,
 };
 
 static struct rule {
@@ -33,6 +34,10 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"0[xX][0-9a-fA-F]+", TK_NUM},
   {"[0-9]+", TK_NUM},
+  {"\\$[a-zA-Z0-9]+", TK_REG},
+  {"==", TK_EQ},
+  {"!=", TK_NEQ},
+  {"&&", TK_AND},
   {"\\+", '+'},         // plus
   {"-", '-'},
   {"\\*", '*'},
@@ -100,7 +105,7 @@ static bool make_token(char *e) {
           }
 
           tokens[nr_token].type = rules[i].token_type;
-          if (rules[i].token_type == TK_NUM) {
+          if (rules[i].token_type == TK_NUM || rules[i].token_type == TK_REG) {
             memcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
           }
@@ -122,8 +127,10 @@ static bool make_token(char *e) {
 
 static int precedence(int type) {
   switch (type) {
-    case '+': case '-': return 1;
-    case '*': case '/': return 2;
+    case TK_AND: return 1;
+    case TK_EQ: case TK_NEQ: return 2;
+    case '+': case '-': return 3;
+    case '*': case '/': return 4;
     default: return 0;
   }
 }
@@ -145,7 +152,7 @@ static bool check_parentheses(int p, int q) {
 
 static int find_main_operator(int p, int q, bool *success) {
   int op = -1;
-  int min_precedence = 3;
+  int min_precedence = 5;
   int level = 0;
 
   for (int i = p; i <= q; i ++) {
@@ -178,6 +185,10 @@ static word_t eval(int p, int q, bool *success) {
   }
 
   if (p == q) {
+    if (tokens[p].type == TK_REG) {
+      return isa_reg_str2val(tokens[p].str + 1, success);
+    }
+
     if (tokens[p].type != TK_NUM) {
       *success = false;
       return 0;
@@ -198,13 +209,25 @@ static word_t eval(int p, int q, bool *success) {
   }
 
   int op = find_main_operator(p, q, success);
-  if (!*success || op == -1) {
+  if (!*success) {
     *success = false;
     return 0;
   }
 
+  if (op == -1) {
+    if (tokens[p].type != TK_DEREF) {
+      *success = false;
+      return 0;
+    }
+
+    word_t addr = eval(p + 1, q, success);
+    if (!*success) return 0;
+    return vaddr_read(addr, 4);
+  }
+
   word_t val1 = eval(p, op - 1, success);
   if (!*success) return 0;
+  if (tokens[op].type == TK_AND && val1 == 0) return 0;
   word_t val2 = eval(op + 1, q, success);
   if (!*success) return 0;
 
@@ -218,6 +241,9 @@ static word_t eval(int p, int q, bool *success) {
         return 0;
       }
       return val1 / val2;
+    case TK_EQ: return val1 == val2;
+    case TK_NEQ: return val1 != val2;
+    case TK_AND: return val1 && val2;
     default: *success = false; return 0;
   }
 }
@@ -231,6 +257,14 @@ word_t expr(char *e, bool *success) {
   if (nr_token == 0) {
     *success = false;
     return 0;
+  }
+
+  for (int i = 0; i < nr_token; i ++) {
+    if (tokens[i].type == '*' &&
+        (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_REG &&
+                    tokens[i - 1].type != ')'))) {
+      tokens[i].type = TK_DEREF;
+    }
   }
 
   *success = true;
