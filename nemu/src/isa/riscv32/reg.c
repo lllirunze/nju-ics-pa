@@ -24,6 +24,10 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
+  for (int i = 0; i < ARRLEN(cpu.gpr); i ++) {
+    printf("x%-2d (%-3s) " FMT_WORD " %u\n", i, regs[i], cpu.gpr[i], cpu.gpr[i]);
+  }
+  printf("pc          " FMT_WORD " %u\n", cpu.pc, cpu.pc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

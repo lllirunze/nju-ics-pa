@@ -15,6 +15,9 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <memory/vaddr.h>
+#include <ctype.h>
+#include <errno.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
@@ -47,6 +50,85 @@ static int cmd_c(char *args) {
   return 0;
 }
 
+static int cmd_si(char *args) {
+  uint64_t n = 1;
+
+  if (args != NULL) {
+    char *end = NULL;
+    errno = 0;
+    n = strtoull(args, &end, 10);
+    if (errno != 0 || end == args || n == 0 || *end != '\0') {
+      printf("Usage: si [N], where N is a positive integer\n");
+      return 0;
+    }
+  }
+
+  cpu_exec(n);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char *subcmd = args == NULL ? NULL : strtok(args, " ");
+
+  if (subcmd == NULL) {
+    printf("Usage: info r\n");
+  } else if (strcmp(subcmd, "r") == 0) {
+    isa_reg_display();
+  } else {
+    printf("Unknown info subcommand '%s'\n", subcmd);
+  }
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  if (args == NULL) {
+    printf("Usage: p EXPR\n");
+    return 0;
+  }
+
+  bool success = false;
+  word_t result = expr(args, &success);
+  if (success) {
+    printf(FMT_WORD " %u\n", result, result);
+  } else {
+    printf("Bad expression\n");
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  if (args == NULL) {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+
+  char *end = NULL;
+  errno = 0;
+  uint64_t n = strtoull(args, &end, 10);
+  if (errno != 0 || end == args || n == 0 || !isspace((unsigned char)*end)) {
+    printf("Usage: x N EXPR, where N is a positive integer\n");
+    return 0;
+  }
+
+  while (isspace((unsigned char)*end)) end ++;
+  if (*end == '\0') {
+    printf("Usage: x N EXPR\n");
+    return 0;
+  }
+
+  bool success = false;
+  vaddr_t addr = expr(end, &success);
+  if (!success) {
+    printf("Bad expression\n");
+    return 0;
+  }
+
+  for (uint64_t i = 0; i < n; i ++) {
+    vaddr_t cur_addr = addr + i * 4;
+    printf(FMT_WORD ": " FMT_WORD "\n", cur_addr, vaddr_read(cur_addr, 4));
+  }
+  return 0;
+}
 
 static int cmd_q(char *args) {
   return -1;
@@ -61,6 +143,10 @@ static struct {
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
+  { "si", "Step through N instructions (default: 1)", cmd_si },
+  { "info", "Display program information", cmd_info },
+  { "p", "Evaluate an expression", cmd_p },
+  { "x", "Examine N words starting from EXPR", cmd_x },
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */

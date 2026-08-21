@@ -19,12 +19,10 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <errno.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
-
-  /* TODO: Add more token types */
-
+  TK_NOTYPE = 256, TK_NUM,
 };
 
 static struct rule {
@@ -32,13 +30,15 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  /* TODO: Add more rules.
-   * Pay attention to the precedence level of different rules.
-   */
-
   {" +", TK_NOTYPE},    // spaces
+  {"0[xX][0-9a-fA-F]+", TK_NUM},
+  {"[0-9]+", TK_NUM},
   {"\\+", '+'},         // plus
-  {"==", TK_EQ},        // equal
+  {"-", '-'},
+  {"\\*", '*'},
+  {"/", '/'},
+  {"\\(", '('},
+  {"\\)", ')'},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -67,7 +67,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[32] = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -89,13 +89,22 @@ static bool make_token(char *e) {
 
         position += substr_len;
 
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
-         * to record the token in the array `tokens'. For certain types
-         * of tokens, some extra actions should be performed.
-         */
+        if (rules[i].token_type != TK_NOTYPE) {
+          if (nr_token == ARRLEN(tokens)) {
+            printf("Expression is too long\n");
+            return false;
+          }
+          if (substr_len >= sizeof(tokens[nr_token].str)) {
+            printf("Token is too long\n");
+            return false;
+          }
 
-        switch (rules[i].token_type) {
-          default: TODO();
+          tokens[nr_token].type = rules[i].token_type;
+          if (rules[i].token_type == TK_NUM) {
+            memcpy(tokens[nr_token].str, substr_start, substr_len);
+            tokens[nr_token].str[substr_len] = '\0';
+          }
+          nr_token ++;
         }
 
         break;
@@ -111,6 +120,107 @@ static bool make_token(char *e) {
   return true;
 }
 
+static int precedence(int type) {
+  switch (type) {
+    case '+': case '-': return 1;
+    case '*': case '/': return 2;
+    default: return 0;
+  }
+}
+
+static bool check_parentheses(int p, int q) {
+  if (tokens[p].type != '(' || tokens[q].type != ')') {
+    return false;
+  }
+
+  int level = 0;
+  for (int i = p; i <= q; i ++) {
+    if (tokens[i].type == '(') level ++;
+    if (tokens[i].type == ')') level --;
+    if (level == 0 && i < q) return false;
+    if (level < 0) return false;
+  }
+  return level == 0;
+}
+
+static int find_main_operator(int p, int q, bool *success) {
+  int op = -1;
+  int min_precedence = 3;
+  int level = 0;
+
+  for (int i = p; i <= q; i ++) {
+    if (tokens[i].type == '(') {
+      level ++;
+      continue;
+    }
+    if (tokens[i].type == ')') {
+      if (-- level < 0) {
+        *success = false;
+        return -1;
+      }
+      continue;
+    }
+    if (level == 0 && precedence(tokens[i].type) <= min_precedence &&
+        precedence(tokens[i].type) != 0) {
+      min_precedence = precedence(tokens[i].type);
+      op = i;
+    }
+  }
+
+  if (level != 0) *success = false;
+  return op;
+}
+
+static word_t eval(int p, int q, bool *success) {
+  if (p > q) {
+    *success = false;
+    return 0;
+  }
+
+  if (p == q) {
+    if (tokens[p].type != TK_NUM) {
+      *success = false;
+      return 0;
+    }
+
+    char *end = NULL;
+    errno = 0;
+    unsigned long value = strtoul(tokens[p].str, &end, 0);
+    if (errno != 0 || *end != '\0') {
+      *success = false;
+      return 0;
+    }
+    return (word_t)value;
+  }
+
+  if (check_parentheses(p, q)) {
+    return eval(p + 1, q - 1, success);
+  }
+
+  int op = find_main_operator(p, q, success);
+  if (!*success || op == -1) {
+    *success = false;
+    return 0;
+  }
+
+  word_t val1 = eval(p, op - 1, success);
+  if (!*success) return 0;
+  word_t val2 = eval(op + 1, q, success);
+  if (!*success) return 0;
+
+  switch (tokens[op].type) {
+    case '+': return val1 + val2;
+    case '-': return val1 - val2;
+    case '*': return val1 * val2;
+    case '/':
+      if (val2 == 0) {
+        *success = false;
+        return 0;
+      }
+      return val1 / val2;
+    default: *success = false; return 0;
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -118,8 +228,11 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  if (nr_token == 0) {
+    *success = false;
+    return 0;
+  }
 
-  return 0;
+  *success = true;
+  return eval(0, nr_token - 1, success);
 }
