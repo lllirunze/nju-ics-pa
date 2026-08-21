@@ -8,7 +8,7 @@
 - [x] 通过完整 `cpu-tests`。
 - [x] 实现 klib 字符串处理函数。
 - [x] 实现 `sprintf()`。
-- [ ] 实现 iringbuf。
+- [x] 实现 iringbuf。
 - [ ] 实现 mtrace。
 - [ ] 实现 ftrace。
 - [ ] 完成 DiffTest 的寄存器状态比较。

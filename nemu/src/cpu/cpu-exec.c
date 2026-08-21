@@ -26,13 +26,38 @@ void check_watchpoints();
  * You can modify this value as you want.
  */
 #define MAX_INST_TO_PRINT 10
+#define IRINGBUF_SIZE 16
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+static char iringbuf[IRINGBUF_SIZE][128] = {};
+static int iringbuf_next = 0;
+static int iringbuf_count = 0;
 
 void device_update();
+
+static void iringbuf_record(Decode *s) {
+#ifdef CONFIG_ITRACE
+  snprintf(iringbuf[iringbuf_next], sizeof(iringbuf[iringbuf_next]), "%s", s->logbuf);
+  iringbuf_next = (iringbuf_next + 1) % IRINGBUF_SIZE;
+  if (iringbuf_count < IRINGBUF_SIZE) iringbuf_count ++;
+#endif
+}
+
+static void iringbuf_display() {
+#ifdef CONFIG_ITRACE
+  if (iringbuf_count == 0) return;
+
+  printf("Instruction ring buffer:\n");
+  int first = (iringbuf_next - iringbuf_count + IRINGBUF_SIZE) % IRINGBUF_SIZE;
+  for (int i = 0; i < iringbuf_count; i ++) {
+    int index = (first + i) % IRINGBUF_SIZE;
+    printf("%s %s\n", i == iringbuf_count - 1 ? "-->" : "   ", iringbuf[index]);
+  }
+#endif
+}
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -79,6 +104,7 @@ static void execute(uint64_t n) {
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
+    iringbuf_record(&s);
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());
@@ -95,6 +121,7 @@ static void statistic() {
 }
 
 void assert_fail_msg() {
+  iringbuf_display();
   isa_reg_display();
   statistic();
 }
@@ -120,6 +147,9 @@ void cpu_exec(uint64_t n) {
     case NEMU_RUNNING: nemu_state.state = NEMU_STOP; break;
 
     case NEMU_END: case NEMU_ABORT:
+      if (nemu_state.state == NEMU_ABORT || nemu_state.halt_ret != 0) {
+        iringbuf_display();
+      }
       Log("nemu: %s at pc = " FMT_WORD,
           (nemu_state.state == NEMU_ABORT ? ANSI_FMT("ABORT", ANSI_FG_RED) :
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
