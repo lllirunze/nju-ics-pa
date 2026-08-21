@@ -8,6 +8,12 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+      case 11:
+        c->mepc += 4;
+        ev.event = c->GPR1 == (uintptr_t)-1 ? EVENT_YIELD : EVENT_SYSCALL;
+        break;
+      case 0x80000007: ev.event = EVENT_IRQ_TIMER; break;
+      case 0x8000000b: ev.event = EVENT_IRQ_IODEV; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
@@ -31,7 +37,12 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  Context *c = (Context *)((uintptr_t)kstack.end - sizeof(Context));
+  memset(c, 0, sizeof(*c));
+  c->mepc = (uintptr_t)entry;
+  c->gpr[2] = (uintptr_t)kstack.end;
+  c->gpr[10] = (uintptr_t)arg;
+  return c;
 }
 
 void yield() {
@@ -43,8 +54,15 @@ void yield() {
 }
 
 bool ienabled() {
-  return false;
+  uintptr_t mstatus;
+  asm volatile("csrr %0, mstatus" : "=r"(mstatus));
+  return (mstatus & (1 << 3)) != 0;
 }
 
 void iset(bool enable) {
+  uintptr_t mstatus;
+  asm volatile("csrr %0, mstatus" : "=r"(mstatus));
+  if (enable) mstatus |= 1 << 3;
+  else mstatus &= ~(1 << 3);
+  asm volatile("csrw mstatus, %0" : : "r"(mstatus));
 }

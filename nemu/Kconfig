@@ -172,6 +172,13 @@ config DTRACE
   help
     Record memory-mapped and port I/O device accesses in the log file.
 
+config ETRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ISA_riscv
+  bool "Enable exception tracer"
+  default n
+  help
+    Record RISC-V exceptions and interrupts in the log file.
+
 
 config DIFFTEST
   depends on TARGET_NATIVE_ELF

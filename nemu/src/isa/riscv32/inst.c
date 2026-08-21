@@ -55,6 +55,16 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
   }
 }
 
+static word_t *csr(uint32_t addr) {
+  switch (addr) {
+    case 0x300: return &cpu.mstatus;
+    case 0x305: return &cpu.mtvec;
+    case 0x341: return &cpu.mepc;
+    case 0x342: return &cpu.mcause;
+    default: panic("unsupported CSR 0x%x", addr);
+  }
+}
+
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 
@@ -125,6 +135,15 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu   , B, if (src1 >= src2) s->dnpc = s->pc + imm);
 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I,
+      word_t *c = csr(BITS(s->isa.inst, 31, 20)); word_t value = *c; *c = src1; R(rd) = value);
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I,
+      word_t *c = csr(BITS(s->isa.inst, 31, 20)); word_t value = *c; if (BITS(s->isa.inst, 19, 15) != 0) *c |= src1; R(rd) = value);
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc));
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N,
+      cpu.mstatus = (cpu.mstatus & ~((word_t)0x3 << 11 | (word_t)1 << 3)) |
+          ((cpu.mstatus >> 4) & 1) << 3 | (word_t)1 << 7;
+      s->dnpc = cpu.mepc);
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();
 

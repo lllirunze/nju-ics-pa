@@ -14,13 +14,23 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <utils.h>
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
-  /* TODO: Trigger an interrupt/exception with ``NO''.
-   * Then return the address of the interrupt/exception vector.
-   */
+  cpu.mepc = epc;
+  cpu.mcause = NO;
 
-  return 0;
+  // NEMU currently executes in M-mode. Preserve MIE in MPIE and record MPP.
+  word_t mstatus = cpu.mstatus;
+  cpu.mstatus &= ~((word_t)0x3 << 11 | (word_t)1 << 7 | (word_t)1 << 3);
+  cpu.mstatus |= (word_t)3 << 11;
+  cpu.mstatus |= ((mstatus >> 3) & 1) << 7;
+
+  IFDEF(CONFIG_ETRACE,
+      log_write("etrace: raise cause=" FMT_WORD " epc=" FMT_WORD " mtvec=" FMT_WORD "\n",
+          NO, epc, cpu.mtvec));
+
+  return cpu.mtvec;
 }
 
 word_t isa_query_intr() {

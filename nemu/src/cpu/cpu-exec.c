@@ -32,9 +32,11 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+#ifdef CONFIG_ITRACE
 static char iringbuf[IRINGBUF_SIZE][128] = {};
 static int iringbuf_next = 0;
 static int iringbuf_count = 0;
+#endif
 
 void device_update();
 
