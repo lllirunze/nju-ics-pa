@@ -11,5 +11,8 @@
 - [x] 实现 NDL 的计时、按键事件、显示信息、framebuffer 和居中画布支持。
 - [x] 实现 `SYS_execve` 并接通用户态 `execve()` 系统调用接口。
 - [x] 将开机 Menu 纳入 ramdisk，并在程序退出后重新启动 Menu。
-- [ ] 完成 miniSDL 的事件和显示支持，并通过 Menu 按键启动用户程序。
+- [x] 实现 miniSDL 的 Surface 填充、拷贝、framebuffer 更新和 8 位调色板显示。
+- [x] 实现 miniSDL 的轮询、等待、事件队列和按键状态接口。
+- [x] 实现 miniSDL 相对计时与延时接口。
+- [ ] 通过 Menu 按键启动用户程序，并验证程序退出后重新进入 Menu。
 - [ ] 通过 NTerm 的内建 Shell 支持按命令运行用户程序。

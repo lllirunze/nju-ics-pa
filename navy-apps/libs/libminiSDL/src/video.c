@@ -7,12 +7,85 @@
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+
+  int src_x = srcrect == NULL ? 0 : srcrect->x;
+  int src_y = srcrect == NULL ? 0 : srcrect->y;
+  int width = srcrect == NULL ? src->w : srcrect->w;
+  int height = srcrect == NULL ? src->h : srcrect->h;
+  int dst_x = dstrect == NULL ? 0 : dstrect->x;
+  int dst_y = dstrect == NULL ? 0 : dstrect->y;
+  int bytes_per_pixel = src->format->BytesPerPixel;
+
+  assert(src_x >= 0 && src_y >= 0 && width >= 0 && height >= 0);
+  assert(src_x + width <= src->w && src_y + height <= src->h);
+
+  if (dst_x < 0) {
+    src_x -= dst_x;
+    width += dst_x;
+    dst_x = 0;
+  }
+  if (dst_y < 0) {
+    src_y -= dst_y;
+    height += dst_y;
+    dst_y = 0;
+  }
+  if (dst_x + width > dst->w) width = dst->w - dst_x;
+  if (dst_y + height > dst->h) height = dst->h - dst_y;
+  if (width <= 0 || height <= 0) return;
+
+  for (int row = 0; row < height; row++) {
+    uint8_t *src_row = src->pixels + (src_y + row) * src->pitch + src_x * bytes_per_pixel;
+    uint8_t *dst_row = dst->pixels + (dst_y + row) * dst->pitch + dst_x * bytes_per_pixel;
+    memcpy(dst_row, src_row, width * bytes_per_pixel);
+  }
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
+  assert(dst);
+  int x = dstrect == NULL ? 0 : dstrect->x;
+  int y = dstrect == NULL ? 0 : dstrect->y;
+  int width = dstrect == NULL ? dst->w : dstrect->w;
+  int height = dstrect == NULL ? dst->h : dstrect->h;
+
+  assert(x >= 0 && y >= 0 && width >= 0 && height >= 0);
+  assert(x + width <= dst->w && y + height <= dst->h);
+  if (dst->format->BytesPerPixel == 1) {
+    for (int row = 0; row < height; row++) {
+      memset(dst->pixels + (y + row) * dst->pitch + x, color, width);
+    }
+  } else {
+    assert(dst->format->BytesPerPixel == 4);
+    for (int row = 0; row < height; row++) {
+      uint32_t *pixels = (uint32_t *)(dst->pixels + (y + row) * dst->pitch) + x;
+      for (int col = 0; col < width; col++) pixels[col] = color;
+    }
+  }
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  assert(s);
+  if (!(s->flags & SDL_HWSURFACE)) return;
+  if (w == 0) w = s->w;
+  if (h == 0) h = s->h;
+  assert(x >= 0 && y >= 0 && w >= 0 && h >= 0);
+  assert(x + w <= s->w && y + h <= s->h);
+
+  uint32_t *row_pixels = malloc(sizeof(uint32_t) * w);
+  assert(row_pixels);
+  for (int row = 0; row < h; row++) {
+    if (s->format->BytesPerPixel == 4) {
+      memcpy(row_pixels, s->pixels + (y + row) * s->pitch + x * 4, sizeof(uint32_t) * w);
+    } else {
+      assert(s->format->BytesPerPixel == 1 && s->format->palette != NULL);
+      uint8_t *indices = s->pixels + (y + row) * s->pitch + x;
+      for (int col = 0; col < w; col++) {
+        SDL_Color c = s->format->palette->colors[indices[col]];
+        row_pixels[col] = (c.r << 16) | (c.g << 8) | c.b;
+      }
+    }
+    NDL_DrawRect(row_pixels, x, y + row, w, 1);
+  }
+  free(row_pixels);
 }
 
 // APIs below are already implemented.
