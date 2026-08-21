@@ -14,7 +14,12 @@
 - [x] 实现 miniSDL 的 Surface 填充、拷贝、framebuffer 更新和 8 位调色板显示。
 - [x] 实现 miniSDL 的轮询、等待、事件队列和按键状态接口。
 - [x] 实现 miniSDL 相对计时与延时接口。
+- [x] 实现 SDL RWops 文件/内存流和 `IMG_Load()` 图像解码接口。
+- [x] 支持不同 32 位像素格式之间的颜色转换，并添加图像解码回归测试。
+- [x] 实现 `fixedptc` 的整数、乘除、绝对值及向上/下取整运算。
 - [ ] 通过 Menu 按键启动用户程序，并验证程序退出后重新进入 Menu。
 - [x] 将 NTerm 纳入 ramdisk，并将其设为系统启动和程序退出后的入口。
 - [x] 实现 NTerm 内建 Shell 的命令解析、`PATH=/bin` 和 `execvp()` 启动接口。
 - [ ] 通过 NTerm 手动运行用户程序，并验证程序退出后重新进入 NTerm。
+- [x] 获取 Flappy Bird 应用源码和资源，并将其加入 ramdisk。
+- [ ] 在 NEMU 上运行 Flappy Bird 并验证图像与按键操作。

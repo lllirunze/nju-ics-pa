@@ -9,10 +9,11 @@ INC_PATH = $(REPO_PATH)/include
 LIBS += libminiSDL libSDL_image libfixedptc
 include $(NAVY_HOME)/Makefile
 
-install: install-file
+install: app install-file
 init:;
 
 install-file:
+	mkdir -p $(NAVY_HOME)/fsimg/share/games
 	ln -sf -T $(abspath $(REPO_PATH)/res) $(NAVY_HOME)/fsimg/share/games/bird
 
 .PHONY: install-file init

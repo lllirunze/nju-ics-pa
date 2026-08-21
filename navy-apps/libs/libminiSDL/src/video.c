@@ -4,6 +4,21 @@
 #include <string.h>
 #include <stdlib.h>
 
+static uint32_t pixel_to_rgb(uint32_t pixel, SDL_PixelFormat *src) {
+  uint8_t r = (pixel & src->Rmask) >> src->Rshift;
+  uint8_t g = (pixel & src->Gmask) >> src->Gshift;
+  uint8_t b = (pixel & src->Bmask) >> src->Bshift;
+  return (r << 16) | (g << 8) | b;
+}
+
+static uint32_t convert_pixel(uint32_t pixel, SDL_PixelFormat *src, SDL_PixelFormat *dst) {
+  uint8_t r = (pixel & src->Rmask) >> src->Rshift;
+  uint8_t g = (pixel & src->Gmask) >> src->Gshift;
+  uint8_t b = (pixel & src->Bmask) >> src->Bshift;
+  uint8_t a = src->Amask == 0 ? 0xff : (pixel & src->Amask) >> src->Ashift;
+  return SDL_MapRGBA(dst, r, g, b, a);
+}
+
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
@@ -36,7 +51,20 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   for (int row = 0; row < height; row++) {
     uint8_t *src_row = src->pixels + (src_y + row) * src->pitch + src_x * bytes_per_pixel;
     uint8_t *dst_row = dst->pixels + (dst_y + row) * dst->pitch + dst_x * bytes_per_pixel;
-    memcpy(dst_row, src_row, width * bytes_per_pixel);
+    if (bytes_per_pixel == 1 ||
+        (src->format->Rmask == dst->format->Rmask &&
+         src->format->Gmask == dst->format->Gmask &&
+         src->format->Bmask == dst->format->Bmask &&
+         src->format->Amask == dst->format->Amask)) {
+      memcpy(dst_row, src_row, width * bytes_per_pixel);
+    } else {
+      assert(bytes_per_pixel == 4);
+      uint32_t *src_pixels = (uint32_t *)src_row;
+      uint32_t *dst_pixels = (uint32_t *)dst_row;
+      for (int col = 0; col < width; col++) {
+        dst_pixels[col] = convert_pixel(src_pixels[col], src->format, dst->format);
+      }
+    }
   }
 }
 
@@ -74,7 +102,10 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   assert(row_pixels);
   for (int row = 0; row < h; row++) {
     if (s->format->BytesPerPixel == 4) {
-      memcpy(row_pixels, s->pixels + (y + row) * s->pitch + x * 4, sizeof(uint32_t) * w);
+      uint32_t *pixels = (uint32_t *)(s->pixels + (y + row) * s->pitch) + x;
+      for (int col = 0; col < w; col++) {
+        row_pixels[col] = pixel_to_rgb(pixels[col], s->format);
+      }
     } else {
       assert(s->format->BytesPerPixel == 1 && s->format->palette != NULL);
       uint8_t *indices = s->pixels + (y + row) * s->pitch + x;

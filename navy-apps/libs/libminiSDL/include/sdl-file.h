@@ -17,7 +17,7 @@ typedef struct SDL_RWops {
   FILE *fp;
 
   // mem.base is only defined when type == RW_TYPE_MEM
-  struct { void *base; ssize_t size; } mem;
+  struct { void *base; ssize_t size, position; } mem;
 } SDL_RWops;
 
 SDL_RWops* SDL_RWFromFile(const char *filename, const char *mode);
