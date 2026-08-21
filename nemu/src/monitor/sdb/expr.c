@@ -23,7 +23,7 @@
 #include <errno.h>
 
 enum {
-  TK_NOTYPE = 256, TK_NUM, TK_REG, TK_EQ, TK_NEQ, TK_AND, TK_DEREF,
+  TK_NOTYPE = 256, TK_NUM, TK_REG, TK_EQ, TK_NEQ, TK_AND, TK_DEREF, TK_NEG,
 };
 
 static struct rule {
@@ -215,14 +215,14 @@ static word_t eval(int p, int q, bool *success) {
   }
 
   if (op == -1) {
-    if (tokens[p].type != TK_DEREF) {
+    if (tokens[p].type != TK_DEREF && tokens[p].type != TK_NEG) {
       *success = false;
       return 0;
     }
 
-    word_t addr = eval(p + 1, q, success);
+    word_t operand = eval(p + 1, q, success);
     if (!*success) return 0;
-    return vaddr_read(addr, 4);
+    return tokens[p].type == TK_DEREF ? vaddr_read(operand, 4) : -operand;
   }
 
   word_t val1 = eval(p, op - 1, success);
@@ -260,10 +260,13 @@ word_t expr(char *e, bool *success) {
   }
 
   for (int i = 0; i < nr_token; i ++) {
-    if (tokens[i].type == '*' &&
-        (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_REG &&
-                    tokens[i - 1].type != ')'))) {
+    bool unary = i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_REG &&
+                            tokens[i - 1].type != ')');
+    if (unary && tokens[i].type == '*') {
       tokens[i].type = TK_DEREF;
+    }
+    if (unary && tokens[i].type == '-') {
+      tokens[i].type = TK_NEG;
     }
   }
 
