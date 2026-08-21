@@ -32,3 +32,5 @@
 - [x] 实现 miniSDL 的 PCM WAV 加载、释放和 16 位饱和混音接口。
 - [x] 将 NPlayer 与 `little-star.ogg` 纳入 ramdisk 并完成启动验证。
 - [ ] 手动在 NEMU 中聆听 NPlayer 音乐和 Flappy Bird 音效。
+- [x] 在 Navy 启动代码中调用 `__libc_init_array()`，支持 C++ 全局对象构造。
+- [x] 将 `cpp-test` 纳入 ramdisk，并验证构造函数先于 `main()` 执行。
