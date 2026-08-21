@@ -1,4 +1,5 @@
 #include <NDL.h>
+#include <sdl-audio.h>
 #include <sdl-video.h>
 #include <assert.h>
 #include <string.h>
@@ -91,6 +92,7 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  SDL_AudioCallbackHelper();
   assert(s);
   if (!(s->flags & SDL_HWSURFACE)) return;
   if (w == 0) w = s->w;

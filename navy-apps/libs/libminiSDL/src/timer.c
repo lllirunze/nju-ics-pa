@@ -1,4 +1,5 @@
 #include <NDL.h>
+#include <sdl-audio.h>
 #include <sdl-timer.h>
 #include <stdio.h>
 
@@ -17,6 +18,7 @@ int SDL_RemoveTimer(SDL_TimerID id) {
 }
 
 uint32_t SDL_GetTicks() {
+  SDL_AudioCallbackHelper();
   return NDL_GetTicks() - start_ticks;
 }
 

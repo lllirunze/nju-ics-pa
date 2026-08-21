@@ -26,4 +26,7 @@ void SDL_MixAudio(uint8_t *dst, uint8_t *src, uint32_t len, int volume);
 void SDL_LockAudio();
 void SDL_UnlockAudio();
 
+// Internal polling hook used by miniSDL's frequently called APIs.
+void SDL_AudioCallbackHelper();
+
 #endif

@@ -78,6 +78,7 @@ int SDL_PushEvent(SDL_Event *ev) {
 }
 
 int SDL_PollEvent(SDL_Event *ev) {
+  SDL_AudioCallbackHelper();
   if (queue_pop(ev)) return 1;
   return poll_ndl_event(ev);
 }

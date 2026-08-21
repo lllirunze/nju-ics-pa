@@ -26,3 +26,9 @@
 - [ ] 在 NEMU 上运行 Flappy Bird 并验证图像与按键操作。
 - [x] 获取 PAL 应用源码并完成其 8 位调色板图形依赖。
 - [ ] 提供 PAL 所需的受版权保护 MKF 游戏数据，并在 NEMU 上运行 PAL。
+- [x] 实现 Nanos-lite 的 `/dev/sb` 与 `/dev/sbctl` 声卡设备文件。
+- [x] 实现 NDL 声卡初始化、播放和空闲缓冲区查询接口。
+- [x] 实现 miniSDL 音频回调轮询、暂停、关闭与重入保护。
+- [x] 实现 miniSDL 的 PCM WAV 加载、释放和 16 位饱和混音接口。
+- [x] 将 NPlayer 与 `little-star.ogg` 纳入 ramdisk 并完成启动验证。
+- [ ] 手动在 NEMU 中聆听 NPlayer 音乐和 Flappy Bird 音效。
