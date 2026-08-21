@@ -34,3 +34,7 @@
 - [ ] 手动在 NEMU 中聆听 NPlayer 音乐和 Flappy Bird 音效。
 - [x] 在 Navy 启动代码中调用 `__libc_init_array()`，支持 C++ 全局对象构造。
 - [x] 将 `cpp-test` 纳入 ramdisk，并验证构造函数先于 `main()` 执行。
+- [x] 实现 Navy `libam` 的 TRM 输出/退出及计时器、键盘、GPU IOE 适配。
+- [x] 将 coremark、dhrystone 和 typing-game 作为 RISC-V AM 应用纳入 ramdisk 构建。
+- [x] 在 NEMU 中启动 CoreMark，验证 AM 程序的输出与计时器链路。
+- [ ] 手动运行 typing-game 并验证 AM 键盘和图形输出。
