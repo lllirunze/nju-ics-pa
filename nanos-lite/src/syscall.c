@@ -1,5 +1,6 @@
 #include <common.h>
 #include <fs.h>
+#include <proc.h>
 #include <sys/time.h>
 #include "syscall.h"
 
@@ -17,7 +18,9 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
       break;
     case SYS_exit:
-      halt(a[1]);
+      naive_uload(NULL, "/bin/menu");
+      panic("/bin/menu returned after SYS_exit");
+      break;
       break;
     case SYS_open:
       c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
@@ -45,6 +48,10 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
       break;
     }
+    case SYS_execve:
+      naive_uload(NULL, (const char *)a[1]);
+      panic("%s returned after SYS_execve", (const char *)a[1]);
+      break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 }
