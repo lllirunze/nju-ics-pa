@@ -15,7 +15,7 @@
 - [x] 实现 `printf()`。
 - [x] 实现 `AM_TIMER_UPTIME`。
 - [x] 实现 `malloc()` 和 `free()`。
-- [ ] 实现 dtrace。
+- [x] 实现 dtrace。
 - [ ] 实现键盘 IOE（`AM_INPUT_KEYBRD`）。
 - [ ] 实现 VGA 的屏幕尺寸、同步与帧缓冲绘制 IOE。
 - [ ] 实现选做的声卡设备与音频 IOE。

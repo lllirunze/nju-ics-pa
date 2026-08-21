@@ -165,6 +165,13 @@ config FTRACE
   help
     Record RISC-V function calls and returns using symbols from an ELF file.
 
+config DTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && DEVICE
+  bool "Enable device tracer"
+  default n
+  help
+    Record memory-mapped and port I/O device accesses in the log file.
+
 
 config DIFFTEST
   depends on TARGET_NATIVE_ELF
