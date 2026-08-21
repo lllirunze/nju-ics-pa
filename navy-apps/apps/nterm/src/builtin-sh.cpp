@@ -23,6 +23,18 @@ static void sh_prompt() {
 }
 
 static void sh_handle_cmd(const char *cmd) {
+  char filename[256];
+  size_t len = strcspn(cmd, " \t\r\n");
+  if (len == 0) return;
+
+  memcpy(filename, cmd, len);
+  filename[len] = '\0';
+  char *argv[] = {filename, NULL};
+
+  setenv("PATH", "/bin", 0);
+  if (execvp(filename, argv) < 0) {
+    sh_printf("sh: %s: command failed\n", filename);
+  }
 }
 
 void builtin_sh_run() {

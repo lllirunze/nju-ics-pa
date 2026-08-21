@@ -15,4 +15,6 @@
 - [x] 实现 miniSDL 的轮询、等待、事件队列和按键状态接口。
 - [x] 实现 miniSDL 相对计时与延时接口。
 - [ ] 通过 Menu 按键启动用户程序，并验证程序退出后重新进入 Menu。
-- [ ] 通过 NTerm 的内建 Shell 支持按命令运行用户程序。
+- [x] 将 NTerm 纳入 ramdisk，并将其设为系统启动和程序退出后的入口。
+- [x] 实现 NTerm 内建 Shell 的命令解析、`PATH=/bin` 和 `execvp()` 启动接口。
+- [ ] 通过 NTerm 手动运行用户程序，并验证程序退出后重新进入 NTerm。

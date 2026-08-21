@@ -18,8 +18,8 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
       break;
     case SYS_exit:
-      naive_uload(NULL, "/bin/menu");
-      panic("/bin/menu returned after SYS_exit");
+      naive_uload(NULL, "/bin/nterm");
+      panic("/bin/nterm returned after SYS_exit");
       break;
     case SYS_open:
       c->GPRx = fs_open((const char *)a[1], a[2], a[3]);
