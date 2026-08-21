@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
+#include <ftrace.h>
 
 void init_rand();
 void init_log(const char *log_file);
@@ -43,6 +44,7 @@ static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static char *expr_test_file = NULL;
+static char *ftrace_elf_file = NULL;
 static int difftest_port = 1234;
 
 static long load_img() {
@@ -74,17 +76,19 @@ static int parse_args(int argc, char *argv[]) {
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
     {"expr-test", required_argument, NULL, 'e'},
+    {"ftrace"   , required_argument, NULL, 'f'},
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:f:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
       case 'e': expr_test_file = optarg; break;
+      case 'f': ftrace_elf_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -93,6 +97,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\t-e,--expr-test=FILE     test expressions from FILE\n");
+        printf("\t-f,--ftrace=ELF          trace functions using ELF symbols\n");
         printf("\n");
         exit(0);
     }
@@ -115,6 +120,9 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Open the log file. */
   init_log(log_file);
+
+  /* Load function symbols for ftrace. */
+  IFDEF(CONFIG_FTRACE, init_ftrace(ftrace_elf_file));
 
   /* Initialize memory. */
   init_mem();

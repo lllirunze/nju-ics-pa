@@ -10,7 +10,7 @@
 - [x] 实现 `sprintf()`。
 - [x] 实现 iringbuf。
 - [x] 实现 mtrace。
-- [ ] 实现 ftrace。
+- [x] 实现 ftrace。
 - [ ] 完成 DiffTest 的寄存器状态比较。
 - [ ] 实现 `printf()`。
 - [ ] 实现 `AM_TIMER_UPTIME`。

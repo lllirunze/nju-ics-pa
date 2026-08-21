@@ -158,6 +158,13 @@ config MTRACE
   help
     Record each physical memory read and write in the log file.
 
+config FTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ISA_riscv
+  bool "Enable function tracer"
+  default n
+  help
+    Record RISC-V function calls and returns using symbols from an ELF file.
+
 
 config DIFFTEST
   depends on TARGET_NATIVE_ELF
