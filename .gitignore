@@ -28,3 +28,4 @@ out/
 *.tmp
 core
 core.*
+/am-kernels
