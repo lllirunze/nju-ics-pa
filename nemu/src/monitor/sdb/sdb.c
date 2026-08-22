@@ -179,6 +179,30 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_save(char *args) {
+  if (args == NULL || *args == '\0') {
+    printf("Usage: save PATH\n");
+    return 0;
+  }
+
+  if (snapshot_save(args)) {
+    printf("Snapshot saved to %s\n", args);
+  }
+  return 0;
+}
+
+static int cmd_load(char *args) {
+  if (args == NULL || *args == '\0') {
+    printf("Usage: load PATH\n");
+    return 0;
+  }
+
+  if (snapshot_load(args)) {
+    printf("Snapshot loaded from %s\n", args);
+  }
+  return 0;
+}
+
 static int cmd_detach(char *args) {
   if (args != NULL) {
     printf("Usage: detach\n");
@@ -224,6 +248,8 @@ static struct {
   { "x", "Examine N words starting from EXPR", cmd_x },
   { "w", "Set a watchpoint for EXPR", cmd_w },
   { "d", "Delete watchpoint N", cmd_d },
+  { "save", "Save the current NEMU snapshot to PATH", cmd_save },
+  { "load", "Load the NEMU snapshot from PATH", cmd_load },
   { "detach", "Disable DiffTest checking", cmd_detach },
   { "attach", "Synchronize and enable DiffTest checking", cmd_attach },
   { "q", "Exit NEMU", cmd_q },

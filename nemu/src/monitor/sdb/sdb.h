@@ -23,5 +23,7 @@ bool add_watchpoint(const char *expression, word_t value, int *number);
 bool delete_watchpoint(int number);
 void display_watchpoints();
 void check_watchpoints();
+bool snapshot_save(const char *path);
+bool snapshot_load(const char *path);
 
 #endif

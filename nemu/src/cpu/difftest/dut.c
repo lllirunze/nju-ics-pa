@@ -32,6 +32,10 @@ static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
 static bool is_difftest_attached = true;
 
+bool difftest_is_attached() {
+  return is_difftest_attached;
+}
+
 void difftest_detach() {
   is_difftest_attached = false;
   is_skip_ref = false;
