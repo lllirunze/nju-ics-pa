@@ -17,12 +17,26 @@
 #include <memory/vaddr.h>
 
 word_t isa_raise_intr(word_t NO, vaddr_t ret_addr) {
-  /* TODO: Trigger an interrupt/exception with ``NO''.
-   * That is, use ``NO'' to index the IDT.
-   */
+  vaddr_t gate = cpu.idtr.base + NO * 8;
+  assert(NO * 8 + 7 <= cpu.idtr.limit);
+  uint32_t low = vaddr_read(gate, 4);
+  uint32_t high = vaddr_read(gate + 4, 4);
+  vaddr_t handler = (low & 0xffff) | (high & 0xffff0000);
 
-  return 0;
+  cpu.esp -= 4;
+  vaddr_write(cpu.esp, 4, cpu.eflags);
+  cpu.esp -= 4;
+  vaddr_write(cpu.esp, 4, 0);  // The teaching subset uses a flat code segment.
+  cpu.esp -= 4;
+  vaddr_write(cpu.esp, 4, ret_addr);
+  cpu.eflags &= ~((word_t)1 << 9);  // IF
+  return handler;
 }
 
-void query_intr() {
+word_t isa_query_intr() {
+  if (cpu.INTR && (cpu.eflags & ((word_t)1 << 9))) {
+    cpu.INTR = false;
+    return 32;
+  }
+  return INTR_EMPTY;
 }

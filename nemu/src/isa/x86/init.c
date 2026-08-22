@@ -32,6 +32,7 @@ static const uint8_t img []  = {
 static void restart() {
   /* Set the initial instruction pointer. */
   cpu.pc = RESET_VECTOR;
+  cpu.eflags = 0x2;
 }
 
 void init_isa() {

@@ -7,5 +7,8 @@
 - [x] 实现 mips32 寄存器显示、寄存器表达式读取与基础差分寄存器比对。
 - [ ] 实现 mips32 TLB/MMU、地址异常和完整的特权态语义。
 - [ ] 为 mips32 补齐 Abstract Machine、Nanos-lite 与 Navy-apps 的可运行链路。
-- [ ] 补齐 x86 NEMU 的 ISA 任务与可复现的独立构建配置。
+- [x] 为 x86 NEMU 增加独立 native defconfig，并修正 8/16/32 位寄存器的共享存储布局。
+- [x] 实现 x86 基础算术/逻辑、条件码、栈、调用返回、跳转分支和常用双字节扩展指令。
+- [x] 实现 x86 基础 IDT 中断入口、寄存器调试接口和基础差分寄存器比对。
+- [ ] 实现 x86 分页、分段、完整异常模型和其余特权指令。
 - [ ] 为 x86 补齐 Abstract Machine、Nanos-lite 与 Navy-apps 的可运行链路。

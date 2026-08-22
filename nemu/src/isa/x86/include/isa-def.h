@@ -19,24 +19,23 @@
 #include <common.h>
 
 
-/* TODO: Re-organize the `CPU_state' structure to match the register
- * encoding scheme in i386 instruction format. For example, if we
- * access cpu.gpr[3]._16, we will get the `bx' register; if we access
- * cpu.gpr[1]._8[1], we will get the 'ch' register. Hint: Use `union'.
- * For more details about the register encoding scheme, see i386 manual.
- */
+typedef union {
+  uint32_t _32;
+  uint16_t _16;
+  uint8_t _8[2];
+} x86_gpr_t;
 
 typedef struct {
-  struct {
-    uint32_t _32;
-    uint16_t _16;
-    uint8_t _8[2];
-  } gpr[8];
-
-  /* Do NOT change the order of the GPRs' definitions. */
-  uint32_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
+  union {
+    x86_gpr_t gpr[8];
+    /* Do NOT change the order of the GPRs' definitions. */
+    struct { uint32_t eax, ecx, edx, ebx, esp, ebp, esi, edi; };
+  };
 
   vaddr_t pc;
+  word_t eflags;
+  struct { uint16_t limit; vaddr_t base; } idtr;
+  bool INTR;
 } x86_CPU_state;
 
 // decode

@@ -54,8 +54,40 @@ void reg_test() {
 }
 
 void isa_reg_display() {
+  for (int i = 0; i < 8; i ++) {
+    printf("%-3s: " FMT_WORD "%s", regsl[i], reg_l(i), (i % 4 == 3) ? "\n" : "  ");
+  }
+  printf("pc: " FMT_WORD "  eflags: " FMT_WORD "\n", cpu.pc, cpu.eflags);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+  if (strcmp(s, "pc") == 0 || strcmp(s, "eip") == 0 || strcmp(s, "$pc") == 0) {
+    *success = true;
+    return cpu.pc;
+  }
+  if (strcmp(s, "eflags") == 0) {
+    *success = true;
+    return cpu.eflags;
+  }
+  const char *name = (s[0] == '$') ? s + 1 : s;
+  for (int i = 0; i < 8; i ++) {
+    if (strcmp(name, regsl[i]) == 0) {
+      *success = true;
+      return reg_l(i);
+    }
+  }
+  for (int i = 0; i < 8; i ++) {
+    if (strcmp(name, regsw[i]) == 0) {
+      *success = true;
+      return reg_w(i);
+    }
+  }
+  for (int i = 0; i < 8; i ++) {
+    if (strcmp(name, regsb[i]) == 0) {
+      *success = true;
+      return reg_b(i);
+    }
+  }
+  *success = false;
   return 0;
 }

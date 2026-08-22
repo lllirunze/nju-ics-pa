@@ -124,6 +124,69 @@ static void decode_rm(Decode *s, int *rm_reg, word_t *rm_addr, int *reg, int wid
 #define RMr(reg, w)  (reg != -1 ? Rr(reg, w) : Mr(addr, w))
 #define RMw(data) do { if (rd != -1) Rw(rd, w, data); else Mw(addr, w, data); } while (0)
 
+#define EFLAGS_CF 0x001
+#define EFLAGS_ZF 0x040
+#define EFLAGS_SF 0x080
+#define EFLAGS_OF 0x800
+
+static inline word_t width_mask(int w) {
+  return w == 4 ? 0xffffffffu : (1u << (w * 8)) - 1;
+}
+
+static void set_zs(word_t result, int w) {
+  word_t value = result & width_mask(w);
+  cpu.eflags = (cpu.eflags & ~(EFLAGS_ZF | EFLAGS_SF)) |
+      (value == 0 ? EFLAGS_ZF : 0) |
+      (value & ((word_t)1 << (w * 8 - 1)) ? EFLAGS_SF : 0);
+}
+
+static void set_add_flags(word_t lhs, word_t rhs, word_t result, int w) {
+  word_t mask = width_mask(w);
+  word_t sign = (word_t)1 << (w * 8 - 1);
+  lhs &= mask; rhs &= mask; result &= mask;
+  cpu.eflags = (cpu.eflags & ~(EFLAGS_CF | EFLAGS_OF)) |
+      ((uint64_t)lhs + rhs > mask ? EFLAGS_CF : 0) |
+      ((~(lhs ^ rhs) & (lhs ^ result) & sign) ? EFLAGS_OF : 0);
+  set_zs(result, w);
+}
+
+static void set_sub_flags(word_t lhs, word_t rhs, word_t result, int w) {
+  word_t sign = (word_t)1 << (w * 8 - 1);
+  cpu.eflags = (cpu.eflags & ~(EFLAGS_CF | EFLAGS_OF)) |
+      (lhs < rhs ? EFLAGS_CF : 0) |
+      (((lhs ^ rhs) & (lhs ^ result) & sign) ? EFLAGS_OF : 0);
+  set_zs(result, w);
+}
+
+static bool condition(uint8_t cc) {
+  bool cf = cpu.eflags & EFLAGS_CF;
+  bool zf = cpu.eflags & EFLAGS_ZF;
+  bool sf = cpu.eflags & EFLAGS_SF;
+  bool of = cpu.eflags & EFLAGS_OF;
+  switch (cc & 0xf) {
+    case 0x0: return of;             case 0x1: return !of;
+    case 0x2: return cf;             case 0x3: return !cf;
+    case 0x4: return zf;             case 0x5: return !zf;
+    case 0x6: return cf || zf;       case 0x7: return !cf && !zf;
+    case 0x8: return sf;             case 0x9: return !sf;
+    case 0xa: return false;          case 0xb: return true;
+    case 0xc: return sf != of;       case 0xd: return sf == of;
+    case 0xe: return zf || sf != of; case 0xf: return !zf && sf == of;
+  }
+  return false;
+}
+
+static void push(word_t value, int w) {
+  cpu.esp -= w;
+  vaddr_write(cpu.esp, w, value);
+}
+
+static word_t pop(int w) {
+  word_t value = vaddr_read(cpu.esp, w);
+  cpu.esp += w;
+  return value;
+}
+
 #define destr(r)  do { *rd_ = (r); } while (0)
 #define src1r(r)  do { *src1 = Rr(r, w); } while (0)
 #define imm()     do { *imm = x86_inst_fetch(s, w); } while (0)
@@ -159,10 +222,12 @@ enum {
 static void decode_operand(Decode *s, uint8_t opcode, int *rd_, word_t *src1,
     word_t *addr, int *rs, int *gp_idx, word_t *imm, int w, int type) {
   switch (type) {
+    case TYPE_r:    destr(opcode & 0x7); break;
     case TYPE_I2r:  destr(opcode & 0x7); imm(); break;
     case TYPE_G2E:  decode_rm(s, rd_, addr, rs, w); src1r(*rs); break;
     case TYPE_E2G:  decode_rm(s, rs, addr, rd_, w); break;
     case TYPE_I2E:  decode_rm(s, rd_, addr, gp_idx, w); imm(); break;
+    case TYPE_SI2E: decode_rm(s, rd_, addr, gp_idx, w); simm(1); break;
     case TYPE_O2a:  destr(R_EAX); *addr = x86_inst_fetch(s, 4); break;
     case TYPE_a2O:  *rs = R_EAX;  *addr = x86_inst_fetch(s, 4); break;
     case TYPE_N:    break;
@@ -171,7 +236,15 @@ static void decode_operand(Decode *s, uint8_t opcode, int *rd_, word_t *src1,
 }
 
 #define gp1() do { \
+  word_t lhs = RMr(rd, w); \
+  word_t result = 0; \
   switch (gp_idx) { \
+    case 0: result = lhs + imm; RMw(result); set_add_flags(lhs, imm, result, w); break; \
+    case 1: result = lhs | imm; RMw(result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF); break; \
+    case 4: result = lhs & imm; RMw(result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF); break; \
+    case 5: result = lhs - imm; RMw(result); set_sub_flags(lhs, imm, result, w); break; \
+    case 6: result = lhs ^ imm; RMw(result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF); break; \
+    case 7: result = lhs - imm; set_sub_flags(lhs, imm, result, w); break; \
     default: INV(s->pc); \
   }; \
 } while (0)
@@ -179,6 +252,12 @@ static void decode_operand(Decode *s, uint8_t opcode, int *rd_, word_t *src1,
 void _2byte_esc(Decode *s, bool is_operand_size_16) {
   uint8_t opcode = x86_inst_fetch(s, 1);
   INSTPAT_START();
+  INSTPAT("1000 ????", jcc,    N,    0, if (condition(opcode & 0xf)) s->dnpc = s->snpc + (sword_t)x86_inst_fetch(s, is_operand_size_16 ? 2 : 4));
+  INSTPAT("1011 0110", movzx,  E2G,  1, Rw(rd, is_operand_size_16 ? 2 : 4, RMr(rs, 1)));
+  INSTPAT("1011 0111", movzx,  E2G,  2, Rw(rd, 4, RMr(rs, 2)));
+  INSTPAT("1011 1110", movsx,  E2G,  1, Rw(rd, is_operand_size_16 ? 2 : 4, SEXT(RMr(rs, 1), 8)));
+  INSTPAT("1011 1111", movsx,  E2G,  2, Rw(rd, 4, SEXT(RMr(rs, 2), 16)));
+  INSTPAT("1010 1111", imul,   E2G,  0, Rw(rd, w, RMr(rs, w) * Rr(rd, w)));
   INSTPAT("???? ????", inv,    N,    0, INV(s->pc));
   INSTPAT_END();
 }
@@ -197,6 +276,21 @@ again:
   INSTPAT("0110 0110", data_size, N,    0, is_operand_size_16 = true; goto again;);
 
   INSTPAT("1000 0000", gp1,       I2E,  1, gp1());
+  INSTPAT("1000 0001", gp1,       I2E,  0, gp1());
+  INSTPAT("1000 0011", gp1,       SI2E, 0, gp1());
+  INSTPAT("0000 0001", add,       G2E,  0, word_t lhs = RMr(rd, w), result = lhs + src1; RMw(result); set_add_flags(lhs, src1, result, w));
+  INSTPAT("0000 0011", add,       E2G,  0, word_t lhs = Rr(rd, w), rhs = RMr(rs, w), result = lhs + rhs; Rw(rd, w, result); set_add_flags(lhs, rhs, result, w));
+  INSTPAT("0010 1001", sub,       G2E,  0, word_t lhs = RMr(rd, w), result = lhs - src1; RMw(result); set_sub_flags(lhs, src1, result, w));
+  INSTPAT("0010 1011", sub,       E2G,  0, word_t lhs = Rr(rd, w), rhs = RMr(rs, w), result = lhs - rhs; Rw(rd, w, result); set_sub_flags(lhs, rhs, result, w));
+  INSTPAT("0011 1001", cmp,       G2E,  0, word_t lhs = RMr(rd, w); set_sub_flags(lhs, src1, lhs - src1, w));
+  INSTPAT("0011 1011", cmp,       E2G,  0, word_t lhs = Rr(rd, w), rhs = RMr(rs, w); set_sub_flags(lhs, rhs, lhs - rhs, w));
+  INSTPAT("0010 0001", and,       G2E,  0, word_t result = RMr(rd, w) & src1; RMw(result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("0010 0011", and,       E2G,  0, word_t result = Rr(rd, w) & RMr(rs, w); Rw(rd, w, result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("0000 1001", or,        G2E,  0, word_t result = RMr(rd, w) | src1; RMw(result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("0000 1011", or,        E2G,  0, word_t result = Rr(rd, w) | RMr(rs, w); Rw(rd, w, result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("0011 0001", xor,       G2E,  0, word_t result = RMr(rd, w) ^ src1; RMw(result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("0011 0011", xor,       E2G,  0, word_t result = Rr(rd, w) ^ RMr(rs, w); Rw(rd, w, result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("1000 0101", test,      G2E,  0, word_t result = RMr(rd, w) & src1; set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
   INSTPAT("1000 1000", mov,       G2E,  1, RMw(src1));
   INSTPAT("1000 1001", mov,       G2E,  0, RMw(src1));
   INSTPAT("1000 1010", mov,       E2G,  1, Rw(rd, w, RMr(rs, w)));
@@ -209,6 +303,19 @@ again:
 
   INSTPAT("1011 0???", mov,       I2r,  1, Rw(rd, 1, imm));
   INSTPAT("1011 1???", mov,       I2r,  0, Rw(rd, w, imm));
+
+  INSTPAT("0100 0???", inc,       r,    0, word_t lhs = Rr(rd, w), result = lhs + 1; Rw(rd, w, result); set_add_flags(lhs, 1, result, w));
+  INSTPAT("0100 1???", dec,       r,    0, word_t lhs = Rr(rd, w), result = lhs - 1; Rw(rd, w, result); set_sub_flags(lhs, 1, result, w));
+  INSTPAT("0101 0???", push,      r,    0, push(Rr(rd, w), w));
+  INSTPAT("0101 1???", pop,       r,    0, Rw(rd, w, pop(w)));
+  INSTPAT("0110 1000", push,      N,    0, push(x86_inst_fetch(s, is_operand_size_16 ? 2 : 4), is_operand_size_16 ? 2 : 4));
+  INSTPAT("0110 1010", push,      N,    0, push(SEXT(x86_inst_fetch(s, 1), 8), is_operand_size_16 ? 2 : 4));
+  INSTPAT("1001 0000", nop,       N,    0, );
+  INSTPAT("1100 0011", ret,       N,    0, s->dnpc = pop(is_operand_size_16 ? 2 : 4));
+  INSTPAT("1110 1000", call,      N,    0, sword_t off = (sword_t)x86_inst_fetch(s, is_operand_size_16 ? 2 : 4); push(s->snpc, is_operand_size_16 ? 2 : 4); s->dnpc = s->snpc + off);
+  INSTPAT("1110 1001", jmp,       N,    0, s->dnpc = s->snpc + (sword_t)x86_inst_fetch(s, is_operand_size_16 ? 2 : 4));
+  INSTPAT("1110 1011", jmp,       N,    0, s->dnpc = s->snpc + (int8_t)x86_inst_fetch(s, 1));
+  INSTPAT("0111 ????", jcc,       N,    0, int8_t off = x86_inst_fetch(s, 1); if (condition(opcode & 0xf)) s->dnpc = s->snpc + off);
 
   INSTPAT("1100 0110", mov,       I2E,  1, RMw(imm));
   INSTPAT("1100 0111", mov,       I2E,  0, RMw(imm));
