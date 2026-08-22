@@ -178,7 +178,7 @@ $(CLEAN_ALL):
 
 ### Build fsimg and ramdisk for Nanos-lite
 APPS = menu nterm bird nplayer fceux nslider pal
-TESTS = dummy hello file-test event-test bmp-test image-test palette-test timer-test cpp-test
+TESTS = dummy hello file-test event-test bmp-test image-test palette-test timer-test cpp-test exec-test
 AM_KERNELS = coremark dhrystone microbench typing-game
 OSLAB0_GAMES = 161220016 171240502 171240511 171240518 171240525 171240536 \
   171860013 171860508 171860532 171860543 171860575 171860599 171860637 171860695

@@ -5,6 +5,7 @@
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static PCB pcb_boot = {};
 PCB *current = NULL;
+static char *pal_argv[] = { "/bin/pal", "--skip", NULL };
 
 void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
   pcb->cp = kcontext((Area) { pcb->stack, pcb->stack + STACK_SIZE }, entry, arg);
@@ -29,7 +30,7 @@ void init_proc() {
   Log("Initializing processes...");
 
   context_kload(&pcb[0], hello_fun, (void *)1);
-  context_uload(&pcb[1], "/bin/pal");
+  context_uload(&pcb[1], "/bin/pal", pal_argv, NULL);
 
 }
 

@@ -11,7 +11,9 @@
 - [x] 在 Nanos-lite 中实现 `context_kload()`、PCB 和轮转调度。
 - [x] 实现 VME `ucontext()`、Nanos-lite `context_uload()` 和 Navy `_start` 的用户栈切换。
 - [x] 在串口、键盘和帧缓冲设备访问时主动让出 CPU，运行 PAL 与 hello 内核线程。
-- [ ] 实现带参数的 `execve()` 和用户进程参数传递。
+- [x] 为用户栈分配独立页，传递 `argc`、`argv`、`envp` 及其字符串。
+- [x] 实现带参数的 `execve()`，并将 `exec-test` 加入 ramdisk 验证程序替换。
+- [x] 支持 `pal --skip`，跳过商标和开场动画。
 - [ ] 通过 NTerm 运行 Busybox 的 `cat`、`printenv`、`wc` 等命令。
 
 ## 阶段 2：虚存管理

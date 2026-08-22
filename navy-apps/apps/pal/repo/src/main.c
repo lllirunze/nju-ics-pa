@@ -468,8 +468,11 @@ main(
    //
    // Show the trademark screen and splash screen
    //
-   PAL_TrademarkScreen();
-   PAL_SplashScreen();
+   if (argc < 2 || strcmp(argv[1], "--skip") != 0)
+   {
+      PAL_TrademarkScreen();
+      PAL_SplashScreen();
+   }
 
    //
    // Run the main game routine

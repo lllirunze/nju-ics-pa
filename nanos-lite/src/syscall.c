@@ -18,7 +18,9 @@ void do_syscall(Context *c) {
       c->GPRx = 0;
       break;
     case SYS_exit:
-      naive_uload(NULL, "/bin/nterm");
+      context_uload(current, "/bin/nterm", NULL, NULL);
+      switch_boot_pcb();
+      yield();
       panic("/bin/nterm returned after SYS_exit");
       break;
     case SYS_open:
@@ -48,7 +50,13 @@ void do_syscall(Context *c) {
       break;
     }
     case SYS_execve:
-      naive_uload(NULL, (const char *)a[1]);
+      if (fs_open((const char *)a[1], 0, 0) < 0) {
+        c->GPRx = -2;
+        break;
+      }
+      context_uload(current, (const char *)a[1], (char *const *)a[2], (char *const *)a[3]);
+      switch_boot_pcb();
+      yield();
       panic("%s returned after SYS_execve", (const char *)a[1]);
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
