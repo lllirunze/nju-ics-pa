@@ -47,3 +47,4 @@
 - [x] 获取 OSLab0 游戏集合并将全部 14 个游戏加入 RISC-V Navy ramdisk 构建。
 - [ ] 手动运行 OSLab0 游戏并验证图形、键盘与退出行为。
 - [x] 实现进入 NTerm 时自动播放短开机音乐的选做功能。
+- [x] 实现 SDB 的 `detach` / `attach` 命令：可暂停 DiffTest，并将 RISC-V32 DUT 的完整物理内存和寄存器同步到 REF 后恢复比对。

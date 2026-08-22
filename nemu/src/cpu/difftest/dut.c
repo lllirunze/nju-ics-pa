@@ -30,6 +30,25 @@ void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
 
 static bool is_skip_ref = false;
 static int skip_dut_nr_inst = 0;
+static bool is_difftest_attached = true;
+
+void difftest_detach() {
+  is_difftest_attached = false;
+  is_skip_ref = false;
+  skip_dut_nr_inst = 0;
+  Log("Differential testing: " ANSI_FMT("OFF", ANSI_FG_YELLOW));
+}
+
+void difftest_attach() {
+  ref_difftest_memcpy(PMEM_LEFT, guest_to_host(PMEM_LEFT), CONFIG_MSIZE, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+  isa_difftest_attach();
+
+  is_skip_ref = false;
+  skip_dut_nr_inst = 0;
+  is_difftest_attached = true;
+  Log("Differential testing: " ANSI_FMT("ON", ANSI_FG_GREEN));
+}
 
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU
@@ -100,6 +119,10 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 }
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
+  if (!is_difftest_attached) {
+    return;
+  }
+
   CPU_state ref_r;
 
   if (skip_dut_nr_inst > 0) {

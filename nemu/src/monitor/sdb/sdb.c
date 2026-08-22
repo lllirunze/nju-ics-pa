@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <cpu/cpu.h>
+#include <cpu/difftest.h>
 #include <memory/vaddr.h>
 #include <ctype.h>
 #include <errno.h>
@@ -178,6 +179,36 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_detach(char *args) {
+  if (args != NULL) {
+    printf("Usage: detach\n");
+    return 0;
+  }
+
+#ifdef CONFIG_DIFFTEST
+  difftest_detach();
+  printf("DiffTest detached\n");
+#else
+  printf("DiffTest is disabled in the current NEMU configuration\n");
+#endif
+  return 0;
+}
+
+static int cmd_attach(char *args) {
+  if (args != NULL) {
+    printf("Usage: attach\n");
+    return 0;
+  }
+
+#ifdef CONFIG_DIFFTEST
+  difftest_attach();
+  printf("DiffTest attached and synchronized\n");
+#else
+  printf("DiffTest is disabled in the current NEMU configuration\n");
+#endif
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -193,6 +224,8 @@ static struct {
   { "x", "Examine N words starting from EXPR", cmd_x },
   { "w", "Set a watchpoint for EXPR", cmd_w },
   { "d", "Delete watchpoint N", cmd_d },
+  { "detach", "Disable DiffTest checking", cmd_detach },
+  { "attach", "Synchronize and enable DiffTest checking", cmd_attach },
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
