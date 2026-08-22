@@ -21,8 +21,8 @@ size_t fb_write(const void *buf, size_t offset, size_t len);
 size_t sb_write(const void *buf, size_t offset, size_t len);
 size_t sbctl_read(void *buf, size_t offset, size_t len);
 size_t sbctl_write(const void *buf, size_t offset, size_t len);
-size_t ramdisk_read(void *buf, size_t offset, size_t len);
-size_t ramdisk_write(const void *buf, size_t offset, size_t len);
+size_t disk_read(void *buf, size_t offset, size_t len);
+size_t disk_write(const void *buf, size_t offset, size_t len);
 
 size_t invalid_read(void *buf, size_t offset, size_t len) {
   panic("should not reach here");
@@ -74,7 +74,7 @@ size_t fs_read(int fd, void *buf, size_t len) {
   }
 
   len = len < f->size - f->open_offset ? len : f->size - f->open_offset;
-  size_t nread = ramdisk_read(buf, f->disk_offset + f->open_offset, len);
+  size_t nread = disk_read(buf, f->disk_offset + f->open_offset, len);
   f->open_offset += nread;
   return nread;
 }
@@ -88,7 +88,7 @@ size_t fs_write(int fd, const void *buf, size_t len) {
     nwrite = f->write(buf, f->open_offset, len);
   } else {
     len = len < f->size - f->open_offset ? len : f->size - f->open_offset;
-    nwrite = ramdisk_write(buf, f->disk_offset + f->open_offset, len);
+    nwrite = disk_write(buf, f->disk_offset + f->open_offset, len);
   }
   f->open_offset += nwrite;
   return nwrite;

@@ -3,7 +3,9 @@ VME = 1
 RAMDISK_FILE = build/ramdisk.img
 
 NAME = nanos-lite
-SRCS = $(shell find -L ./src/ -name "*.c" -o -name "*.cpp" -o -name "*.S")
+# The Navy ramdisk is accessed through the AM disk device.  Do not embed a
+# second copy of it in the kernel image.
+SRCS = $(filter-out ./src/ramdisk.c,$(shell find -L ./src/ -name "*.c" -o -name "*.cpp" -o -name "*.S"))
 include $(AM_HOME)/Makefile
 
 ifeq ($(ARCH),native)
@@ -11,9 +13,6 @@ ISA = am_native
 else
 INC_PATH += include $(NAVY_HOME)/libs/libc/include
 endif
-
-./src/resources.S: $(RAMDISK_FILE)
-	@touch $@
 
 ifeq ($(HAS_NAVY),)
 files = $(RAMDISK_FILE) src/files.h src/syscall.h
