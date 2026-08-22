@@ -15,6 +15,7 @@ static const char *keyname[256] __attribute__((used)) = {
 };
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
+  MULTIPROGRAM_YIELD();
   (void)offset;
   const char *str = buf;
   for (size_t i = 0; i < len; i++) {
@@ -24,6 +25,7 @@ size_t serial_write(const void *buf, size_t offset, size_t len) {
 }
 
 size_t events_read(void *buf, size_t offset, size_t len) {
+  MULTIPROGRAM_YIELD();
   (void)offset;
   if (len == 0) return 0;
 
@@ -45,6 +47,7 @@ size_t dispinfo_read(void *buf, size_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
+  MULTIPROGRAM_YIELD();
   assert(offset % sizeof(uint32_t) == 0);
   assert(len % sizeof(uint32_t) == 0);
 

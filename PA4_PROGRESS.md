@@ -9,7 +9,8 @@
 - [x] 按 RISC-V32 ABI 向内核线程入口传递 `arg`。
 - [x] 在 `yield-os` 中验证两个内核线程交替运行。
 - [x] 在 Nanos-lite 中实现 `context_kload()`、PCB 和轮转调度。
-- [ ] 实现 VME `ucontext()`，为用户进程创建上下文。
+- [x] 实现 VME `ucontext()`、Nanos-lite `context_uload()` 和 Navy `_start` 的用户栈切换。
+- [x] 在串口、键盘和帧缓冲设备访问时主动让出 CPU，运行 PAL 与 hello 内核线程。
 - [ ] 实现带参数的 `execve()` 和用户进程参数传递。
 - [ ] 通过 NTerm 运行 Busybox 的 `cat`、`printenv`、`wc` 等命令。
 
