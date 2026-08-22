@@ -32,8 +32,8 @@ NEMU 启动并进入 NTerm 后，可直接输入下列各项给出的程序名�
   - 手动验收：在 NTerm 输入 `menu`，用窗口中的方向键选择一个条目并确认；所选程序退出后，应回到 NTerm。
 - [ ] 人工验证 NTerm 的输入、退格、光标闪烁和外部程序启动。
   - 手动验收：在 NTerm 输入 `hello`、`file-test` 或 `cpp-test`。应看到程序输出，退出后重新出现 NTerm 提示符。
-- [ ] 实现内建 Shell 的选做 `echo` 命令。
-  - 不依赖外部资源；这是尚未实现的纯代码任务。
+- [x] 已实现内建 Shell 的选做 `echo` 命令，支持输出命令后的文本和无参数的空行。
+  - 手动验收：在 NTerm 输入 `echo hello, NEMU`，应输出 `hello, NEMU` 并返回提示符；输入 `echo` 时应只输出空行并返回提示符。
 
 ## Flappy Bird
 

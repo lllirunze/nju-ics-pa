@@ -11,6 +11,8 @@ static void sh_printf(const char *format, ...) {
   va_start(ap, format);
   int len = vsnprintf(buf, 256, format, ap);
   va_end(ap);
+  if (len < 0) return;
+  if (len >= 256) len = 255;
   term->write(buf, len);
 }
 
@@ -29,6 +31,14 @@ static void sh_handle_cmd(const char *cmd) {
 
   memcpy(filename, cmd, len);
   filename[len] = '\0';
+
+  const char *args = cmd + len;
+  while (*args == ' ' || *args == '\t') args++;
+  if (strcmp(filename, "echo") == 0) {
+    sh_printf("%s\n", args);
+    return;
+  }
+
   char *argv[] = {filename, NULL};
 
   setenv("PATH", "/bin", 0);
