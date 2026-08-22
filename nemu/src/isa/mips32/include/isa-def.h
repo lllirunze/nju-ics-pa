@@ -20,8 +20,14 @@
 
 typedef struct {
   word_t gpr[32];
-  word_t pad[5];
+  word_t status;
+  word_t lo;
+  word_t hi;
+  vaddr_t badvaddr;
+  word_t cause;
+  vaddr_t epc;
   vaddr_t pc;
+  bool INTR;
 } mips32_CPU_state;
 
 // decode
