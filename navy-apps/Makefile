@@ -177,7 +177,7 @@ $(CLEAN_ALL):
 .PHONY: clean-all $(CLEAN_ALL)
 
 ### Build fsimg and ramdisk for Nanos-lite
-APPS = menu nterm bird nplayer fceux
+APPS = menu nterm bird nplayer fceux nslider
 TESTS = dummy hello file-test event-test bmp-test image-test palette-test timer-test cpp-test
 AM_KERNELS = coremark dhrystone typing-game
 

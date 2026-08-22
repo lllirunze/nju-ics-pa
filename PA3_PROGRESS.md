@@ -40,4 +40,5 @@
 - [ ] 手动运行 typing-game 并验证 AM 键盘和图形输出。
 - [x] 获取 FCEUX AM 兼容源码，并将其适配为 Navy 的标准 C 入口。
 - [x] 将 FCEUX 作为 RISC-V Navy 应用纳入 ramdisk，并完成无 ROM 安全启动验证。
-- [ ] 提供合法 NES ROM 到 `fceux-am/nes/rom/`，重新构建后运行 FCEUX 游戏。
+- [x] 将用户提供的 `thwaite.nes` 放入 `fceux-am/nes/rom/` 并重新构建 FCEUX。
+- [ ] 手动在 NEMU 中启动并操作 FCEUX 的 Thwaite 游戏。
