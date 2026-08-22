@@ -196,16 +196,43 @@ static word_t x86_shift(word_t value, int w, int op, unsigned count) {
 
   word_t result;
   switch (op) {
-    case 0: result = ((value << count) | (value >> (bits - count))) & mask; break; // rol
-    case 1: result = ((value >> count) | (value << (bits - count))) & mask; break; // ror
+    case 0: // rol
+      count %= bits;
+      if (count == 0) return value;
+      result = ((value << count) | (value >> (bits - count))) & mask;
+      cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | (result & 1 ? EFLAGS_CF : 0);
+      if (count == 1) cpu.eflags = (cpu.eflags & ~EFLAGS_OF) |
+          (((result >> (bits - 1)) ^ result) & 1 ? EFLAGS_OF : 0);
+      return result;
+    case 1: // ror
+      count %= bits;
+      if (count == 0) return value;
+      result = ((value >> count) | (value << (bits - count))) & mask;
+      cpu.eflags = (cpu.eflags & ~EFLAGS_CF) |
+          (result & ((word_t)1 << (bits - 1)) ? EFLAGS_CF : 0);
+      if (count == 1) cpu.eflags = (cpu.eflags & ~EFLAGS_OF) |
+          (((result >> (bits - 1)) ^ (result >> (bits - 2))) & 1 ? EFLAGS_OF : 0);
+      return result;
     case 4: result = (value << count) & mask; break; // shl
     case 5: result = value >> count; break;          // shr
-    case 7: result = (word_t)((sword_t)(value << (32 - bits)) >> (32 - bits)) >> count; break; // sar
+    case 7: // sar
+      if (w == 1) result = (word_t)((int8_t)value >> count);
+      else if (w == 2) result = (word_t)((int16_t)value >> count);
+      else result = (word_t)((sword_t)value >> count);
+      break;
     default: panic("unsupported x86 shift operation %d", op);
   }
-  if (op >= 4) set_zs(result, w);
+  result &= mask;
+  set_zs(result, w);
   if (op == 4) cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | ((value >> (bits - count)) & 1 ? EFLAGS_CF : 0);
   if (op == 5 || op == 7) cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | ((value >> (count - 1)) & 1 ? EFLAGS_CF : 0);
+  if (count == 1) {
+    if (op == 4) cpu.eflags = (cpu.eflags & ~EFLAGS_OF) |
+        (((result >> (bits - 1)) ^ (cpu.eflags & EFLAGS_CF ? 1 : 0)) ? EFLAGS_OF : 0);
+    else if (op == 5) cpu.eflags = (cpu.eflags & ~EFLAGS_OF) |
+        (value & ((word_t)1 << (bits - 1)) ? EFLAGS_OF : 0);
+    else if (op == 7) cpu.eflags &= ~EFLAGS_OF;
+  }
   return result;
 }
 
@@ -369,8 +396,8 @@ again:
   INSTPAT("1011 0???", mov,       I2r,  1, Rw(rd, 1, imm));
   INSTPAT("1011 1???", mov,       I2r,  0, Rw(rd, w, imm));
 
-  INSTPAT("0100 0???", inc,       r,    0, word_t lhs = Rr(rd, w), result = lhs + 1; Rw(rd, w, result); set_add_flags(lhs, 1, result, w));
-  INSTPAT("0100 1???", dec,       r,    0, word_t lhs = Rr(rd, w), result = lhs - 1; Rw(rd, w, result); set_sub_flags(lhs, 1, result, w));
+  INSTPAT("0100 0???", inc,       r,    0, word_t lhs = Rr(rd, w), result = lhs + 1, cf = cpu.eflags & EFLAGS_CF; Rw(rd, w, result); set_add_flags(lhs, 1, result, w); cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | cf);
+  INSTPAT("0100 1???", dec,       r,    0, word_t lhs = Rr(rd, w), result = lhs - 1, cf = cpu.eflags & EFLAGS_CF; Rw(rd, w, result); set_sub_flags(lhs, 1, result, w); cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | cf);
   INSTPAT("0101 0???", push,      r,    0, push(Rr(rd, w), w));
   INSTPAT("0101 1???", pop,       r,    0, Rw(rd, w, pop(w)));
   INSTPAT("0110 1000", push,      N,    0, word_t value = x86_inst_fetch(s, is_operand_size_16 ? 2 : 4); s->dnpc = s->snpc; push(value, is_operand_size_16 ? 2 : 4));
@@ -426,8 +453,8 @@ again:
       int rm, reg; word_t group_addr = 0; decode_rm(s, &rm, &group_addr, &reg, w); s->dnpc = s->snpc;
       word_t value = rm != -1 ? Rr(rm, w) : Mr(group_addr, w);
       switch (reg) {
-        case 0: { word_t result = value + 1; if (rm != -1) Rw(rm, w, result); else Mw(group_addr, w, result); set_add_flags(value, 1, result, w); break; }
-        case 1: { word_t result = value - 1; if (rm != -1) Rw(rm, w, result); else Mw(group_addr, w, result); set_sub_flags(value, 1, result, w); break; }
+        case 0: { word_t result = value + 1, cf = cpu.eflags & EFLAGS_CF; if (rm != -1) Rw(rm, w, result); else Mw(group_addr, w, result); set_add_flags(value, 1, result, w); cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | cf; break; }
+        case 1: { word_t result = value - 1, cf = cpu.eflags & EFLAGS_CF; if (rm != -1) Rw(rm, w, result); else Mw(group_addr, w, result); set_sub_flags(value, 1, result, w); cpu.eflags = (cpu.eflags & ~EFLAGS_CF) | cf; break; }
         case 2: push(s->snpc, w); s->dnpc = value; break;
         case 4: s->dnpc = value; break;
         case 6: push(value, w); break;
