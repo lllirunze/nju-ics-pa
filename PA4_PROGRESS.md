@@ -46,3 +46,7 @@
 - [x] 添加前台程序切换功能：F1 选择 hello，F2 选择 NTerm/PAL；键盘事件经内核队列只交付给前台进程。
 - [x] 在独立分支尝试 ONScripter：补全定时器及 SDL_mixer 的 BGM、音效、混声和音频格式转换，并启用 native 的 800×600 显示模式。
 - [x] 在独立分支实现 AM native、Nanos-lite 与 NEMU 的磁盘抽象和块读写，并通过 RISC-V32 NEMU 从磁盘镜像加载 Navy 程序。
+- [x] 为 NDL 的 `NDL_PollEvent()` 增加换行分隔的事件缓冲，确保一次底层读取中的多个按键事件可逐个交付。
+- [x] 将 ONScripter 可执行文件加入 RISC-V32 磁盘镜像，并在本地 NEMU 配置中启用 800×600 VGA。
+- [x] 完成 NWM 所依赖的事件缓冲，并通过 Navy native 构建验证其可链接；NWM 按课程设计不运行在 Nanos-lite 上。
+- [ ] 使用合法 ONS 游戏数据在 NEMU 中人工验证 ONScripter 的画面、BGM 和音效。

@@ -14,6 +14,10 @@ static int sbctldev = -1;
 static int screen_w = 0, screen_h = 0;
 static int canvas_x = 0, canvas_y = 0;
 
+#define EVENT_BUFFER_SIZE 256
+static char event_buffer[EVENT_BUFFER_SIZE];
+static int event_buffer_len = 0;
+
 uint32_t NDL_GetTicks() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
@@ -21,7 +25,31 @@ uint32_t NDL_GetTicks() {
 }
 
 int NDL_PollEvent(char *buf, int len) {
-  return read(evtdev, buf, len) > 0;
+  assert(buf != NULL && len > 1);
+
+  // The event device can return several newline-terminated events in one
+  // read.  Keep the unread suffix so each call still returns exactly one.
+  while (1) {
+    for (int i = 0; i < event_buffer_len; i++) {
+      if (event_buffer[i] != '\n') continue;
+      int event_len = i + 1;
+      assert(event_len < len);
+      memcpy(buf, event_buffer, event_len);
+      memmove(event_buffer, event_buffer + event_len, event_buffer_len - event_len);
+      event_buffer_len -= event_len;
+      return 1;
+    }
+
+    if (event_buffer_len == EVENT_BUFFER_SIZE) {
+      // Every NDL event is short and newline-terminated.  A full buffer
+      // without a newline therefore indicates malformed device input.
+      assert(0);
+    }
+    int nread = read(evtdev, event_buffer + event_buffer_len,
+        EVENT_BUFFER_SIZE - event_buffer_len);
+    if (nread <= 0) return 0;
+    event_buffer_len += nread;
+  }
 }
 
 void NDL_OpenCanvas(int *w, int *h) {
@@ -109,6 +137,7 @@ int NDL_Init(uint32_t flags) {
     evtdev = open("/dev/events", 0, 0);
   }
   assert(evtdev >= 0);
+  event_buffer_len = 0;
   return 0;
 }
 

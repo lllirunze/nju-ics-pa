@@ -20,6 +20,22 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   assert(ehdr.e_machine == EM_RISCV);
   assert(ehdr.e_phentsize == sizeof(Elf_Phdr));
 
+  // Adjacent PT_LOAD segments may share their first or last virtual page.
+  // Keep one physical page for each virtual page so loading a later segment
+  // does not replace data already copied for an earlier segment.
+  int page_capacity = 0;
+  for (int i = 0; i < ehdr.e_phnum; i++) {
+    Elf_Phdr phdr;
+    fs_lseek(fd, ehdr.e_phoff + i * ehdr.e_phentsize, SEEK_SET);
+    fs_read(fd, &phdr, sizeof(phdr));
+    if (phdr.p_type == PT_LOAD) {
+      page_capacity += (ROUNDUP(phdr.p_vaddr + phdr.p_memsz, PGSIZE) -
+          ROUNDDOWN(phdr.p_vaddr, PGSIZE)) / PGSIZE;
+    }
+  }
+  struct { uintptr_t va; char *pa; } pages[page_capacity];
+  int nr_pages = 0;
+
   for (int i = 0; i < ehdr.e_phnum; i++) {
     Elf_Phdr phdr;
     fs_lseek(fd, ehdr.e_phoff + i * ehdr.e_phentsize, SEEK_SET);
@@ -35,9 +51,19 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     uintptr_t va_start = ROUNDDOWN(phdr.p_vaddr, PGSIZE);
     uintptr_t va_end = ROUNDUP(phdr.p_vaddr + phdr.p_memsz, PGSIZE);
     for (uintptr_t va = va_start; va < va_end; va += PGSIZE) {
-      char *pa = new_page(1);
-      map(&pcb->as, (void *)va, pa, MMAP_READ | MMAP_WRITE);
-      memset(pa, 0, PGSIZE);
+      char *pa = NULL;
+      for (int j = 0; j < nr_pages; j++) {
+        if (pages[j].va == va) {
+          pa = pages[j].pa;
+          break;
+        }
+      }
+      if (pa == NULL) {
+        pa = new_page(1);
+        map(&pcb->as, (void *)va, pa, MMAP_READ | MMAP_WRITE);
+        memset(pa, 0, PGSIZE);
+        pages[nr_pages++] = (typeof(pages[0])) { va, pa };
+      }
 
       uintptr_t copy_start = va > phdr.p_vaddr ? va : phdr.p_vaddr;
       uintptr_t copy_end = va + PGSIZE < phdr.p_vaddr + phdr.p_filesz ?
