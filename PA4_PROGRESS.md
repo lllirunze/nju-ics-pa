@@ -8,7 +8,7 @@
 - [x] 让陷阱处理按 `__am_irq_handle()` 的返回 `Context *` 恢复上下文。
 - [x] 按 RISC-V32 ABI 向内核线程入口传递 `arg`。
 - [x] 在 `yield-os` 中验证两个内核线程交替运行。
-- [ ] 在 Nanos-lite 中实现 `context_kload()`、PCB 和轮转调度。
+- [x] 在 Nanos-lite 中实现 `context_kload()`、PCB 和轮转调度。
 - [ ] 实现 VME `ucontext()`，为用户进程创建上下文。
 - [ ] 实现带参数的 `execve()` 和用户进程参数传递。
 - [ ] 通过 NTerm 运行 Busybox 的 `cat`、`printenv`、`wc` 等命令。
