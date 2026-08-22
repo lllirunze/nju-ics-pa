@@ -1,3 +1,0 @@
-:S
-PAL.EXE
-GOTO S

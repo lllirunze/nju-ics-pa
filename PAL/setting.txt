@@ -1,7 +1,0 @@
-ResolutionW=1024
-ResolutionH=768
-SelectGame=1
-ActiveSDLPAL_DOS=0
-CustomResolutionW=0
-FullScreen=0
-debug=0

@@ -28,3 +28,6 @@ out/
 *.tmp
 core
 core.*
+
+# Locally installed PAL game data and Steam runtime files
+/PAL/
