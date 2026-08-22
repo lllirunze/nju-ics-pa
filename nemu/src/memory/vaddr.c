@@ -16,14 +16,25 @@
 #include <isa.h>
 #include <memory/paddr.h>
 
+static inline paddr_t translate(vaddr_t addr, int len, int type) {
+  int mode = isa_mmu_check(addr, len, type);
+  if (mode == MMU_DIRECT) {
+    return addr;
+  }
+
+  assert(mode == MMU_TRANSLATE);
+  assert((addr & 0xfff) + len <= 0x1000);
+  return isa_mmu_translate(addr, len, type);
+}
+
 word_t vaddr_ifetch(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
+  return paddr_read(translate(addr, len, MEM_TYPE_IFETCH), len);
 }
 
 word_t vaddr_read(vaddr_t addr, int len) {
-  return paddr_read(addr, len);
+  return paddr_read(translate(addr, len, MEM_TYPE_READ), len);
 }
 
 void vaddr_write(vaddr_t addr, int len, word_t data) {
-  paddr_write(addr, len, data);
+  paddr_write(translate(addr, len, MEM_TYPE_WRITE), len, data);
 }

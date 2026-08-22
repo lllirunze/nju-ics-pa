@@ -18,7 +18,7 @@
 
 ## 阶段 2：虚存管理
 
-- [ ] 阅读并按 RISC-V Sv32 机制实现 NEMU 地址转换。
+- [x] 阅读并按 RISC-V Sv32 机制实现 NEMU 地址转换。
 - [ ] 实现 AM 的页分配、地址空间保护、`map()`、`protect()`、`unprotect()` 和 `ucontext()`。
 - [ ] 实现 Nanos-lite `pg_alloc()`，在分页机制上运行内核。
 - [ ] 让用户进程在独立地址空间中运行。

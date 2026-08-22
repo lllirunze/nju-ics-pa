@@ -18,5 +18,20 @@
 #include <memory/paddr.h>
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
-  return MEM_RET_FAIL;
+  paddr_t pdir = (cpu.satp & 0x003fffffu) << 12;
+
+  for (int level = 1; level >= 0; level--) {
+    int vpn = (vaddr >> (12 + level * 10)) & 0x3ff;
+    word_t pte = paddr_read(pdir + vpn * sizeof(word_t), sizeof(word_t));
+
+    assert(pte & 0x1);
+    if (pte & 0xe) {
+      assert(level == 0);
+      return (pte & 0xfffffc00u) | (vaddr & 0xfff);
+    }
+
+    pdir = pte & 0xfffffc00u;
+  }
+
+  panic("Sv32 page table walk reached an invalid leaf");
 }

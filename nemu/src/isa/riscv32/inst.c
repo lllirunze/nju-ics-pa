@@ -61,6 +61,7 @@ static word_t *csr(uint32_t addr) {
     case 0x305: return &cpu.mtvec;
     case 0x341: return &cpu.mepc;
     case 0x342: return &cpu.mcause;
+    case 0x180: return &cpu.satp;
     default: panic("unsupported CSR 0x%x", addr);
   }
 }
