@@ -24,13 +24,14 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
     int vpn = (vaddr >> (12 + level * 10)) & 0x3ff;
     word_t pte = paddr_read(pdir + vpn * sizeof(word_t), sizeof(word_t));
 
-    assert(pte & 0x1);
+    Assert(pte & 0x1, "invalid Sv32 PTE: va = " FMT_WORD ", level = %d, pdir = " FMT_PADDR ", pte = " FMT_WORD,
+        vaddr, level, pdir, pte);
     if (pte & 0xe) {
       assert(level == 0);
-      return (pte & 0xfffffc00u) | (vaddr & 0xfff);
+      return ((pte >> 10) << 12) | (vaddr & 0xfff);
     }
 
-    pdir = pte & 0xfffffc00u;
+    pdir = (pte >> 10) << 12;
   }
 
   panic("Sv32 page table walk reached an invalid leaf");

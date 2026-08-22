@@ -1,4 +1,5 @@
 #include <memory.h>
+#include <proc.h>
 
 static void *pf = NULL;
 
@@ -11,7 +12,10 @@ void* new_page(size_t nr_page) {
 
 #ifdef HAS_VME
 static void* pg_alloc(int n) {
-  return NULL;
+  assert(n % PGSIZE == 0);
+  void *p = new_page(n / PGSIZE);
+  memset(p, 0, n);
+  return p;
 }
 #endif
 
@@ -21,6 +25,17 @@ void free_page(void *p) {
 
 /* The brk() system call handler. */
 int mm_brk(uintptr_t brk) {
+  assert(current != NULL);
+  assert(brk <= (uintptr_t)current->as.area.end - STACK_SIZE);
+
+  if (brk > current->max_brk) {
+    uintptr_t va = ROUNDUP(current->max_brk, PGSIZE);
+    uintptr_t end = ROUNDUP(brk, PGSIZE);
+    for (; va < end; va += PGSIZE) {
+      map(&current->as, (void *)va, new_page(1), MMAP_READ | MMAP_WRITE);
+    }
+    current->max_brk = brk;
+  }
   return 0;
 }
 

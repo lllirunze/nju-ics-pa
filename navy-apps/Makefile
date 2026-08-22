@@ -119,7 +119,7 @@ $(DST_DIR)/%.o: %.S
 # $(1): library name
 define LIB_TEMPLATE =
 $$(NAVY_HOME)/libs/$(1)/build/$(1)-$$(ISA).a: force
-	@$$(MAKE) -s -C $$(NAVY_HOME)/libs/$(1) archive LINKAGE=
+	@env -u LINKAGE $$(MAKE) -s -C $$(NAVY_HOME)/libs/$(1) archive
 LINKAGE += $$(NAVY_HOME)/libs/$(1)/build/$(1)-$$(ISA).a
 endef
 
