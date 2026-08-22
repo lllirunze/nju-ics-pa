@@ -18,6 +18,9 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->irq) {
+      case 32: ev.event = EVENT_IRQ_TIMER; break;
+      case 0x80: ev.event = EVENT_SYSCALL; break;
+      case 0x81: ev.event = EVENT_YIELD; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
@@ -52,7 +55,15 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
 
 Context* kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  extern void __am_kcontext_start();
+  Context *c = (Context *)((uintptr_t)kstack.end - sizeof(Context));
+  memset(c, 0, sizeof(*c));
+  c->eip = (uintptr_t)__am_kcontext_start;
+  c->cs = KSEL(SEG_KCODE);
+  c->eflags = FL_IF;
+  c->eax = (uintptr_t)arg;
+  c->ebx = (uintptr_t)entry;
+  return c;
 }
 
 void yield() {
@@ -60,8 +71,10 @@ void yield() {
 }
 
 bool ienabled() {
-  return false;
+  return (get_efl() & FL_IF) != 0;
 }
 
 void iset(bool enable) {
+  if (enable) asm volatile("sti");
+  else asm volatile("cli");
 }

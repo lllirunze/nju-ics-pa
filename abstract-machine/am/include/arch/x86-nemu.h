@@ -2,16 +2,16 @@
 #define ARCH_H__
 
 struct Context {
-  // TODO: fix the order of these members to match trap.S
-  uintptr_t esi, ebx, eax, eip, edx, eflags, ecx, cs, esp, edi, ebp;
+  // Matches the stack built by pushal, the vector number, and the iret frame.
+  uintptr_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+  uintptr_t irq, eip, cs, eflags;
   void *cr3;
-  int irq;
 };
 
 #define GPR1 eax
-#define GPR2 eip
-#define GPR3 eip
-#define GPR4 eip
-#define GPRx eip
+#define GPR2 ebx
+#define GPR3 ecx
+#define GPR4 edx
+#define GPRx eax
 
 #endif
