@@ -49,6 +49,8 @@ void add_pio_map(const char *name, ioaddr_t addr,
         void *space, uint32_t len, io_callback_t callback);
 void add_mmio_map(const char *name, paddr_t addr,
         void *space, uint32_t len, io_callback_t callback);
+uint32_t pio_read(ioaddr_t addr, int len);
+void pio_write(ioaddr_t addr, int len, uint32_t data);
 
 word_t map_read(paddr_t addr, int len, IOMap *map);
 void map_write(paddr_t addr, int len, word_t data, IOMap *map);

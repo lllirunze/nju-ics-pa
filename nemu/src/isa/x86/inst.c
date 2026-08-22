@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+#include <device/map.h>
 
 typedef union {
   struct {
@@ -419,6 +420,8 @@ again:
   INSTPAT("0111 ????", jcc,       N,    0, int8_t off = x86_inst_fetch(s, 1); s->dnpc = condition(opcode & 0xf) ? s->snpc + off : s->snpc);
   INSTPAT("1111 1010", cli,       N,    0, cpu.eflags &= ~((word_t)1 << 9));
   INSTPAT("1111 1011", sti,       N,    0, cpu.eflags |= (word_t)1 << 9);
+  INSTPAT("1110 1110", out,       N,    0, pio_write(reg_w(R_EDX), 1, Rr(R_EAX, 1)));
+  INSTPAT("1110 1111", out,       N,    0, pio_write(reg_w(R_EDX), w, Rr(R_EAX, w)));
   INSTPAT("1100 0000", group2,    N,    0,
       int rm, reg; word_t shift_addr = 0; decode_rm(s, &rm, &shift_addr, &reg, 1); unsigned count = x86_inst_fetch(s, 1); s->dnpc = s->snpc;
       word_t value = rm != -1 ? Rr(rm, 1) : Mr(shift_addr, 1); value = x86_shift(value, 1, reg, count); if (rm != -1) Rw(rm, 1, value); else Mw(shift_addr, 1, value));
