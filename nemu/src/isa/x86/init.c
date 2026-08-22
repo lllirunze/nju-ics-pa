@@ -33,6 +33,9 @@ static void restart() {
   /* Set the initial instruction pointer. */
   cpu.pc = RESET_VECTOR;
   cpu.eflags = 0x2;
+  cpu.cr0 = 0;
+  cpu.cr2 = 0;
+  cpu.cr3 = 0;
 }
 
 void init_isa() {
@@ -44,6 +47,9 @@ void init_isa() {
 
   /* Load built-in image. */
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
+
+  void x86_mmu_selftest();
+  x86_mmu_selftest();
 
   /* Initialize this virtual computer system. */
   restart();

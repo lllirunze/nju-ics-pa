@@ -187,6 +187,24 @@ static word_t pop(int w) {
   return value;
 }
 
+static word_t cr_read(int index) {
+  switch (index) {
+    case 0: return cpu.cr0;
+    case 2: return cpu.cr2;
+    case 3: return cpu.cr3;
+    default: panic("unsupported x86 control register cr%d", index);
+  }
+}
+
+static void cr_write(int index, word_t value) {
+  switch (index) {
+    case 0: cpu.cr0 = value; return;
+    case 2: cpu.cr2 = value; return;
+    case 3: cpu.cr3 = value & 0xfffff000u; return;
+    default: panic("unsupported x86 control register cr%d", index);
+  }
+}
+
 #define destr(r)  do { *rd_ = (r); } while (0)
 #define src1r(r)  do { *src1 = Rr(r, w); } while (0)
 #define imm()     do { *imm = x86_inst_fetch(s, w); } while (0)
@@ -252,6 +270,9 @@ static void decode_operand(Decode *s, uint8_t opcode, int *rd_, word_t *src1,
 void _2byte_esc(Decode *s, bool is_operand_size_16) {
   uint8_t opcode = x86_inst_fetch(s, 1);
   INSTPAT_START();
+  INSTPAT("0000 0001", lidt,   N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 2); if (reg != 3 || rm != -1) INV(s->pc); cpu.idtr.limit = Mr(addr, 2); cpu.idtr.base = Mr(addr + 2, 4));
+  INSTPAT("0010 0000", mov_cr, N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 4); if (rm == -1) INV(s->pc); Rw(rm, 4, cr_read(reg)));
+  INSTPAT("0010 0010", mov_cr, N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 4); if (rm == -1) INV(s->pc); cr_write(reg, Rr(rm, 4)));
   INSTPAT("1000 ????", jcc,    N,    0, if (condition(opcode & 0xf)) s->dnpc = s->snpc + (sword_t)x86_inst_fetch(s, is_operand_size_16 ? 2 : 4));
   INSTPAT("1011 0110", movzx,  E2G,  1, Rw(rd, is_operand_size_16 ? 2 : 4, RMr(rs, 1)));
   INSTPAT("1011 0111", movzx,  E2G,  2, Rw(rd, 4, RMr(rs, 2)));
@@ -310,12 +331,20 @@ again:
   INSTPAT("0101 1???", pop,       r,    0, Rw(rd, w, pop(w)));
   INSTPAT("0110 1000", push,      N,    0, push(x86_inst_fetch(s, is_operand_size_16 ? 2 : 4), is_operand_size_16 ? 2 : 4));
   INSTPAT("0110 1010", push,      N,    0, push(SEXT(x86_inst_fetch(s, 1), 8), is_operand_size_16 ? 2 : 4));
+  INSTPAT("0110 0000", pusha,     N,    0, word_t sp = cpu.esp; push(cpu.eax, 4); push(cpu.ecx, 4); push(cpu.edx, 4); push(cpu.ebx, 4); push(sp, 4); push(cpu.ebp, 4); push(cpu.esi, 4); push(cpu.edi, 4));
+  INSTPAT("0110 0001", popa,      N,    0, cpu.edi = pop(4); cpu.esi = pop(4); cpu.ebp = pop(4); pop(4); cpu.ebx = pop(4); cpu.edx = pop(4); cpu.ecx = pop(4); cpu.eax = pop(4));
   INSTPAT("1001 0000", nop,       N,    0, );
+  INSTPAT("1001 1100", pushf,     N,    0, push(cpu.eflags, is_operand_size_16 ? 2 : 4));
+  INSTPAT("1001 1101", popf,      N,    0, cpu.eflags = pop(is_operand_size_16 ? 2 : 4) | 0x2);
   INSTPAT("1100 0011", ret,       N,    0, s->dnpc = pop(is_operand_size_16 ? 2 : 4));
+  INSTPAT("1100 1101", int,       N,    0, s->dnpc = isa_raise_intr(x86_inst_fetch(s, 1), s->snpc));
+  INSTPAT("1100 1111", iret,      N,    0, s->dnpc = pop(4); pop(4); cpu.eflags = pop(4) | 0x2);
   INSTPAT("1110 1000", call,      N,    0, sword_t off = (sword_t)x86_inst_fetch(s, is_operand_size_16 ? 2 : 4); push(s->snpc, is_operand_size_16 ? 2 : 4); s->dnpc = s->snpc + off);
   INSTPAT("1110 1001", jmp,       N,    0, s->dnpc = s->snpc + (sword_t)x86_inst_fetch(s, is_operand_size_16 ? 2 : 4));
   INSTPAT("1110 1011", jmp,       N,    0, s->dnpc = s->snpc + (int8_t)x86_inst_fetch(s, 1));
   INSTPAT("0111 ????", jcc,       N,    0, int8_t off = x86_inst_fetch(s, 1); if (condition(opcode & 0xf)) s->dnpc = s->snpc + off);
+  INSTPAT("1111 1010", cli,       N,    0, cpu.eflags &= ~((word_t)1 << 9));
+  INSTPAT("1111 1011", sti,       N,    0, cpu.eflags |= (word_t)1 << 9);
 
   INSTPAT("1100 0110", mov,       I2E,  1, RMw(imm));
   INSTPAT("1100 0111", mov,       I2E,  0, RMw(imm));

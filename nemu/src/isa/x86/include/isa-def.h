@@ -34,6 +34,9 @@ typedef struct {
 
   vaddr_t pc;
   word_t eflags;
+  word_t cr0;
+  vaddr_t cr2;
+  paddr_t cr3;
   struct { uint16_t limit; vaddr_t base; } idtr;
   bool INTR;
 } x86_CPU_state;
@@ -48,5 +51,6 @@ enum { R_EAX, R_ECX, R_EDX, R_EBX, R_ESP, R_EBP, R_ESI, R_EDI };
 enum { R_AX, R_CX, R_DX, R_BX, R_SP, R_BP, R_SI, R_DI };
 enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
 
-#define isa_mmu_check(vaddr, len, type) (MMU_DIRECT)
+#define isa_mmu_check(vaddr, len, type) \
+  ((cpu.cr0 & 0x80000000u) ? MMU_TRANSLATE : MMU_DIRECT)
 #endif
