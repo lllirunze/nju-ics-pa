@@ -325,8 +325,8 @@ void _2byte_esc(Decode *s, bool is_operand_size_16) {
   uint8_t opcode = x86_inst_fetch(s, 1);
   INSTPAT_START();
   INSTPAT("0000 0001", lidt,   N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 2); s->dnpc = s->snpc; if (reg != 3 || rm != -1) INV(s->pc); cpu.idtr.limit = Mr(addr, 2); cpu.idtr.base = Mr(addr + 2, 4));
-  INSTPAT("0010 0000", mov_cr, N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 4); if (rm == -1) INV(s->pc); Rw(rm, 4, cr_read(reg)));
-  INSTPAT("0010 0010", mov_cr, N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 4); if (rm == -1) INV(s->pc); cr_write(reg, Rr(rm, 4)));
+  INSTPAT("0010 0000", mov_cr, N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 4); s->dnpc = s->snpc; if (rm == -1) INV(s->pc); Rw(rm, 4, cr_read(reg)));
+  INSTPAT("0010 0010", mov_cr, N,    0, int rm, reg; decode_rm(s, &rm, &addr, &reg, 4); s->dnpc = s->snpc; if (rm == -1) INV(s->pc); cr_write(reg, Rr(rm, 4)));
   INSTPAT("1000 ????", jcc,    N,    0, word_t raw = x86_inst_fetch(s, is_operand_size_16 ? 2 : 4); sword_t off = is_operand_size_16 ? (int16_t)raw : (sword_t)raw; s->dnpc = condition(opcode & 0xf) ? s->snpc + off : s->snpc);
   INSTPAT("1001 ????", setcc,  N,    0, int rm, reg; word_t setcc_addr = 0; decode_rm(s, &rm, &setcc_addr, &reg, 1); s->dnpc = s->snpc; if (reg != 0) INV(s->pc); if (rm != -1) Rw(rm, 1, condition(opcode & 0xf)); else Mw(setcc_addr, 1, condition(opcode & 0xf)));
   INSTPAT("1011 0110", movzx,  E2G,  1, Rw(rd, is_operand_size_16 ? 2 : 4, RMr(rs, 1)));
@@ -384,6 +384,8 @@ again:
   INSTPAT("0011 0010", xor,       E2G,  1, word_t result = Rr(rd, w) ^ RMr(rs, w); Rw(rd, w, result); set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
   INSTPAT("1000 0101", test,      G2E,  0, word_t result = RMr(rd, w) & src1; set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
   INSTPAT("1000 0100", test,      G2E,  1, word_t result = RMr(rd, w) & src1; set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("1010 1000", test,      I2a,  1, word_t result = Rr(rd, w) & imm; set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
+  INSTPAT("1010 1001", test,      I2a,  0, word_t result = Rr(rd, w) & imm; set_zs(result, w); cpu.eflags &= ~(EFLAGS_CF | EFLAGS_OF));
   INSTPAT("1000 1000", mov,       G2E,  1, RMw(src1));
   INSTPAT("1000 1001", mov,       G2E,  0, RMw(src1));
   INSTPAT("1000 1010", mov,       E2G,  1, Rw(rd, w, RMr(rs, w)));
