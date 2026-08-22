@@ -58,8 +58,8 @@ NEMU 启动并进入 NTerm 后，可直接输入下列各项给出的程序名�
 - [x] 已启动 CoreMark，确认其输出和计时器链路能够工作。
 - [ ] 人工运行 Dhrystone 与 typing-game。
   - 手动验收：在 NTerm 分别输入 `dhrystone` 和 `typing-game`。前者应输出基准测试结果；后者应显示图形界面，并能响应键盘输入。
-- [ ] 将 microbench 接入 Navy、运行并记录其预期失败的原因。
-  - 这是课程要求进行分析的实验项，尚未接入；不需要外部资源。
+- [x] 已将 microbench 接入 Navy ramdisk，并运行默认 `ref` 规模。Navy `libam` 中的 `Area heap` 未初始化，导致需要堆内存的九个子项显示 `Ignored (insufficient memory)`；无需堆内存的 queen 仍通过并输出分数。这是课程要求分析的运行受限原因。
+  - 手动验收：在 NTerm 输入 `microbench`。默认 `ref` 规模约需十余秒；应看到 queen 通过，其余需要堆内存的项目被跳过，最后输出 `MicroBench PASS` 和很低的分数。
 
 ## FCEUX
 

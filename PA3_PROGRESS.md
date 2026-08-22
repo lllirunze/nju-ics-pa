@@ -49,3 +49,4 @@
 - [x] 实现进入 NTerm 时自动播放短开机音乐的选做功能。
 - [x] 实现 SDB 的 `detach` / `attach` 命令：可暂停 DiffTest，并将 RISC-V32 DUT 的完整物理内存和寄存器同步到 REF 后恢复比对。
 - [x] 实现 SDB 的 `save` / `load` 快照命令，保存和恢复 RISC-V32 CPU 状态与完整物理内存，并校验快照格式和大小。
+- [x] 将 microbench 接入 Navy ramdisk 并运行默认 `ref` 规模；Navy `libam` 未初始化 `Area heap`，故九个需要堆内存的子项被判定为内存不足并跳过，只有无需堆的 queen 可运行。
