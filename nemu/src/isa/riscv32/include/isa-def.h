@@ -26,6 +26,8 @@ typedef struct {
   vaddr_t mepc;
   word_t mcause;
   word_t satp;
+  word_t mscratch;
+  bool INTR;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);
 
 // decode

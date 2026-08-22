@@ -1,4 +1,5 @@
 #include <common.h>
+#include <proc.h>
 
 #if defined(MULTIPROGRAM) && !defined(TIME_SHARING)
 # define MULTIPROGRAM_YIELD() yield()
@@ -13,6 +14,25 @@ static const char *keyname[256] __attribute__((used)) = {
   [AM_KEY_NONE] = "NONE",
   AM_KEYS(NAME)
 };
+
+#define INPUT_QUEUE_SIZE 32
+static AM_INPUT_KEYBRD_T input_queue[INPUT_QUEUE_SIZE];
+static int input_head = 0;
+static int input_tail = 0;
+
+static void enqueue_input(AM_INPUT_KEYBRD_T event) {
+  int next = (input_tail + 1) % INPUT_QUEUE_SIZE;
+  if (next == input_head) return;
+  input_queue[input_tail] = event;
+  input_tail = next;
+}
+
+static bool dequeue_input(AM_INPUT_KEYBRD_T *event) {
+  if (input_head == input_tail) return false;
+  *event = input_queue[input_head];
+  input_head = (input_head + 1) % INPUT_QUEUE_SIZE;
+  return true;
+}
 
 size_t serial_write(const void *buf, size_t offset, size_t len) {
   MULTIPROGRAM_YIELD();
@@ -30,7 +50,12 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   if (len == 0) return 0;
 
   AM_INPUT_KEYBRD_T event = io_read(AM_INPUT_KEYBRD);
-  if (event.keycode == AM_KEY_NONE) return 0;
+  if (event.keycode != AM_KEY_NONE) {
+    if (handle_foreground_key(event.keycode, event.keydown)) return 0;
+    enqueue_input(event);
+  }
+
+  if (!foreground_input_owner() || !dequeue_input(&event)) return 0;
 
   int n = snprintf(buf, len, "k%c %s\n", event.keydown ? 'd' : 'u',
       keyname[event.keycode]);

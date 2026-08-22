@@ -34,5 +34,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 }
 
 word_t isa_query_intr() {
+  if (cpu.INTR && (cpu.mstatus & ((word_t)1 << 3))) {
+    cpu.INTR = false;
+    return 0x80000007;
+  }
   return INTR_EMPTY;
 }

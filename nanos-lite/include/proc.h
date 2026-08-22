@@ -18,6 +18,8 @@ typedef union {
 
 extern PCB *current;
 
+bool foreground_input_owner(void);
+bool handle_foreground_key(int keycode, bool keydown);
 void switch_boot_pcb(void);
 void context_kload(PCB *pcb, void (*entry)(void *), void *arg);
 void context_uload(PCB *pcb, const char *filename, char *const argv[], char *const envp[]);

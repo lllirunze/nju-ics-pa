@@ -5,7 +5,9 @@
 static PCB pcb[MAX_NR_PROC] __attribute__((used)) = {};
 static PCB pcb_boot = {};
 PCB *current = NULL;
-static char *pal_argv[] = { "/bin/pal", "--skip", NULL };
+static PCB *foreground = NULL;
+static char *hello_argv[] = { "/bin/hello", NULL };
+static char *nterm_argv[] = { "/bin/nterm", NULL };
 
 void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
   pcb->cp = kcontext((Area) { pcb->stack, pcb->stack + STACK_SIZE }, entry, arg);
@@ -15,13 +17,24 @@ void switch_boot_pcb() {
   current = &pcb_boot;
 }
 
-void hello_fun(void *arg) {
-  int j = 1;
-  while (1) {
-    Log("Hello World from Nanos-lite with arg '%d' for the %dth time!", (int)(uintptr_t)arg, j);
-    j ++;
-    yield();
+bool foreground_input_owner(void) {
+  return current == foreground;
+}
+
+bool handle_foreground_key(int keycode, bool keydown) {
+  if (!keydown) return false;
+
+  if (keycode == AM_KEY_F1) {
+    foreground = &pcb[0];
+    Log("Foreground process: hello (F2 returns to NTerm/PAL)");
+    return true;
   }
+  if (keycode == AM_KEY_F2) {
+    foreground = &pcb[1];
+    Log("Foreground process: NTerm/PAL (F1 selects hello)");
+    return true;
+  }
+  return false;
 }
 
 void init_proc() {
@@ -29,8 +42,9 @@ void init_proc() {
 
   Log("Initializing processes...");
 
-  context_kload(&pcb[0], hello_fun, (void *)1);
-  context_uload(&pcb[1], "/bin/pal", pal_argv, NULL);
+  context_uload(&pcb[0], "/bin/hello", hello_argv, NULL);
+  context_uload(&pcb[1], "/bin/nterm", nterm_argv, NULL);
+  foreground = &pcb[1];
 
 }
 

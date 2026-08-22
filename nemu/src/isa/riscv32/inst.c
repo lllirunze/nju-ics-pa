@@ -59,6 +59,7 @@ static word_t *csr(uint32_t addr) {
   switch (addr) {
     case 0x300: return &cpu.mstatus;
     case 0x305: return &cpu.mtvec;
+    case 0x340: return &cpu.mscratch;
     case 0x341: return &cpu.mepc;
     case 0x342: return &cpu.mcause;
     case 0x180: return &cpu.satp;
@@ -143,7 +144,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc));
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N,
       cpu.mstatus = (cpu.mstatus & ~((word_t)0x3 << 11 | (word_t)1 << 3)) |
-          ((cpu.mstatus >> 4) & 1) << 3 | (word_t)1 << 7;
+          ((cpu.mstatus >> 7) & 1) << 3 | (word_t)1 << 7;
       s->dnpc = cpu.mepc);
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();

@@ -4,6 +4,8 @@ void do_syscall(Context *c);
 
 static Context* do_event(Event e, Context* c) {
   switch (e.event) {
+    case EVENT_IRQ_TIMER:
+      return schedule(c);
     case EVENT_YIELD:
       Log("Handle EVENT_YIELD");
       return schedule(c);
