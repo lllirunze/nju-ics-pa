@@ -43,3 +43,5 @@
 - [x] 将 FCEUX 作为 RISC-V Navy 应用纳入 ramdisk，并完成无 ROM 安全启动验证。
 - [x] 将用户提供的 `thwaite.nes` 放入 `fceux-am/nes/rom/` 并重新构建 FCEUX。
 - [ ] 手动在 NEMU 中启动并操作 FCEUX 的 Thwaite 游戏。
+- [x] 获取 OSLab0 游戏集合并将全部 14 个游戏加入 RISC-V Navy ramdisk 构建。
+- [ ] 手动运行 OSLab0 游戏并验证图形、键盘与退出行为。

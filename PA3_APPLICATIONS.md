@@ -71,10 +71,10 @@ NEMU 启动并进入 NTerm 后，可直接输入下列各项给出的程序名�
 
 ## oslab0
 
-- [ ] 获取 OSLab0 游戏集合，按其 README 将至少一个应用编译为 RISC-V Navy 程序并加入 ramdisk。
-  - 当前阻塞条件：`navy-apps/apps/oslab0/repo/` 尚未初始化，因此本地没有可阅读的应用 README 或游戏源码。
-  - 下一步代码工作：运行该目录的 `make init` 获取课程指定的 `NJU-ProjectN/oslab0-collection`，移除嵌套 Git 元数据后由本仓库跟踪源码，再依据 README 逐项适配与测试。
-  - 手动验收：应用接入后，在 NTerm 输入对应应用名；具体玩法以该应用 README 为准。
+- [x] 已获取 OSLab0 游戏集合、移除嵌套 Git 元数据，并将上游源码和 README 由本仓库跟踪。
+- [x] 已将全部 14 个 OSLab0 游戏作为 RISC-V Navy 应用加入 ramdisk 默认构建，并完成逐个编译与安装验证。
+- [ ] 人工运行 OSLab0 游戏并验证图形、键盘与退出行为。
+  - 手动验收：在 NTerm 输入游戏编号，例如 `161220016`（跳一跳：空格蓄力、`R` 重开、`Q` 退出）、`171240502`（推箱子：方向键移动）或 `171860508`（俄罗斯方块：方向键/`WASD` 操作）。其余玩法见 `navy-apps/apps/oslab0/repo/<编号>/README.md`。
 
 ## NPlayer 与开机音乐
 

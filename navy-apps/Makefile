@@ -180,10 +180,13 @@ $(CLEAN_ALL):
 APPS = menu nterm bird nplayer fceux nslider
 TESTS = dummy hello file-test event-test bmp-test image-test palette-test timer-test cpp-test
 AM_KERNELS = coremark dhrystone typing-game
+OSLAB0_GAMES = 161220016 171240502 171240511 171240518 171240525 171240536 \
+  171860013 171860508 171860532 171860543 171860575 171860599 171860637 171860695
 
 fsimg: $(addprefix apps/, $(APPS)) $(addprefix tests/, $(TESTS))
 	-for t in $^; do $(MAKE) -s -C $(NAVY_HOME)/$$t install; done
 	$(MAKE) -s -C $(NAVY_HOME)/apps/am-kernels ISA=$(ISA) ALL='$(AM_KERNELS)' install
+	$(MAKE) -s -C $(NAVY_HOME)/apps/oslab0 ISA=$(ISA) ALL='$(OSLAB0_GAMES)' install
 
 RAMDISK = build/ramdisk.img
 RAMDISK_H = build/ramdisk.h
