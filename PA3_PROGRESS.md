@@ -45,3 +45,4 @@
 - [ ] 手动在 NEMU 中启动并操作 FCEUX 的 Thwaite 游戏。
 - [x] 获取 OSLab0 游戏集合并将全部 14 个游戏加入 RISC-V Navy ramdisk 构建。
 - [ ] 手动运行 OSLab0 游戏并验证图形、键盘与退出行为。
+- [x] 实现进入 NTerm 时自动播放短开机音乐的选做功能。

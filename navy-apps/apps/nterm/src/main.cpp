@@ -9,6 +9,8 @@ Terminal *term = NULL;
 
 void builtin_sh_run();
 void extern_app_run(const char *app_path);
+void start_boot_music();
+void poll_boot_music();
 
 int main(int argc, char *argv[]) {
   SDL_Init(0);
@@ -20,6 +22,7 @@ int main(int argc, char *argv[]) {
   screen = SDL_SetVideoMode(win_w, win_h, 32, SDL_HWSURFACE);
 
   term = new Terminal(W, H);
+  start_boot_music();
 
   if (argc < 2) { builtin_sh_run(); }
   else { extern_app_run(argv[1]); }
@@ -36,6 +39,7 @@ static void draw_ch(int x, int y, char ch, uint32_t fg, uint32_t bg) {
 }
 
 void refresh_terminal() {
+  poll_boot_music();
   int needsync = 0;
   for (int i = 0; i < W; i ++)
     for (int j = 0; j < H; j ++)
