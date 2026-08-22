@@ -44,5 +44,5 @@
 ## 展示与选做代码任务
 
 - [x] 添加前台程序切换功能：F1 选择 hello，F2 选择 NTerm/PAL；键盘事件经内核队列只交付给前台进程。
-- [ ] 在独立分支尝试 ONScripter：补全 SDL_mixer 的 BGM、音效、混声及音频格式转换。
+- [x] 在独立分支尝试 ONScripter：补全定时器及 SDL_mixer 的 BGM、音效、混声和音频格式转换，并启用 native 的 800×600 显示模式。
 - [ ] 在独立分支实现 AM native 与 Nanos-lite 的磁盘抽象和块读写。

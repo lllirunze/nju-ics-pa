@@ -15,7 +15,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
-//#define MODE_800x600
+#define MODE_800x600
 
 #define FPS 60
 #define WINDOW_W 800

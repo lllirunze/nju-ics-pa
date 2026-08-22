@@ -9,9 +9,17 @@
 #define MIX_MAX_VOLUME 128
 
 typedef struct {
+  int frequency;
+  int channels;
+  int frames;
+  int16_t *samples;
 } Mix_Music;
 
 typedef struct {
+  int frequency;
+  int channels;
+  int frames;
+  int16_t *samples;
 } Mix_Chunk;
 
 #ifdef __cplusplus
