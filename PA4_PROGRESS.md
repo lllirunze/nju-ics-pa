@@ -14,7 +14,7 @@
 - [x] 为用户栈分配独立页，传递 `argc`、`argv`、`envp` 及其字符串。
 - [x] 实现带参数的 `execve()`，并将 `exec-test` 加入 ramdisk 验证程序替换。
 - [x] 支持 `pal --skip`，跳过商标和开场动画。
-- [ ] 通过 NTerm 运行 Busybox 的 `cat`、`printenv`、`wc` 等命令。
+- [x] 通过 NTerm 运行 Busybox 的 `cat`、`printenv`、`wc` 等命令。
 
 ## 阶段 2：虚存管理
 

@@ -119,7 +119,7 @@ $(DST_DIR)/%.o: %.S
 # $(1): library name
 define LIB_TEMPLATE =
 $$(NAVY_HOME)/libs/$(1)/build/$(1)-$$(ISA).a: force
-	@$$(MAKE) -s -C $$(NAVY_HOME)/libs/$(1) archive
+	@$$(MAKE) -s -C $$(NAVY_HOME)/libs/$(1) archive LINKAGE=
 LINKAGE += $$(NAVY_HOME)/libs/$(1)/build/$(1)-$$(ISA).a
 endef
 
@@ -177,7 +177,7 @@ $(CLEAN_ALL):
 .PHONY: clean-all $(CLEAN_ALL)
 
 ### Build fsimg and ramdisk for Nanos-lite
-APPS = menu nterm bird nplayer fceux nslider pal
+APPS = menu nterm bird nplayer fceux nslider pal busybox
 TESTS = dummy hello file-test event-test bmp-test image-test palette-test timer-test cpp-test exec-test
 AM_KERNELS = coremark dhrystone microbench typing-game
 OSLAB0_GAMES = 161220016 171240502 171240511 171240518 171240525 171240536 \

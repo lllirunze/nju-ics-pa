@@ -19,4 +19,22 @@ struct sockaddr {
 
 typedef unsigned long int nfds_t;
 
-extern int h_errno;
+struct hostent {
+  char *h_name;
+  char **h_aliases;
+  int h_addrtype;
+  int h_length;
+  char **h_addr_list;
+};
+
+#define h_errno 0
+
+static inline const char *hstrerror(int err) {
+  (void)err;
+  return "Unknown host";
+}
+
+static inline struct hostent *gethostbyname(const char *name) {
+  (void)name;
+  return 0;
+}

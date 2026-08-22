@@ -25,25 +25,34 @@ static void sh_prompt() {
 }
 
 static void sh_handle_cmd(const char *cmd) {
-  char filename[256];
-  size_t len = strcspn(cmd, " \t\r\n");
-  if (len == 0) return;
+  char command[256];
+  size_t len = strnlen(cmd, sizeof(command) - 1);
+  memcpy(command, cmd, len);
+  command[len] = '\0';
 
-  memcpy(filename, cmd, len);
-  filename[len] = '\0';
+  char *argv[16];
+  int argc = 0;
+  char *p = command;
+  while (*p != '\0' && argc < (int)(sizeof(argv) / sizeof(argv[0])) - 1) {
+    while (*p == ' ' || *p == '\t') p++;
+    if (*p == '\0') break;
+    argv[argc++] = p;
+    while (*p != '\0' && *p != ' ' && *p != '\t') p++;
+    if (*p != '\0') *p++ = '\0';
+  }
+  argv[argc] = NULL;
+  if (argc == 0) return;
 
-  const char *args = cmd + len;
-  while (*args == ' ' || *args == '\t') args++;
-  if (strcmp(filename, "echo") == 0) {
+  if (strcmp(argv[0], "echo") == 0) {
+    const char *args = cmd + strcspn(cmd, " \t\r\n");
+    while (*args == ' ' || *args == '\t') args++;
     sh_printf("%s\n", args);
     return;
   }
 
-  char *argv[] = {filename, NULL};
-
-  setenv("PATH", "/bin", 0);
-  if (execvp(filename, argv) < 0) {
-    sh_printf("sh: %s: command failed\n", filename);
+  setenv("PATH", "/bin:/usr/bin", 1);
+  if (execvp(argv[0], argv) < 0) {
+    sh_printf("sh: %s: command failed\n", argv[0]);
   }
 }
 
