@@ -38,3 +38,6 @@
 - [x] 将 coremark、dhrystone 和 typing-game 作为 RISC-V AM 应用纳入 ramdisk 构建。
 - [x] 在 NEMU 中启动 CoreMark，验证 AM 程序的输出与计时器链路。
 - [ ] 手动运行 typing-game 并验证 AM 键盘和图形输出。
+- [x] 获取 FCEUX AM 兼容源码，并将其适配为 Navy 的标准 C 入口。
+- [x] 将 FCEUX 作为 RISC-V Navy 应用纳入 ramdisk，并完成无 ROM 安全启动验证。
+- [ ] 提供合法 NES ROM 到 `fceux-am/nes/rom/`，重新构建后运行 FCEUX 游戏。
