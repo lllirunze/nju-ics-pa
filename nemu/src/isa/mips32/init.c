@@ -37,6 +37,9 @@ void init_isa() {
   /* Load built-in image. */
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 
+  void mips32_tlb_selftest();
+  mips32_tlb_selftest();
+
   /* Initialize this virtual computer system. */
   restart();
 }

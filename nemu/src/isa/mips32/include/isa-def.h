@@ -19,15 +19,26 @@
 #include <common.h>
 
 typedef struct {
+  word_t entryhi;
+  word_t entrylo0;
+  word_t entrylo1;
+} mips32_TLBEntry;
+
+typedef struct {
   word_t gpr[32];
+  word_t index;
+  word_t entrylo0;
+  word_t entrylo1;
   word_t status;
   word_t lo;
   word_t hi;
   vaddr_t badvaddr;
   word_t cause;
   vaddr_t epc;
+  word_t entryhi;
   vaddr_t pc;
   bool INTR;
+  mips32_TLBEntry tlb[16];
 } mips32_CPU_state;
 
 // decode
@@ -35,6 +46,7 @@ typedef struct {
   uint32_t inst;
 } mips32_ISADecodeInfo;
 
-#define isa_mmu_check(vaddr, len, type) (MMU_DIRECT)
+#define isa_mmu_check(vaddr, len, type) \
+  ((((vaddr) & 0xe0000000u) == 0x80000000u || ((vaddr) & 0xe0000000u) == 0xa0000000u) ? MMU_DIRECT : MMU_TRANSLATE)
 
 #endif

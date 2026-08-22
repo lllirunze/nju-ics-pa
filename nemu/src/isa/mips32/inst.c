@@ -29,6 +29,55 @@ enum {
 
 static bool branch_pending = false;
 static vaddr_t branch_target = 0;
+static int tlb_random = 0;
+
+static word_t cp0_read(int index) {
+  switch (index) {
+    case 0: return cpu.index;
+    case 2: return cpu.entrylo0;
+    case 3: return cpu.entrylo1;
+    case 8: return cpu.badvaddr;
+    case 10: return cpu.entryhi;
+    case 12: return cpu.status;
+    case 13: return cpu.cause;
+    case 14: return cpu.epc;
+    default: panic("unsupported mips32 CP0 register %d", index);
+  }
+}
+
+static void cp0_write(int index, word_t value) {
+  switch (index) {
+    case 0: cpu.index = value; return;
+    case 2: cpu.entrylo0 = value; return;
+    case 3: cpu.entrylo1 = value; return;
+    case 8: cpu.badvaddr = value; return;
+    case 10: cpu.entryhi = value; return;
+    case 12: cpu.status = value; return;
+    case 13: cpu.cause = value; return;
+    case 14: cpu.epc = value; return;
+    default: panic("unsupported mips32 CP0 register %d", index);
+  }
+}
+
+static void tlb_write(int index) {
+  assert(index >= 0 && index < ARRLEN(cpu.tlb));
+  cpu.tlb[index].entryhi = cpu.entryhi;
+  cpu.tlb[index].entrylo0 = cpu.entrylo0;
+  cpu.tlb[index].entrylo1 = cpu.entrylo1;
+}
+
+static void tlb_probe() {
+  cpu.index = 0x80000000u;
+  for (int i = 0; i < ARRLEN(cpu.tlb); i ++) {
+    mips32_TLBEntry *entry = &cpu.tlb[i];
+    bool global = (entry->entrylo0 & 1) && (entry->entrylo1 & 1);
+    if ((entry->entryhi & 0xffffe000u) == (cpu.entryhi & 0xffffe000u) &&
+        (global || (entry->entryhi & 0xff) == (cpu.entryhi & 0xff))) {
+      cpu.index = i;
+      return;
+    }
+  }
+}
 
 #define src1R() do { *src1 = R(rs); } while (0)
 #define src2R() do { *src2 = R(rt); } while (0)
@@ -109,8 +158,12 @@ static int decode_exec(Decode *s) {
   INSTPAT("001101 ????? ????? ????? ????? ??????", ori    , U, R(rd) = src1 | imm);
   INSTPAT("001110 ????? ????? ????? ????? ??????", xori   , U, R(rd) = src1 ^ imm);
   INSTPAT("001111 ????? ????? ????? ????? ??????", lui    , U, R(rd) = imm << 16);
-  INSTPAT("010000 00000 ????? ????? 00000000000", mfc0   , N, R(rt) = BITS(s->isa.inst, 15, 11) == 12 ? cpu.status : BITS(s->isa.inst, 15, 11) == 13 ? cpu.cause : BITS(s->isa.inst, 15, 11) == 14 ? cpu.epc : BITS(s->isa.inst, 15, 11) == 8 ? cpu.badvaddr : 0);
-  INSTPAT("010000 00100 ????? ????? 00000000000", mtc0   , N, if (BITS(s->isa.inst, 15, 11) == 12) cpu.status = R(rt); else if (BITS(s->isa.inst, 15, 11) == 13) cpu.cause = R(rt); else if (BITS(s->isa.inst, 15, 11) == 14) cpu.epc = R(rt); else if (BITS(s->isa.inst, 15, 11) == 8) cpu.badvaddr = R(rt));
+  INSTPAT("010000 00000 ????? ????? 00000000000", mfc0   , N, R(rt) = cp0_read(BITS(s->isa.inst, 15, 11)));
+  INSTPAT("010000 00100 ????? ????? 00000000000", mtc0   , N, cp0_write(BITS(s->isa.inst, 15, 11), R(rt)));
+  INSTPAT("010000 10000 00000 00000 00000 000001", tlbr   , N, if ((cpu.index & 0x80000000u) == 0) { int i = cpu.index & 0xf; cpu.entryhi = cpu.tlb[i].entryhi; cpu.entrylo0 = cpu.tlb[i].entrylo0; cpu.entrylo1 = cpu.tlb[i].entrylo1; });
+  INSTPAT("010000 10000 00000 00000 00000 000010", tlbwi  , N, tlb_write(cpu.index & 0xf));
+  INSTPAT("010000 10000 00000 00000 00000 000110", tlbwr  , N, tlb_write(tlb_random++ % ARRLEN(cpu.tlb)));
+  INSTPAT("010000 10000 00000 00000 00000 001000", tlbp   , N, tlb_probe());
   INSTPAT("010000 10000 00000 00000 00000 011000", eret   , N, cpu.status &= ~((word_t)0x2); s->dnpc = cpu.epc);
   INSTPAT("100000 ????? ????? ????? ????? ??????", lb     , I, R(rd) = SEXT(Mr(src1 + imm, 1), 8));
   INSTPAT("100001 ????? ????? ????? ????? ??????", lh     , I, R(rd) = SEXT(Mr(src1 + imm, 2), 16));
